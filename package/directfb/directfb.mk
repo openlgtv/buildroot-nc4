@@ -17,9 +17,12 @@ DIRECTFB_CONF_OPTS = \
 	--enable-zlib \
 	--enable-freetype \
 	--enable-fbdev \
+	--enable-pvr2d \
 	--disable-sdl \
 	--disable-vnc \
 	--disable-osx \
+	--disable-mesa \
+	--disable-drmkms \
 	--disable-video4linux \
 	--disable-video4linux2 \
 	--without-tools \
@@ -162,6 +165,27 @@ HOST_DIRECTFB_CONF_OPTS = \
 
 HOST_DIRECTFB_BUILD_CMDS = \
 	$(MAKE) -C $(@D)/tools directfb-csource
+
+#### LG NETCAST Patches
+ifeq ($(BR2_PACKAGE_DIRECTFB_LGNETCAST),y)
+
+define DIRECTFB_LG_PRE_PATCH
+        @$(call MESSAGE,"Applying LG Patch")
+        $(APPLY_PATCHES) $(@D) package/directfb lg-netcast.diff
+endef
+
+DIRECTFB_PRE_PATCH_HOOKS += DIRECTFB_LG_PRE_PATCH
+
+# Install the LG DTV Library Headers
+define DIRECTFB_PRECONFIGURE
+	cp $(@D)/dtv_lib/*.h $(STAGING_DIR)/usr/include
+endef
+
+DIRECTFB_PRE_CONFIGURE_HOOKS += DIRECTFB_PRECONFIGURE
+
+DIRECTFB_CONF_OPTS += --disable-werror
+endif
+
 
 HOST_DIRECTFB_INSTALL_CMDS = \
 	$(INSTALL) -m 0755 $(@D)/tools/directfb-csource $(HOST_DIR)/usr/bin

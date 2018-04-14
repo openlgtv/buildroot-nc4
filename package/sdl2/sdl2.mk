@@ -12,14 +12,14 @@ SDL2_LICENSE_FILES = COPYING.txt
 SDL2_INSTALL_STAGING = YES
 SDL2_CONFIG_SCRIPTS = sdl2-config
 
+#--disable-video-opengl
+#--disable-video-opengles
+
 SDL2_CONF_OPTS += \
 	--disable-rpath \
 	--disable-arts \
 	--disable-esd \
 	--disable-dbus \
-	--disable-pulseaudio \
-	--disable-video-opengl \
-	--disable-video-opengles \
 	--disable-video-wayland
 
 # We must enable static build to get compilation successful.
@@ -30,6 +30,13 @@ SDL2_DEPENDENCIES += udev
 SDL2_CONF_OPTS += --enable-libudev
 else
 SDL2_CONF_OPTS += --disable-libudev
+endif
+
+ifeq ($(BR2_PACKAGE_PULSEAUDIO),y)
+SDL2_DEPENDENCIES += pulseaudio
+SDL2_CONF_OPTS += --enable-pulseaudio
+else
+SDL2_CONF_OPTS += --disable-pulseaudio
 endif
 
 ifeq ($(BR2_PACKAGE_SDL2_DIRECTFB),y)

@@ -1,0 +1,16 @@
+config BR2_PACKAGE_SDL2_TESTS
+	bool "sdl2 tests"
+	depends on !BR2_STATIC_LIBS && BR2_PACKAGE_SDL2
+	help
+	  Simple DirectMedia Layer 2 - SDL2 is a library that allows
+	  programs portable low level access to a video framebuffer,
+	  audio output, mouse, and keyboard. It is not compatible with
+	  SDL1.
+
+	  http://www.libsdl.org/
+
+if BR2_PACKAGE_SDL2_TESTS
+endif
+
+comment "sdl2_tests needs sdl2"
+	depends on !BR2_PACKAGE_SDL2

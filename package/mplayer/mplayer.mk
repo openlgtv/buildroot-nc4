@@ -49,6 +49,14 @@ else
 MPLAYER_CONF_OPTS += --disable-sdl
 endif
 
+ifeq ($(BR2_PACKAGE_DIRECTFB),y)
+MPLAYER_CONF_OPTS += --enable-directfb
+MPLAYER_CFLAGS += -I$(STAGING_DIR)/usr/include/directfb
+else
+MPLAYER_CONF_OPTS += --disable-directfb
+endif
+
+
 ifeq ($(BR2_PACKAGE_FREETYPE),y)
 MPLAYER_CONF_OPTS +=  \
 	--enable-freetype \

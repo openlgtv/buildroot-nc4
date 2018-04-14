@@ -62,6 +62,11 @@ else
 ALSA_LIB_CONF_OPTS += --disable-python
 endif
 
+ifeq ($(BR2_PACKAGE_LG_ALSA),y)
+ALSA_LIB_DEPENDENCIES += lg_alsa
+endif
+
+
 ifeq ($(BR2_SOFT_FLOAT),y)
 ALSA_LIB_CONF_OPTS += --with-softfloat
 endif

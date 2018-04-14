@@ -1,0 +1,5 @@
+config BR2_PACKAGE_TERMINATE
+	bool "terminate"
+	depends on BR2_PACKAGE_SDL2 && BR2_PACKAGE_SDL2_TTF
+	help
+		SDL Terminal Emulator

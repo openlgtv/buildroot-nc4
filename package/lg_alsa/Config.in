@@ -1,0 +1,5 @@
+config BR2_PACKAGE_LG_ALSA
+	bool "lg_alsa"
+	depends on BR2_LINUX_KERNEL
+	help
+		LG Custom ALSA glue
