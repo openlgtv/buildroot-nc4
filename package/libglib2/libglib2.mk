@@ -98,7 +98,8 @@ HOST_LIBGLIB2_CONF_OPTS = \
 	--disable-selinux \
 	--disable-systemtap \
 	--disable-xattr \
-	--with-pcre=system
+	--with-pcre=system \
+	--disable-compile-warnings
 
 LIBGLIB2_DEPENDENCIES = \
 	host-pkgconf host-libglib2 host-gettext \
@@ -108,7 +109,8 @@ HOST_LIBGLIB2_DEPENDENCIES = \
 	host-gettext host-libffi host-pcre host-pkgconf host-zlib
 
 LIBGLIB2_CONF_OPTS = \
-	--with-pcre=system
+	--with-pcre=system \
+	--disable-compile-warnings
 
 ifneq ($(BR2_ENABLE_LOCALE),y)
 LIBGLIB2_DEPENDENCIES += libiconv
