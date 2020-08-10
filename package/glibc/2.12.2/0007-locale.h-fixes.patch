@@ -1,0 +1,21 @@
+diff -rub ./locale/locale.h ../../output/build/glibc-2.12.2/locale/locale.h
+--- ./locale/locale.h   2010-12-13 11:47:26.000000000 +0100
++++ ../../output/build/glibc-2.12.2/locale/locale.h     2020-07-05 19:31:56.542677147 +0200
+@@ -48,8 +48,6 @@
+ #define LC_IDENTIFICATION __LC_IDENTIFICATION
+
+
+-__BEGIN_NAMESPACE_STD
+-
+ /* Structure giving information about numeric and monetary notation.  */
+ struct lconv
+ {
+@@ -127,8 +125,6 @@
+ /* Return the numeric/monetary information for the current locale.  */
+ extern struct lconv *localeconv (void) __THROW;
+
+-__END_NAMESPACE_STD
+-
+
+ #ifdef __USE_XOPEN2K8
+ /* The concept of one static locale per category is not very well

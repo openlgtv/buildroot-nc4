@@ -1,0 +1,25 @@
+diff -rbu a/nptl/sysdeps/pthread/configure b/nptl/sysdeps/pthread/configure
+--- a/nptl/sysdeps/pthread/configure	2020-07-05 16:39:04.734793106 +0200
++++ b/nptl/sysdeps/pthread/configure	2020-07-05 16:40:49.211965207 +0200
+@@ -82,6 +82,10 @@
+ fi
+ { $as_echo "$as_me:$LINENO: result: $libc_cv_forced_unwind" >&5
+ $as_echo "$libc_cv_forced_unwind" >&6; }
++if test $libc_cv_forced_unwind = no -a $build_cpu != $host_cpu; then
++  echo "$as_me:$LINENO: forcing libc_cv_forced_unwind = yes for cross-compile"
++  libc_cv_forced_unwind=yes
++fi
+ if test $libc_cv_forced_unwind = yes; then
+   cat >>confdefs.h <<\_ACEOF
+ #define HAVE_FORCED_UNWIND 1
+@@ -149,6 +153,10 @@
+ { $as_echo "$as_me:$LINENO: result: $libc_cv_c_cleanup" >&5
+ $as_echo "$libc_cv_c_cleanup" >&6; }
+   CFLAGS="$old_CFLAGS"
++  if test $libc_cv_c_cleanup = no -a $build_cpu != $host_cpu; then
++    echo "$as_me:$LINENO: result: forcing libc_cv_c_cleanup = yes for cross-compile"
++    libc_cv_c_cleanup=yes
++  fi
+   if test $libc_cv_c_cleanup = no; then
+     { { $as_echo "$as_me:$LINENO: error: the compiler must support C cleanup handling" >&5
+ $as_echo "$as_me: error: the compiler must support C cleanup handling" >&2;}

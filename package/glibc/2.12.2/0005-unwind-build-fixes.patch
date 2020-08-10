@@ -1,0 +1,74 @@
+diff -rub ./Makeconfig ../../output/build/glibc-2.12.2/Makeconfig
+--- ./Makeconfig	2010-12-13 11:47:26.000000000 +0100
++++ ../../output/build/glibc-2.12.2/Makeconfig	2020-07-05 19:01:33.654330677 +0200
+@@ -554,12 +554,12 @@
+   libunwind = -lunwind
+ endif
+ ifneq ($(have-as-needed),yes)
+- libgcc_eh := -lgcc_eh $(libunwind)
++ libgcc_eh := $(libunwind)
+ else
+  libgcc_eh := -Wl,--as-needed -lgcc_s$(libgcc_s_suffix) $(libunwind) -Wl,--no-as-needed
+ endif
+ gnulib := -lgcc $(libgcc_eh)
+-static-gnulib := -lgcc -lgcc_eh $(libunwind)
++static-gnulib := -lgcc $(libunwind)
+ libc.so-gnulib := -lgcc
+ endif
+ ifeq ($(elf),yes)
+diff -rub ./ports/sysdeps/unix/sysv/linux/arm/eabi/nptl/unwind-forcedunwind.c ../../output/build/glibc-2.12.2/ports/sysdeps/unix/sysv/linux/arm/eabi/nptl/unwind-forcedunwind.c
+--- ./ports/sysdeps/unix/sysv/linux/arm/eabi/nptl/unwind-forcedunwind.c	2010-06-05 00:41:32.000000000 +0200
++++ ../../output/build/glibc-2.12.2/ports/sysdeps/unix/sysv/linux/arm/eabi/nptl/unwind-forcedunwind.c	2020-07-05 18:50:39.579860809 +0200
+@@ -23,6 +23,7 @@
+ #include <pthreadP.h>
+ 
+ static void *libgcc_s_handle;
++__attribute__((__used__))
+ static void (*libgcc_s_resume) (struct _Unwind_Exception *exc);
+ static _Unwind_Reason_Code (*libgcc_s_personality)
+   (_Unwind_State, struct _Unwind_Exception *, struct _Unwind_Context *);
+diff -rub ./ports/sysdeps/unix/sysv/linux/arm/eabi/nptl/unwind-resume.c ../../output/build/glibc-2.12.2/ports/sysdeps/unix/sysv/linux/arm/eabi/nptl/unwind-resume.c
+--- ./ports/sysdeps/unix/sysv/linux/arm/eabi/nptl/unwind-resume.c	2010-06-05 00:41:32.000000000 +0200
++++ ../../output/build/glibc-2.12.2/ports/sysdeps/unix/sysv/linux/arm/eabi/nptl/unwind-resume.c	2020-07-05 18:25:15.890997259 +0200
+@@ -21,6 +21,7 @@
+ #include <stdio.h>
+ #include <unwind.h>
+ 
++__attribute__((__used__))
+ static void (*libgcc_s_resume) (struct _Unwind_Exception *exc);
+ static _Unwind_Reason_Code (*libgcc_s_personality)
+   (_Unwind_State, struct _Unwind_Exception *, struct _Unwind_Context *);
+diff -rub ./ports/sysdeps/unix/sysv/linux/arm/nptl/unwind-forcedunwind.c ../../output/build/glibc-2.12.2/ports/sysdeps/unix/sysv/linux/arm/nptl/unwind-forcedunwind.c
+--- ./ports/sysdeps/unix/sysv/linux/arm/nptl/unwind-forcedunwind.c	2010-06-05 00:41:32.000000000 +0200
++++ ../../output/build/glibc-2.12.2/ports/sysdeps/unix/sysv/linux/arm/nptl/unwind-forcedunwind.c	2020-07-05 18:24:56.795848381 +0200
+@@ -23,6 +23,7 @@
+ #include <pthreadP.h>
+ 
+ static void *libgcc_s_handle;
++__attribute__((__used__))
+ static void (*libgcc_s_resume) (struct _Unwind_Exception *exc);
+ static _Unwind_Reason_Code (*libgcc_s_personality)
+   (int, _Unwind_Action, _Unwind_Exception_Class, struct _Unwind_Exception *,
+diff -rub ./ports/sysdeps/unix/sysv/linux/arm/nptl/unwind-resume.c ../../output/build/glibc-2.12.2/ports/sysdeps/unix/sysv/linux/arm/nptl/unwind-resume.c
+--- ./ports/sysdeps/unix/sysv/linux/arm/nptl/unwind-resume.c	2010-06-05 00:41:32.000000000 +0200
++++ ../../output/build/glibc-2.12.2/ports/sysdeps/unix/sysv/linux/arm/nptl/unwind-resume.c	2020-07-05 18:51:51.256575136 +0200
+@@ -21,7 +21,8 @@
+ #include <stdio.h>
+ #include <unwind.h>
+ 
++__attribute__((__used__))
+ static void (*libgcc_s_resume) (struct _Unwind_Exception *exc);
+ static _Unwind_Reason_Code (*libgcc_s_personality)
+   (int, _Unwind_Action, _Unwind_Exception_Class, struct _Unwind_Exception *,
+    struct _Unwind_Context *);
+diff -rub ./sysdeps/gnu/unwind-resume.c ../../output/build/glibc-2.12.2/sysdeps/gnu/unwind-resume.c
+--- ./sysdeps/gnu/unwind-resume.c	2010-12-13 11:47:26.000000000 +0100
++++ ../../output/build/glibc-2.12.2/sysdeps/gnu/unwind-resume.c	2020-07-05 18:25:04.297905778 +0200
+@@ -22,6 +22,7 @@
+ #include <unwind.h>
+ #include <libgcc_s.h>
+ 
++__attribute__((__used__))
+ static void (*libgcc_s_resume) (struct _Unwind_Exception *exc);
+ static _Unwind_Reason_Code (*libgcc_s_personality)
+   (int, _Unwind_Action, _Unwind_Exception_Class, struct _Unwind_Exception *,

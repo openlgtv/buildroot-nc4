@@ -1,0 +1,33 @@
+wchar fixes
+
+Signed-off-by:
+---
+diff -Naur glibc-2.12.2.orig/bits/wchar.h glibc-2.12.2/bits/wchar.h
+--- glibc-2.12.2.orig/bits/wchar.h	2010-12-13 18:47:26.000000000 +0800
++++ glibc-2.12.2/bits/wchar.h	2011-01-29 20:33:31.000000000 +0800
+@@ -20,7 +20,24 @@
+ #ifndef _BITS_WCHAR_H
+ #define _BITS_WCHAR_H	1
+ 
+-#define __WCHAR_MIN	(-2147483647 - 1)
++/* Use GCC's __WCHAR_MAX__ when available.  */
++#ifdef __WCHAR_MAX__
++#define __WCHAR_MAX	__WCHAR_MAX__
++#else
+ #define __WCHAR_MAX	(2147483647)
++#endif
++
++/* GCC may also define __WCHAR_UNSIGNED__.
++   Use L'\0' to give the expression the correct (unsigned) type.  */
++#ifdef __WCHAR_UNSIGNED__
++#define __WCHAR_MIN       L'\0'
++
++/* Failing that, rely on the preprocessor's knowledge of the
++   signedness of wchar_t.  */
++#elif L'\0' - 1 > 0
++#define __WCHAR_MIN       L'\0'
++#else
++#define __WCHAR_MIN       (-__WCHAR_MAX - 1)
++#endif
+ 
+ #endif	/* bits/wchar.h */

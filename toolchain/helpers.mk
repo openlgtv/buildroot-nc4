@@ -164,12 +164,12 @@ copy_toolchain_sysroot = \
 # $4: test to do for the latest kernel version, 'strict' or 'loose'
 #     always 'strict' if this is not the latest version.
 #
-check_kernel_headers_version = \
-	if ! support/scripts/check-kernel-headers.sh $(1) $(2) $(3) \
-		$(if $(BR2_TOOLCHAIN_HEADERS_LATEST),$(4),strict); \
-	then \
-		exit 1; \
-	fi
+#check_kernel_headers_version = \
+#	if ! support/scripts/check-kernel-headers.sh $(1) $(2) $(3) \
+#		$(if $(BR2_TOOLCHAIN_HEADERS_LATEST),$(4),strict); \
+#	then \
+#		exit 1; \
+#	fi
 
 #
 # Check the specific gcc version actually matches the version in the

@@ -17,14 +17,31 @@ else
 # Generate version string using:
 #   git describe --match 'glibc-*' --abbrev=40 origin/release/MAJOR.MINOR/master | cut -d '-' -f 2-
 # When updating the version, please also update localedef
-GLIBC_VERSION = 2.30-67-g4748829f86a458b76642f3e98b1d80f7b868e427
+#GLIBC_VERSION = 2.30-67-g4748829f86a458b76642f3e98b1d80f7b868e427
+GLIBC_VERSION = 2.12.2
+
+GLIBC_PORTS_VERSION = 2.12.1
+GLIBC_PORTS_SOURCE = glibc-ports-$(GLIBC_PORTS_VERSION).tar.bz2
+
+GLIBC_EXTRA_DOWNLOADS = https://ftp.gnu.org/gnu/glibc/$(GLIBC_PORTS_SOURCE)
+
+define GLIBC_EXTRACT_PORTS
+	@mkdir $(@D)/ports
+	$(call suitable-extractor,$(GLIBC_PORTS_SOURCE)) \
+		$(GLIBC_DL_DIR)/$(GLIBC_PORTS_SOURCE) | \
+		$(TAR) --strip-components=1 -C $(@D)/ports $(TAR_OPTIONS) -
+endef
+
+GLIBC_POST_EXTRACT_HOOKS += GLIBC_EXTRACT_PORTS
+
 # Upstream doesn't officially provide an https download link.
 # There is one (https://sourceware.org/git/glibc.git) but it's not reliable,
 # sometimes the connection times out. So use an unofficial github mirror.
 # When updating the version, check it on the official repository;
 # *NEVER* decide on a version string by looking at the mirror.
 # Then check that the mirror has been synced already (happens once a day.)
-GLIBC_SITE = $(call github,bminor,glibc,$(GLIBC_VERSION))
+#GLIBC_SITE = $(call github,bminor,glibc,$(GLIBC_VERSION))
+GLIBC_SITE = https://github.com/bminor/glibc/archive
 endif
 
 GLIBC_LICENSE = GPL-2.0+ (programs), LGPL-2.1+, BSD-3-Clause, MIT (library)
@@ -77,6 +94,7 @@ endif
 GLIBC_CONF_ENV = \
 	ac_cv_path_BASH_SHELL=/bin/$(if $(BR2_PACKAGE_BASH),bash,sh) \
 	libc_cv_forced_unwind=yes \
+	libc_cv_c_cleanup=yes \
 	libc_cv_ssp=no
 
 # POSIX shell does not support localization, so remove the corresponding
@@ -135,7 +153,8 @@ define GLIBC_CONFIGURE_CMDS
 		--without-gd \
 		--enable-obsolete-rpc \
 		--enable-kernel=$(call qstrip,$(BR2_TOOLCHAIN_HEADERS_AT_LEAST)) \
-		--with-headers=$(STAGING_DIR)/usr/include)
+		--with-headers=$(STAGING_DIR)/usr/include \
+		--enable-add-ons=nptl,ports)
 	$(GLIBC_ADD_MISSING_STUB_H)
 endef
 

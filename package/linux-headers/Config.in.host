@@ -27,6 +27,11 @@ config BR2_KERNEL_HEADERS_AS_KERNEL
 	depends on BR2_LINUX_KERNEL
 	select BR2_KERNEL_HEADERS_LATEST if BR2_LINUX_KERNEL_LATEST_VERSION
 
+config BR2_KERNEL_HEADERS_3_0
+	bool "Linux 3.0.x kernel headers"
+	depends on !BR2_arc && !BR2_nios2
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_0
+
 config BR2_KERNEL_HEADERS_4_4
 	bool "Linux 4.4.x kernel headers"
 	depends on !BR2_riscv

@@ -3377,13 +3377,6 @@ config BR2_PACKAGE_BLACKBOX
 	  Upstream is dead and the package has been deprecated for
 	  some time. There are other alternative maintained WMs.
 
-config BR2_KERNEL_HEADERS_3_0
-	bool "kernel headers version 3.0.x are no longer supported"
-	select BR2_LEGACY
-	help
-	  Version 3.0.x of the Linux kernel headers have been deprecated
-	  for more than four buildroot releases and are now removed.
-
 config BR2_KERNEL_HEADERS_3_11
 	bool "kernel headers version 3.11.x are no longer supported"
 	select BR2_LEGACY

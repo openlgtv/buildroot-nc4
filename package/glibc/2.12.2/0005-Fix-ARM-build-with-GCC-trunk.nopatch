@@ -1,0 +1,26 @@
+diff -rub a/ports/sysdeps/unix/sysv/linux/arm/nptl/unwind-forcedunwind.c b/ports/sysdeps/unix/sysv/linux/arm/nptl/unwind-forcedunwind.c
+--- a/ports/sysdeps/unix/sysv/linux/arm/nptl/unwind-forcedunwind.c	2020-07-05 17:15:53.796633122 +0200
++++ b/ports/sysdeps/unix/sysv/linux/arm/nptl/unwind-forcedunwind.c	2020-07-05 18:17:12.378869590 +0200
+@@ -23,7 +23,8 @@
+ #include <pthreadP.h>
+ 
+ static void *libgcc_s_handle;
+-static void (*libgcc_s_resume) (struct _Unwind_Exception *exc);
++static void (*libgcc_s_resume) (struct _Unwind_Exception *exc)
++  __attribute_used__;
+ static _Unwind_Reason_Code (*libgcc_s_personality)
+   (int, _Unwind_Action, _Unwind_Exception_Class, struct _Unwind_Exception *,
+    struct _Unwind_Context *);
+diff -rub a/ports/sysdeps/unix/sysv/linux/arm/nptl/unwind-resume.c b/ports/sysdeps/unix/sysv/linux/arm/nptl/unwind-resume.c
+--- a/ports/sysdeps/unix/sysv/linux/arm/nptl/unwind-resume.c	2020-07-05 17:16:01.224702574 +0200
++++ b/ports/sysdeps/unix/sysv/linux/arm/nptl/unwind-resume.c	2020-07-05 18:17:20.370945343 +0200
+@@ -21,7 +21,8 @@
+ #include <stdio.h>
+ #include <unwind.h>
+ 
+-static void (*libgcc_s_resume) (struct _Unwind_Exception *exc);
++void (*libgcc_s_resume) (struct _Unwind_Exception *exc)
++  __attribute_used__;
+ static _Unwind_Reason_Code (*libgcc_s_personality)
+   (int, _Unwind_Action, _Unwind_Exception_Class, struct _Unwind_Exception *,
+    struct _Unwind_Context *);
