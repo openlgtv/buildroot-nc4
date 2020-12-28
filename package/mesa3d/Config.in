@@ -5,7 +5,6 @@ menuconfig BR2_PACKAGE_MESA3D
 	depends on BR2_TOOLCHAIN_HAS_SYNC_1
 	depends on BR2_TOOLCHAIN_HAS_THREADS_NPTL
 	select BR2_PACKAGE_LIBDRM
-	select BR2_PACKAGE_EXPAT
 	select BR2_PACKAGE_WAYLAND_PROTOCOLS if BR2_PACKAGE_WAYLAND
 	select BR2_PACKAGE_ZLIB
 	help
@@ -139,6 +138,7 @@ comment "Gallium i915: Only one i915 provider can be built"
 config BR2_PACKAGE_MESA3D_GALLIUM_DRIVER_IRIS
 	bool "Gallium iris driver"
 	depends on BR2_i386 || BR2_x86_64
+	select BR2_PACKAGE_EXPAT
 	select BR2_PACKAGE_MESA3D_GALLIUM_DRIVER
 	help
 	  Mesa driver for iris-based Intel GPUs.
@@ -263,6 +263,7 @@ config BR2_PACKAGE_MESA3D_GALLIUM_DRIVER_TEGRA
 config BR2_PACKAGE_MESA3D_GALLIUM_DRIVER_V3D
 	bool "Gallium v3d driver"
 	depends on (BR2_arm && BR2_ARM_CPU_HAS_NEON) || BR2_aarch64
+	select BR2_PACKAGE_EXPAT
 	select BR2_PACKAGE_MESA3D_GALLIUM_DRIVER
 	select BR2_PACKAGE_MESA3D_GALLIUM_KMSRO
 	select BR2_PACKAGE_LIBDRM_VC4
@@ -278,6 +279,7 @@ config BR2_PACKAGE_MESA3D_GALLIUM_DRIVER_V3D
 config BR2_PACKAGE_MESA3D_GALLIUM_DRIVER_VC4
 	bool "Gallium vc4 driver"
 	depends on BR2_arm || BR2_aarch64
+	select BR2_PACKAGE_EXPAT
 	select BR2_PACKAGE_MESA3D_GALLIUM_DRIVER
 	select BR2_PACKAGE_MESA3D_GALLIUM_KMSRO
 	select BR2_PACKAGE_LIBDRM_VC4
@@ -320,6 +322,7 @@ config BR2_PACKAGE_MESA3D_XVMC
 	depends on BR2_PACKAGE_XORG7
 	depends on BR2_PACKAGE_MESA3D_GALLIUM_DRIVER_NOUVEAU \
 		|| BR2_PACKAGE_MESA3D_GALLIUM_DRIVER_R600
+	select BR2_PACKAGE_MESA3D_NEEDS_X11
 	select BR2_PACKAGE_XLIB_LIBXV
 	select BR2_PACKAGE_XLIB_LIBXVMC
 	help
@@ -343,6 +346,7 @@ config BR2_PACKAGE_MESA3D_DRI_DRIVER_SWRAST
 config BR2_PACKAGE_MESA3D_DRI_DRIVER_I915
 	bool "DRI i915 driver"
 	depends on BR2_i386 || BR2_x86_64
+	select BR2_PACKAGE_EXPAT
 	select BR2_PACKAGE_MESA3D_DRI_DRIVER
 	select BR2_PACKAGE_LIBDRM_INTEL
 	help
@@ -352,6 +356,7 @@ config BR2_PACKAGE_MESA3D_DRI_DRIVER_I965
 	bool "DRI i965 driver"
 	depends on BR2_i386 || BR2_x86_64
 	depends on BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_17 # memfd.h
+	select BR2_PACKAGE_EXPAT
 	select BR2_PACKAGE_MESA3D_DRI_DRIVER
 	select BR2_PACKAGE_LIBDRM_INTEL
 	help
@@ -369,7 +374,13 @@ config BR2_PACKAGE_MESA3D_DRI_DRIVER_NOUVEAU
 	  Support for Nvidia-based GPUs.
 
 config BR2_PACKAGE_MESA3D_DRI_DRIVER_RADEON
-	bool "DRI radeon driver"
+	bool "DRI radeon r100 driver"
+	depends on BR2_i386 || BR2_x86_64
+	# libdrm's radeon option depends on LIBDRM_HAS_ATOMIC. Propagating
+	# that dependency here causes a circular dependency that Kconfig
+	# can't see is just spurious. However, that dependency is about
+	# the toolchain having sync4 primitives, which is always a given
+	# for i386 and x86_64.
 	select BR2_PACKAGE_MESA3D_DRI_DRIVER
 	select BR2_PACKAGE_LIBDRM_RADEON
 	help
@@ -384,6 +395,7 @@ config BR2_PACKAGE_MESA3D_VULKAN_DRIVER_INTEL
 	depends on BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_17 # memfd.h
 	depends on BR2_TOOLCHAIN_USES_GLIBC # ifunc, static_assert
 	depends on BR2_PACKAGE_XORG7 # xorgproto
+	select BR2_PACKAGE_EXPAT
 	select BR2_PACKAGE_MESA3D_VULKAN_DRIVER
 	select BR2_PACKAGE_XORGPROTO
 	select BR2_PACKAGE_XLIB_LIBXSHMFENCE

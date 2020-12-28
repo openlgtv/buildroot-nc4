@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-JANUS_GATEWAY_VERSION = 0.10.1
+JANUS_GATEWAY_VERSION = 0.10.3
 JANUS_GATEWAY_SITE = $(call github,meetecho,janus-gateway,v$(JANUS_GATEWAY_VERSION))
 JANUS_GATEWAY_LICENSE = GPL-3.0 with OpenSSL exception
 JANUS_GATEWAY_LICENSE_FILES = COPYING
@@ -21,6 +21,13 @@ JANUS_GATEWAY_AUTORECONF = YES
 JANUS_GATEWAY_CONF_OPTS = \
 	--disable-data-channels \
 	--disable-sample-event-handler
+
+ifeq ($(BR2_PACKAGE_JANUS_GATEWAY_DEMOS),)
+define JANUS_GATEWAY_REMOVE_DEMOS
+	$(RM) -fr $(TARGET_DIR)/usr/share/janus/demos/
+endef
+JANUS_GATEWAY_POST_INSTALL_TARGET_HOOKS += JANUS_GATEWAY_REMOVE_DEMOS
+endif
 
 ifeq ($(BR2_PACKAGE_JANUS_GATEWAY_AUDIO_BRIDGE),y)
 JANUS_GATEWAY_DEPENDENCIES += opus

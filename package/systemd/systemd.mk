@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-SYSTEMD_VERSION = 245.6
+SYSTEMD_VERSION = 246.5
 SYSTEMD_SITE = $(call github,systemd,systemd-stable,v$(SYSTEMD_VERSION))
 SYSTEMD_LICENSE = LGPL-2.1+, GPL-2.0+ (udev), Public Domain (few source files, see README), BSD-3-Clause (tools/chromiumos)
 SYSTEMD_LICENSE_FILES = LICENSE.GPL2 LICENSE.LGPL2.1 README tools/chromiumos/LICENSE
@@ -15,32 +15,39 @@ SYSTEMD_DEPENDENCIES = \
 	host-gperf \
 	kmod \
 	libcap \
-	util-linux \
+	util-linux-libs \
 	$(TARGET_NLS_DEPENDENCIES)
+
+SYSTEMD_SELINUX_MODULES = systemd udev
 
 SYSTEMD_PROVIDES = udev
 
 SYSTEMD_CONF_OPTS += \
-	-Drootlibdir='/usr/lib' \
-	-Dblkid=true \
-	-Dman=false \
-	-Dima=false \
-	-Dldconfig=false \
 	-Ddefault-hierarchy=hybrid \
-	-Dtests=false \
+	-Didn=true \
+	-Dima=false \
+	-Dkexec-path=/usr/sbin/kexec \
+	-Dkmod-path=/usr/bin/kmod \
+	-Dldconfig=false \
+	-Dloadkeys-path=/usr/bin/loadkeys \
+	-Dman=false \
+	-Dmount-path=/usr/bin/mount \
+	-Dnss-systemd=true \
+	-Dquotacheck-path=/usr/sbin/quotacheck \
+	-Dquotaon-path=/usr/sbin/quotaon \
+	-Drootlibdir='/usr/lib' \
+	-Dsetfont-path=/usr/bin/setfont \
 	-Dsplit-bin=true \
 	-Dsplit-usr=false \
-	-Dsystem-uid-max=999 \
-	-Dsystem-gid-max=999 \
-	-Dtelinit-path=$(TARGET_DIR)/sbin/telinit \
-	-Dkmod-path=/usr/bin/kmod \
-	-Dkexec-path=/usr/sbin/kexec \
 	-Dsulogin-path=/usr/sbin/sulogin \
-	-Dmount-path=/usr/bin/mount \
+	-Dsystem-gid-max=999 \
+	-Dsystem-uid-max=999 \
+	-Dsysvinit-path= \
+	-Dsysvrcnd-path= \
+	-Dtelinit-path= \
+	-Dtests=false \
 	-Dumount-path=/usr/bin/umount \
-	-Dnobody-group=nogroup \
-	-Didn=true \
-	-Dnss-systemd=true
+	-Dutmp=false
 
 ifeq ($(BR2_PACKAGE_ACL),y)
 SYSTEMD_DEPENDENCIES += acl
@@ -123,6 +130,13 @@ else
 SYSTEMD_CONF_OPTS += -Dbzip2=false
 endif
 
+ifeq ($(BR2_PACKAGE_ZSTD),y)
+SYSTEMD_DEPENDENCIES += zstd
+SYSTEMD_CONF_OPTS += -Dzstd=true
+else
+SYSTEMD_CONF_OPTS += -Dzstd=false
+endif
+
 ifeq ($(BR2_PACKAGE_LZ4),y)
 SYSTEMD_DEPENDENCIES += lz4
 SYSTEMD_CONF_OPTS += -Dlz4=true
@@ -199,24 +213,50 @@ else
 SYSTEMD_CONF_OPTS += -Dpcre2=false
 endif
 
-ifeq ($(BR2_PACKAGE_SYSTEMD_JOURNAL_GATEWAY),y)
-SYSTEMD_DEPENDENCIES += libmicrohttpd
-SYSTEMD_CONF_OPTS += -Dmicrohttpd=true
-ifeq ($(BR2_PACKAGE_LIBQRENCODE),y)
-SYSTEMD_CONF_OPTS += -Dqrencode=true
-SYSTEMD_DEPENDENCIES += libqrencode
+ifeq ($(BR2_PACKAGE_UTIL_LINUX_LIBBLKID),y)
+SYSTEMD_CONF_OPTS += -Dblkid=true
 else
-SYSTEMD_CONF_OPTS += -Dqrencode=false
+SYSTEMD_CONF_OPTS += -Dblkid=false
 endif
+
+ifeq ($(BR2_PACKAGE_UTIL_LINUX_NOLOGIN),y)
+SYSTEMD_CONF_OPTS += -Dnologin-path=/sbin/nologin
 else
-SYSTEMD_CONF_OPTS += -Dmicrohttpd=false -Dqrencode=false
+SYSTEMD_CONF_OPTS += -Dnologin-path=/bin/false
+endif
+
+ifeq ($(BR2_PACKAGE_SYSTEMD_INITRD),y)
+SYSTEMD_CONF_OPTS += -Dinitrd=true
+else
+SYSTEMD_CONF_OPTS += -Dinitrd=false
+endif
+
+ifeq ($(BR2_PACKAGE_SYSTEMD_KERNELINSTALL),y)
+SYSTEMD_CONF_OPTS += -Dkernel-install=true
+else
+SYSTEMD_CONF_OPTS += -Dkernel-install=false
+endif
+
+ifeq ($(BR2_PACKAGE_SYSTEMD_ANALYZE),y)
+SYSTEMD_CONF_OPTS += -Danalyze=true
+else
+SYSTEMD_CONF_OPTS += -Danalyze=false
 endif
 
 ifeq ($(BR2_PACKAGE_SYSTEMD_JOURNAL_REMOTE),y)
-SYSTEMD_CONF_OPTS += -Dremote=true
+# remote also depends on libcurl, this is already added above.
+SYSTEMD_DEPENDENCIES += libmicrohttpd
+SYSTEMD_CONF_OPTS += -Dremote=true -Dmicrohttpd=true
 SYSTEMD_REMOTE_USER = systemd-journal-remote -1 systemd-journal-remote -1 * - - - systemd Journal Remote
 else
-SYSTEMD_CONF_OPTS += -Dremote=false
+SYSTEMD_CONF_OPTS += -Dremote=false -Dmicrohttpd=false
+endif
+
+ifeq ($(BR2_PACKAGE_LIBQRENCODE),y)
+SYSTEMD_DEPENDENCIES += libqrencode
+SYSTEMD_CONF_OPTS += -Dqrencode=true
+else
+SYSTEMD_CONF_OPTS += -Dqrencode=false
 endif
 
 ifeq ($(BR2_PACKAGE_LIBSELINUX),y)
@@ -376,6 +416,12 @@ else
 SYSTEMD_CONF_OPTS += -Dpolkit=false
 endif
 
+ifeq ($(BR2_PACKAGE_SYSTEMD_PORTABLED),y)
+SYSTEMD_CONF_OPTS += -Dportabled=true
+else
+SYSTEMD_CONF_OPTS += -Dportabled=false
+endif
+
 ifeq ($(BR2_PACKAGE_SYSTEMD_NETWORKD),y)
 SYSTEMD_CONF_OPTS += -Dnetworkd=true
 SYSTEMD_NETWORKD_USER = systemd-network -1 systemd-network -1 * - - - systemd Network Management
@@ -483,16 +529,32 @@ define SYSTEMD_INSTALL_IMAGES_CMDS
 endef
 
 define SYSTEMD_USERS
-	- - input -1 * - - - Input device group
+	# udev user groups
+	# systemd user groups
 	- - systemd-journal -1 * - - - Journal
-	- - render -1 * - - - DRI rendering nodes
-	- - kvm -1 * - - - kvm nodes
 	$(SYSTEMD_REMOTE_USER)
 	$(SYSTEMD_COREDUMP_USER)
 	$(SYSTEMD_NETWORKD_USER)
 	$(SYSTEMD_RESOLVED_USER)
 	$(SYSTEMD_TIMESYNCD_USER)
 endef
+
+define SYSTEMD_INSTALL_NSSCONFIG_HOOK
+	$(SED) '/^passwd:/ {/systemd/! s/$$/ systemd/}' \
+		-e '/^group:/ {/systemd/! s/$$/ [SUCCESS=merge] systemd/}' \
+		$(if $(BR2_PACKAGE_SYSTEMD_RESOLVED), \
+			-e '/^hosts:/ s/[[:space:]]*mymachines//' \
+			-e '/^hosts:/ {/resolve/! s/files/files resolve [!UNAVAIL=return]/}' ) \
+		$(if $(BR2_PACKAGE_SYSTEMD_MYHOSTNAME), \
+			-e '/^hosts:/ {/myhostname/! s/$$/ myhostname/}' ) \
+		$(if $(BR2_PACKAGE_SYSTEMD_MACHINED), \
+			-e '/^passwd:/ {/mymachines/! s/files/files mymachines/}' \
+			-e '/^group:/ {/mymachines/! s/files/files [SUCCESS=merge] mymachines/}' \
+			-e '/^hosts:/ {/mymachines/! s/files/files mymachines/}' ) \
+		$(TARGET_DIR)/etc/nsswitch.conf
+endef
+
+SYSTEMD_TARGET_FINALIZE_HOOKS += SYSTEMD_INSTALL_NSSCONFIG_HOOK
 
 ifneq ($(call qstrip,$(BR2_TARGET_GENERIC_GETTY_PORT)),)
 # systemd provides multiple units to autospawn getty as neede
@@ -566,8 +628,13 @@ SYSTEMD_NINJA_ENV = $(HOST_UTF8_LOCALE_ENV)
 
 define SYSTEMD_LINUX_CONFIG_FIXUPS
 	$(call KCONFIG_ENABLE_OPT,CONFIG_CGROUPS)
-	$(call KCONFIG_ENABLE_OPT,CONFIG_INOTIFY_USER)
 	$(call KCONFIG_ENABLE_OPT,CONFIG_FHANDLE)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_EPOLL)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_SIGNALFD)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_TIMERFD)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_INOTIFY_USER)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_PROC_FS)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_SYSFS)
 	$(call KCONFIG_ENABLE_OPT,CONFIG_AUTOFS4_FS)
 	$(call KCONFIG_ENABLE_OPT,CONFIG_TMPFS_POSIX_ACL)
 	$(call KCONFIG_ENABLE_OPT,CONFIG_TMPFS_XATTR)
@@ -632,7 +699,14 @@ HOST_SYSTEMD_CONF_OPTS = \
 	-Dtests=false \
 	-Dglib=false \
 	-Dacl=false \
-	-Dsysvinit-path=''
+	-Dsysvinit-path='' \
+	-Dinitrd=false \
+	-Dxdg-autostart=false \
+	-Dkernel-install=false \
+	-Dsystemd-analyze=false \
+	-Dlibcryptsetup=false \
+	-Daudit=false \
+	-Dzstd=false
 
 HOST_SYSTEMD_DEPENDENCIES = \
 	$(BR2_COREUTILS_HOST_DEPENDENCY) \

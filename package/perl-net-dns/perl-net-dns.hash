@@ -1,6 +1,6 @@
 # retrieved by scancpan from http://cpan.metacpan.org/
-md5  1bf07817bb272d412a737ecc2347d70b  Net-DNS-1.24.tar.gz
-sha256  11a6c2ba6cb1c6640f01c9bbf2036bcbe3974232e9b939ab94985230c92cde63  Net-DNS-1.24.tar.gz
+md5  2c9120830a68f18deb43a95826ea6372  Net-DNS-1.29.tar.gz
+sha256  852d6ee87e8f0d014223026581cbb56924ba8cddd3ceb29c6191dbb6122d43c5  Net-DNS-1.29.tar.gz
 
 # computed by scancpan
-sha256  afa7d288df3e3edbdb34790407ba4a9c7750c2746059d9355f4168bfb3212583  README
+sha256  e4f3224d86bd79ac3d11ea513fcb83c68c20701346653699225331e2b7a2d447  README

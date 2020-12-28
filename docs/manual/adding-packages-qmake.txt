@@ -34,7 +34,7 @@ will automatically download the tarball from this location.
 
 On line 10, we tell Buildroot what options to enable for libfoo.
 
-On line 11, we tell Buildroot the depednencies of libfoo.
+On line 11, we tell Buildroot the dependencies of libfoo.
 
 Finally, on line line 13, we invoke the +qmake-package+
 macro that generates all the Makefile rules that actually allows the
@@ -79,3 +79,7 @@ also be defined.
 * +LIBFOO_INSTALL_TARGET_OPTS+, to specify additional targets to pass
   to the +make+ command during the target installation step. By default,
   +install+.
+
+* +LIBFOO_SYNC_HEADERS+, to run syncqt.pl before qmake. Some packages
+  need this to have a properly populated include directory before
+  running the build.

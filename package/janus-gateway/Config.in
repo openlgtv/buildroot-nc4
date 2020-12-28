@@ -18,6 +18,12 @@ menuconfig BR2_PACKAGE_JANUS_GATEWAY
 
 if BR2_PACKAGE_JANUS_GATEWAY
 
+config BR2_PACKAGE_JANUS_GATEWAY_DEMOS
+	bool "HTML demos"
+	help
+	  Install the demonstration website, as featured on
+	  https://janus.conf.meetecho.com/
+
 comment "plugins"
 
 config BR2_PACKAGE_JANUS_GATEWAY_AUDIO_BRIDGE
@@ -84,7 +90,6 @@ config BR2_PACKAGE_JANUS_GATEWAY_UNIX_SOCKETS
 
 config BR2_PACKAGE_JANUS_GATEWAY_WEBSOCKETS
 	bool "WebSockets"
-	depends on BR2_USE_MMU
 	select BR2_PACKAGE_LIBWEBSOCKETS
 
 endif

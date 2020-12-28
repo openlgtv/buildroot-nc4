@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-FFMPEG_VERSION = 4.3
+FFMPEG_VERSION = 4.3.1
 FFMPEG_SOURCE = ffmpeg-$(FFMPEG_VERSION).tar.xz
 FFMPEG_SITE = http://ffmpeg.org/releases
 FFMPEG_INSTALL_STAGING = YES
@@ -82,6 +82,13 @@ FFMPEG_CONF_OPTS += --enable-ffplay
 FFMPEG_CONF_ENV += SDL_CONFIG=$(STAGING_DIR)/usr/bin/sdl2-config
 else
 FFMPEG_CONF_OPTS += --disable-ffplay
+endif
+
+ifeq ($(BR2_PACKAGE_LIBV4L),y)
+FFMPEG_DEPENDENCIES += libv4l
+FFMPEG_CONF_OPTS += --enable-libv4l2
+else
+FFMPEG_CONF_OPTS += --disable-libv4l2
 endif
 
 ifeq ($(BR2_PACKAGE_FFMPEG_AVRESAMPLE),y)
@@ -282,10 +289,7 @@ endif
 
 # To avoid a circular dependency only use opencv if opencv itself does
 # not depend on ffmpeg.
-ifeq ($(BR2_PACKAGE_OPENCV_LIB_IMGPROC)x$(BR2_PACKAGE_OPENCV_WITH_FFMPEG),yx)
-FFMPEG_CONF_OPTS += --enable-libopencv
-FFMPEG_DEPENDENCIES += opencv
-else ifeq ($(BR2_PACKAGE_OPENCV3_LIB_IMGPROC)x$(BR2_PACKAGE_OPENCV3_WITH_FFMPEG),yx)
+ifeq ($(BR2_PACKAGE_OPENCV3_LIB_IMGPROC)x$(BR2_PACKAGE_OPENCV3_WITH_FFMPEG),yx)
 FFMPEG_CONF_OPTS += --enable-libopencv
 FFMPEG_DEPENDENCIES += opencv3
 else

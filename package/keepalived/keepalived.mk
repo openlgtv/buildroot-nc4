@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-KEEPALIVED_VERSION = 2.1.2
+KEEPALIVED_VERSION = 2.1.4
 KEEPALIVED_SITE = http://www.keepalived.org/software
 KEEPALIVED_DEPENDENCIES = host-pkgconf openssl
 KEEPALIVED_LICENSE = GPL-2.0+
@@ -32,18 +32,18 @@ else
 KEEPALIVED_CONF_OPTS += --disable-libnl
 endif
 
+ifeq ($(BR2_PACKAGE_IPTABLES),y)
+KEEPALIVED_DEPENDENCIES += iptables
+KEEPALIVED_CONF_OPTS += --enable-iptables
+# ipset support only makes sense when iptables support is enabled.
 ifeq ($(BR2_PACKAGE_IPSET),y)
 KEEPALIVED_DEPENDENCIES += ipset
 KEEPALIVED_CONF_OPTS += --enable-libipset
 else
 KEEPALIVED_CONF_OPTS += --disable-libipset
 endif
-
-ifeq ($(BR2_PACKAGE_IPTABLES),y)
-KEEPALIVED_DEPENDENCIES += iptables
-KEEPALIVED_CONF_OPTS += --enable-libiptc
 else
-KEEPALIVED_CONF_OPTS += --disable-libiptc
+KEEPALIVED_CONF_OPTS += --disable-iptables
 endif
 
 ifeq ($(BR2_PACKAGE_LIBNFTNL),y)
