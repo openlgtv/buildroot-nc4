@@ -1,0 +1,21 @@
+env:
+  CIRRUS_CLONE_DEPTH: 1
+  MSBUILDDISABLENODEREUSE: 1
+
+linux_x64_task:
+  container:
+    cpu: 8
+    memory: 8G
+    image: gcc:11.2
+  
+  prepare_script:
+    - apt-get update -qq
+    - apt-get install -y cpio rsync bc
+
+  build_script:
+    # select the NC4 D32 config (minimum supported: mt5398 NC4.0)
+    - make nc4_defconfig
+    - make sdk
+
+  sdk_artifacts:
+    path: output/images/*_sdk-buildroot.tar.gz
