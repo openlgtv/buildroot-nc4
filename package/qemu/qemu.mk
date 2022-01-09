@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-QEMU_VERSION = 5.2.0
+QEMU_VERSION = 6.1.0
 QEMU_SOURCE = qemu-$(QEMU_VERSION).tar.xz
 QEMU_SITE = http://download.qemu.org
 QEMU_LICENSE = GPL-2.0, LGPL-2.1, MIT, BSD-3-Clause, BSD-2-Clause, Others/BSD-1c
@@ -12,6 +12,7 @@ QEMU_LICENSE_FILES = COPYING COPYING.LIB
 # NOTE: there is no top-level license file for non-(L)GPL licenses;
 #       the non-(L)GPL license texts are specified in the affected
 #       individual source files.
+QEMU_CPE_ID_VENDOR = qemu
 
 #-------------------------------------------------------------
 
@@ -55,6 +56,12 @@ endif
 
 endif
 
+ifeq ($(BR2_TOOLCHAIN_USES_UCLIBC),y)
+QEMU_OPTS += --disable-vhost-user
+else
+QEMU_OPTS += --enable-vhost-user
+endif
+
 ifeq ($(BR2_PACKAGE_QEMU_SLIRP),y)
 QEMU_OPTS += --enable-slirp=system
 QEMU_DEPENDENCIES += slirp
@@ -81,6 +88,13 @@ ifeq ($(BR2_PACKAGE_QEMU_TOOLS),y)
 QEMU_OPTS += --enable-tools
 else
 QEMU_OPTS += --disable-tools
+endif
+
+ifeq ($(BR2_PACKAGE_LIBFUSE3),y)
+QEMU_OPTS += --enable-fuse --enable-fuse-lseek
+QEMU_DEPENDENCIES += libfuse3
+else
+QEMU_OPTS += --disable-fuse --disable-fuse-lseek
 endif
 
 ifeq ($(BR2_PACKAGE_LIBSECCOMP),y)
@@ -153,6 +167,10 @@ else
 QEMU_OPTS += --disable-usb-redir
 endif
 
+ifeq ($(BR2_STATIC_LIBS),y)
+QEMU_OPTS += --static
+endif
+
 # Override CPP, as it expects to be able to call it like it'd
 # call the compiler.
 define QEMU_CONFIGURE_CMDS
@@ -172,6 +190,7 @@ define QEMU_CONFIGURE_CMDS
 			--enable-kvm \
 			--enable-attr \
 			--enable-vhost-net \
+			--disable-bpf \
 			--disable-bsd-user \
 			--disable-containers \
 			--disable-xen \
@@ -197,7 +216,7 @@ define QEMU_CONFIGURE_CMDS
 			--disable-vhost-crypto \
 			--disable-libxml2 \
 			--disable-capstone \
-			--disable-git-update \
+			--with-git-submodules=ignore \
 			--disable-opengl \
 			--disable-vhost-user-blk-server \
 			--disable-virtiofsd \
@@ -336,9 +355,11 @@ define HOST_QEMU_CONFIGURE_CMDS
 		--extra-ldflags="$(HOST_LDFLAGS)" \
 		--meson=$(HOST_DIR)/bin/meson \
 		--ninja=$(HOST_DIR)/bin/ninja \
+		--disable-bpf \
 		--disable-bzip2 \
 		--disable-containers \
 		--disable-curl \
+		--disable-docs \
 		--disable-libssh \
 		--disable-linux-io-uring \
 		--disable-sdl \

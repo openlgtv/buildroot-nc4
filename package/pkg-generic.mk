@@ -97,8 +97,33 @@ endif
 # $2: staging directory of the package
 ifeq ($(BR2_PER_PACKAGE_DIRECTORIES),y)
 define fixup-libtool-files
-	$(Q)find $(2)/usr/lib* -name "*.la" | xargs --no-run-if-empty \
+	$(Q)find $(2) \( -path '$(2)/lib*' -o -path '$(2)/usr/lib*' \) \
+		-name "*.la" -print0 | xargs -0 --no-run-if-empty \
 		$(SED) "s:$(PER_PACKAGE_DIR)/[^/]\+/:$(PER_PACKAGE_DIR)/$(1)/:g"
+endef
+endif
+
+# Make sure python _sysconfigdata*.py files only reference the current
+# per-package directory.
+#
+# Can't use $(foreach d, $(HOST_DIR)/lib/python* $(STAGING_DIR)/usr/lib/python*, ...)
+# because those directories may be created in the same recipe this macro will
+# be expanded in.
+# Additionally, either or both may be missing, which would make find whine and
+# fail.
+# So we just use HOST_DIR as a starting point, and filter on the two directories
+# of interest.
+ifeq ($(BR2_PER_PACKAGE_DIRECTORIES),y)
+define FIXUP_PYTHON_SYSCONFIGDATA
+	$(Q)find $(HOST_DIR) \
+		\(    -path '$(HOST_DIR)/lib/python*' \
+		   -o -path '$(STAGING_DIR)/usr/lib/python*' \
+		\) \
+		\(    \( -name "_sysconfigdata*.pyc" -delete \) \
+		   -o \( -name "_sysconfigdata*.py" -print0 \) \
+		\) \
+	| xargs -0 --no-run-if-empty \
+		$(SED) 's:$(PER_PACKAGE_DIR)/[^/]\+/:$(PER_PACKAGE_DIR)/$($(PKG)_NAME)/:g'
 endef
 endif
 
@@ -133,6 +158,23 @@ define check_bin_arch
 		$(foreach i,$($(PKG)_BIN_ARCH_EXCLUDE),-i "$(i)") \
 		-r $(TARGET_READELF) \
 		-a $(BR2_READELF_ARCH_NAME)
+endef
+
+# Functions to remove conflicting and useless files
+
+# $1: base directory (target, staging, host)
+define remove-conflicting-useless-files
+	$(if $(strip $($(PKG)_DROP_FILES_OR_DIRS)),
+		$(Q)$(RM) -rf $(patsubst %, $(1)%, $($(PKG)_DROP_FILES_OR_DIRS)))
+endef
+define REMOVE_CONFLICTING_USELESS_FILES_IN_HOST
+	$(call remove-conflicting-useless-files,$(HOST_DIR))
+endef
+define REMOVE_CONFLICTING_USELESS_FILES_IN_STAGING
+	$(call remove-conflicting-useless-files,$(STAGING_DIR))
+endef
+define REMOVE_CONFLICTING_USELESS_FILES_IN_TARGET
+	$(call remove-conflicting-useless-files,$(TARGET_DIR))
 endef
 
 ################################################################################
@@ -234,8 +276,11 @@ $(BUILD_DIR)/%/.stamp_configured:
 	$(call prepare-per-package-directory,$($(PKG)_FINAL_DEPENDENCIES))
 	@$(call pkg_size_before,$(TARGET_DIR))
 	@$(call pkg_size_before,$(STAGING_DIR),-staging)
+	@$(call pkg_size_before,$(BINARIES_DIR),-images)
 	@$(call pkg_size_before,$(HOST_DIR),-host)
+	$(call fixup-libtool-files,$(NAME),$(HOST_DIR))
 	$(call fixup-libtool-files,$(NAME),$(STAGING_DIR))
+	$(foreach hook,$($(PKG)_POST_PREPARE_HOOKS),$(call $(hook))$(sep))
 	$(foreach hook,$($(PKG)_PRE_CONFIGURE_HOOKS),$(call $(hook))$(sep))
 	$($(PKG)_CONFIGURE_CMDS)
 	$(foreach hook,$($(PKG)_POST_CONFIGURE_HOOKS),$(call $(hook))$(sep))
@@ -358,6 +403,7 @@ $(BUILD_DIR)/%/.stamp_target_installed:
 $(BUILD_DIR)/%/.stamp_installed:
 	@$(call pkg_size_after,$(TARGET_DIR))
 	@$(call pkg_size_after,$(STAGING_DIR),-staging)
+	@$(call pkg_size_after,$(BINARIES_DIR),-images)
 	@$(call pkg_size_after,$(HOST_DIR),-host)
 	@$(call check_bin_arch)
 	$(Q)touch $@
@@ -518,7 +564,7 @@ ifndef $(2)_SOURCE
  ifdef $(3)_SOURCE
   $(2)_SOURCE = $$($(3)_SOURCE)
  else ifdef $(2)_VERSION
-  $(2)_SOURCE			?= $$($(2)_BASENAME_RAW).tar.gz
+  $(2)_SOURCE			?= $$($(2)_BASENAME_RAW)$$(call pkg_source_ext,$(2))
  endif
 endif
 
@@ -567,6 +613,12 @@ ifneq ($$(filter bzr cvs hg,$$($(2)_SITE_METHOD)),)
 BR_NO_CHECK_HASH_FOR += $$($(2)_SOURCE)
 endif
 
+ifndef $(2)_GIT_SUBMODULES
+ ifdef $(3)_GIT_SUBMODULES
+  $(2)_GIT_SUBMODULES = $$($(3)_GIT_SUBMODULES)
+ endif
+endif
+
 # Do not accept to download git submodule if not using the git method
 ifneq ($$($(2)_GIT_SUBMODULES),)
  ifneq ($$($(2)_SITE_METHOD),git)
@@ -610,13 +662,13 @@ $(2)_REDIST_SOURCES_DIR = $$(REDIST_SOURCES_DIR_$$(call UPPERCASE,$(4)))/$$($(2)
 
 # If any of the <pkg>_CPE_ID_* variables are set, we assume the CPE ID
 # information is valid for this package.
-ifneq ($$($(2)_CPE_ID_VENDOR)$$($(2)_CPE_ID_NAME)$$($(2)_CPE_ID_VERSION)$$($(2)_CPE_ID_VERSION_MINOR)$$($(2)_CPE_ID_PREFIX),)
+ifneq ($$($(2)_CPE_ID_VENDOR)$$($(2)_CPE_ID_PRODUCT)$$($(2)_CPE_ID_VERSION)$$($(2)_CPE_ID_UPDATE)$$($(2)_CPE_ID_PREFIX),)
 $(2)_CPE_ID_VALID = YES
 endif
 
 # When we're a host package, make sure to use the variables of the
 # corresponding target package, if any.
-ifneq ($$($(3)_CPE_ID_VENDOR)$$($(3)_CPE_ID_NAME)$$($(3)_CPE_ID_VERSION)$$($(3)_CPE_ID_VERSION_MINOR)$$($(3)_CPE_ID_PREFIX),)
+ifneq ($$($(3)_CPE_ID_VENDOR)$$($(3)_CPE_ID_PRODUCT)$$($(3)_CPE_ID_VERSION)$$($(3)_CPE_ID_UPDATE)$$($(3)_CPE_ID_PREFIX),)
 $(2)_CPE_ID_VALID = YES
 endif
 
@@ -638,12 +690,12 @@ ifeq ($$($(2)_CPE_ID_VALID),YES)
  endif
  endif
 
- # CPE_ID_NAME
- ifndef $(2)_CPE_ID_NAME
-  ifdef $(3)_CPE_ID_NAME
-   $(2)_CPE_ID_NAME = $$($(3)_CPE_ID_NAME)
+ # CPE_ID_PRODUCT
+ ifndef $(2)_CPE_ID_PRODUCT
+  ifdef $(3)_CPE_ID_PRODUCT
+   $(2)_CPE_ID_PRODUCT = $$($(3)_CPE_ID_PRODUCT)
   else
-   $(2)_CPE_ID_NAME = $$($(2)_RAWNAME)
+   $(2)_CPE_ID_PRODUCT = $$($(2)_RAWNAME)
   endif
  endif
 
@@ -656,12 +708,12 @@ ifeq ($$($(2)_CPE_ID_VALID),YES)
   endif
  endif
 
- # CPE_ID_VERSION_MINOR
- ifndef $(2)_CPE_ID_VERSION_MINOR
-  ifdef $(3)_CPE_ID_VERSION_MINOR
-   $(2)_CPE_ID_VERSION_MINOR = $$($(3)_CPE_ID_VERSION_MINOR)
+ # CPE_ID_UPDATE
+ ifndef $(2)_CPE_ID_UPDATE
+  ifdef $(3)_CPE_ID_UPDATE
+   $(2)_CPE_ID_UPDATE = $$($(3)_CPE_ID_UPDATE)
   else
-   $(2)_CPE_ID_VERSION_MINOR = *
+   $(2)_CPE_ID_UPDATE = *
   endif
  endif
 
@@ -675,7 +727,7 @@ ifeq ($$($(2)_CPE_ID_VALID),YES)
  endif
 
  # Calculate complete CPE ID
- $(2)_CPE_ID = $$($(2)_CPE_ID_PREFIX):$$($(2)_CPE_ID_VENDOR):$$($(2)_CPE_ID_NAME):$$($(2)_CPE_ID_VERSION):$$($(2)_CPE_ID_VERSION_MINOR):*:*:*:*:*:*
+ $(2)_CPE_ID = $$($(2)_CPE_ID_PREFIX):$$($(2)_CPE_ID_VENDOR):$$($(2)_CPE_ID_PRODUCT):$$($(2)_CPE_ID_VERSION):$$($(2)_CPE_ID_UPDATE):*:*:*:*:*:*
 endif # ifeq ($$($(2)_CPE_ID_VALID),YES)
 
 # When a target package is a toolchain dependency set this variable to
@@ -811,15 +863,28 @@ $(2)_POST_LEGAL_INFO_HOOKS      ?=
 $(2)_TARGET_FINALIZE_HOOKS      ?=
 $(2)_ROOTFS_PRE_CMD_HOOKS       ?=
 
+$(2)_POST_PREPARE_HOOKS += FIXUP_PYTHON_SYSCONFIGDATA
+
 ifeq ($$($(2)_TYPE),target)
 ifneq ($$(HOST_$(2)_KCONFIG_VAR),)
 $$(error "Package $(1) defines host variant before target variant!")
 endif
 endif
 
+# Globaly remove following conflicting and useless files
+$(2)_DROP_FILES_OR_DIRS += /share/info/dir
+
+ifeq ($$($(2)_TYPE),host)
+$(2)_POST_INSTALL_HOOKS += REMOVE_CONFLICTING_USELESS_FILES_IN_HOST
+else
+$(2)_POST_INSTALL_STAGING_HOOKS += REMOVE_CONFLICTING_USELESS_FILES_IN_STAGING
+$(2)_POST_INSTALL_TARGET_HOOKS += REMOVE_CONFLICTING_USELESS_FILES_IN_TARGET
+endif
+
 # human-friendly targets and target sequencing
 $(1):			$(1)-install
 $(1)-install:		$$($(2)_TARGET_INSTALL)
+$$($(2)_TARGET_INSTALL): $$($(2)_TARGET_BUILD)
 
 ifeq ($$($(2)_TYPE),host)
 $$($(2)_TARGET_INSTALL): $$($(2)_TARGET_INSTALL_HOST)

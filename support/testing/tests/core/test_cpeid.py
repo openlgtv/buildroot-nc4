@@ -2,6 +2,7 @@ import infra
 import subprocess
 import json
 
+
 class CpeIdTest(infra.basetest.BRConfigTest):
     config = ""
     br2_external = [infra.filepath("tests/core/cpeid-br2-external")]
@@ -21,7 +22,7 @@ class CpeIdTest(infra.basetest.BRConfigTest):
         # this package has no CPE ID information, it should not have
         # any CPE_ID variable defined.
         pkg_vars = self.get_vars("CPE_ID_PKG1_CPE_ID")
-        cpe_vars = ["CPE_ID_VALID", "CPE_ID_NAME", "CPE_ID_VERSION", "CPE_ID_VERSION_MINOR",
+        cpe_vars = ["CPE_ID_VALID", "CPE_ID_PRODUCT", "CPE_ID_VERSION", "CPE_ID_UPDATE",
                     "CPE_ID_PREFIX", "CPE_ID"]
         for v in cpe_vars:
             self.assertNotIn("CPE_ID_PKG1_%s" % v, pkg_vars)
@@ -38,7 +39,7 @@ class CpeIdTest(infra.basetest.BRConfigTest):
         # this package has no CPE ID information, it should not have
         # any CPE_ID variable defined.
         pkg_vars = self.get_vars("HOST_CPE_ID_PKG2_CPE_ID")
-        cpe_vars = ["CPE_ID_VALID", "CPE_ID_NAME", "CPE_ID_VERSION", "CPE_ID_VERSION_MINOR",
+        cpe_vars = ["CPE_ID_VALID", "CPE_ID_PRODUCT", "CPE_ID_VERSION", "CPE_ID_UPDATE",
                     "CPE_ID_PREFIX", "CPE_ID"]
         for v in cpe_vars:
             self.assertNotIn("HOST_CPE_ID_PKG2_%s" % v, pkg_vars)
@@ -46,7 +47,7 @@ class CpeIdTest(infra.basetest.BRConfigTest):
         self.assertNotIn("cpe-id", pkg_json['host-cpe-id-pkg2'])
 
     def test_pkg3(self):
-        # this package has just <pkg>_CPE_ID_VALID defined, so verify
+        # this package has just <pkg>_CPE_ID_VENDOR defined, so verify
         # it has the default CPE_ID value, and that inheritance of the
         # values for the host package is working
         pkg_vars = self.get_vars("CPE_ID_PKG3_CPE_ID")
@@ -67,7 +68,7 @@ class CpeIdTest(infra.basetest.BRConfigTest):
 
     def test_pkg4(self):
         # this package defines
-        # <pkg>_CPE_ID_{VENDOR,NAME,VERSION,VERSION_MINOR,PREFIX},
+        # <pkg>_CPE_ID_{VENDOR,PRODUCT,VERSION,UPDATE,PREFIX},
         # make sure we get the computed <pkg>_CPE_ID, and that it is
         # inherited by the host variant
         pkg_vars = self.get_vars("CPE_ID_PKG4_CPE_ID")
@@ -88,8 +89,8 @@ class CpeIdTest(infra.basetest.BRConfigTest):
 
     def test_pkg5(self):
         # this package defines
-        # <pkg>_CPE_ID_{VENDOR,NAME,VERSION,VERSION_MINOR,PREFIX} and
-        # HOST_<pkg>_CPE_ID_{VENDOR,NAME,VERSION,VERSION_MINOR,PREFIX}
+        # <pkg>_CPE_ID_{VENDOR,PRODUCT,VERSION,UPDATE,PREFIX} and
+        # HOST_<pkg>_CPE_ID_{VENDOR,PRODUCT,VERSION,UPDATE,PREFIX}
         # separately, with different values. Make sure we get the
         # right <pkg>_CPE_ID and HOST_<pkg>_CPE_ID values.
         pkg_vars = self.get_vars("CPE_ID_PKG5_CPE_ID")

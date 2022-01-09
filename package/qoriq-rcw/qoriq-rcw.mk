@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-QORIQ_RCW_VERSION = LSDK-19.09
+QORIQ_RCW_VERSION = LSDK-20.12
 QORIQ_RCW_SITE = https://source.codeaurora.org/external/qoriq/qoriq-components/rcw
 QORIQ_RCW_SITE_METHOD = git
 QORIQ_RCW_LICENSE = BSD-3-Clause
@@ -59,7 +59,7 @@ endif
 # Copy source files and script into $(HOST_DIR)/share/rcw/ so a developer
 # could use a post image or SDK to build/install PBL files.
 define HOST_QORIQ_RCW_INSTALL_CMDS
-	mkdir -p  $(HOST_DIR)/share/rcw
+	mkdir -p $(HOST_DIR)/share/rcw
 	cp -a $(@D)/* $(HOST_DIR)/share/rcw
 	$(HOST_QORIQ_RCW_INSTALL_DELIVERY_FILE)
 endef
