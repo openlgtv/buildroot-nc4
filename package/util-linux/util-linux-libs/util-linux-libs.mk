@@ -67,6 +67,11 @@ else
 UTIL_LINUX_LIBS_CONF_OPTS += --without-selinux
 endif
 
+# hack
+UTIL_LINUX_LIBS_CFLAGS = $(TARGET_CFLAGS)
+UTIL_LINUX_LIBS_CFLAGS += -DO_PATH=010000000
+UTIL_LINUX_LIBS_CONF_ENV += CFLAGS="$(UTIL_LINUX_LIBS_CFLAGS)"
+
 # Disable utilities
 UTIL_LINUX_LIBS_CONF_OPTS += \
 	--disable-all-programs \

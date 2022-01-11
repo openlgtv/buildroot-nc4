@@ -1,0 +1,29 @@
+diff -rub a/test/dbi/CMakeLists.txt b/test/dbi/CMakeLists.txt
+--- a/test/dbi/CMakeLists.txt	2021-09-15 11:54:55.000000000 +0200
++++ b/test/dbi/CMakeLists.txt	2022-01-11 01:30:09.566999745 +0100
+@@ -1,3 +1,3 @@
+ include_directories(${CMAKE_SOURCE_DIR}/src/dbi)
+ add_executable(test_dbi test_dbi.cpp)
+-target_link_libraries(test_dbi ums_dbi)
++target_link_libraries(test_dbi ums_dbi rt)
+diff -rub a/test/media_client/CMakeLists.txt b/test/media_client/CMakeLists.txt
+--- a/test/media_client/CMakeLists.txt	2021-09-15 11:54:55.000000000 +0200
++++ b/test/media_client/CMakeLists.txt	2022-01-11 01:29:33.622810745 +0100
+@@ -17,4 +17,4 @@
+ include_directories( ${CMAKE_SOURCE_DIR}/src/media_client )
+ 
+ add_executable (test_media_client test_media_client.cpp)
+-target_link_libraries (test_media_client umedia_api)
++target_link_libraries (test_media_client umedia_api rt)
+diff -rub a/test/process_pool/CMakeLists.txt b/test/process_pool/CMakeLists.txt
+--- a/test/process_pool/CMakeLists.txt	2021-09-15 11:54:55.000000000 +0200
++++ b/test/process_pool/CMakeLists.txt	2022-01-11 01:31:23.659389401 +0100
+@@ -18,7 +18,7 @@
+                      ${CMAKE_SOURCE_DIR}/src/dbi
+                      ${CMAKE_SOURCE_DIR}/src/registry )
+ 
+-set(LINK_DEPS ${GLIB_LIBRARIES} ${Boost_LIBRARIES} pthread process_pool)
++set(LINK_DEPS ${GLIB_LIBRARIES} ${Boost_LIBRARIES} pthread process_pool rt)
+ 
+ add_executable(glib_child_watch_test glib_child_watch_test.cpp)
+ target_link_libraries(glib_child_watch_test ${LINK_DEPS})

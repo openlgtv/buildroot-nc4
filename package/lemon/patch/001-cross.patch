@@ -1,0 +1,63 @@
+Index: sqlite3-3.13.0/Makefile.in
+===================================================================
+--- sqlite3-3.13.0.orig/Makefile.in
++++ sqlite3-3.13.0/Makefile.in
+@@ -773,10 +773,20 @@ sqlite3.lo:	sqlite3.c
+ 
+ # Rules to build the LEMON compiler generator
+ #
+-lemon$(BEXE):	$(TOP)/tool/lemon.c $(TOP)/tool/lempar.c
++lemon-for-build$(BEXE):	$(TOP)/tool/lemon.c $(TOP)/tool/lempar.c
+ 	$(BCC) -o $@ $(TOP)/tool/lemon.c
+ 	cp $(TOP)/tool/lempar.c .
+ 
++lemon$(TEXE):	$(TOP)/tool/lemon.c $(TOP)/tool/lempar.c
++	$(LTLINK) -o $@ $(TOP)/tool/lemon.c
++	cp $(TOP)/tool/lempar.c .
++
++ifeq ($(CROSS_BUILDING),yes)
++LEMON_FOR_BUILD = lemon-for-build$(BEXE)
++else
++LEMON_FOR_BUILD = lemon$(TEXE)
++endif
++
+ # Rules to build the program that generates the source-id
+ #
+ mksourceid$(BEXE):	$(TOP)/tool/mksourceid.c
+@@ -1052,9 +1052,9 @@ opcodes.h:	parse.h $(TOP)/src/vdbe.c $(T
+ #
+ parse.h:	parse.c
+ 
+-parse.c:	$(TOP)/src/parse.y lemon$(BEXE)
++parse.c:	$(TOP)/src/parse.y $(LEMON_FOR_BUILD)
+ 	cp $(TOP)/src/parse.y .
+-	./lemon$(BEXE) $(OPT_FEATURE_FLAGS) $(OPTS) -S parse.y
++	./$(LEMON_FOR_BUILD) $(OPT_FEATURE_FLAGS) $(OPTS) -S parse.y
+ 
+ sqlite3.h:	$(TOP)/src/sqlite.h.in $(TOP)/manifest mksourceid$(BEXE) $(TOP)/VERSION
+ 	$(TCLSH_CMD) $(TOP)/tool/mksqlite3h.tcl $(TOP) >sqlite3.h
+@@ -1179,10 +1179,10 @@ FTS5_SRC = \
+    $(TOP)/ext/fts5/fts5_varint.c \
+    $(TOP)/ext/fts5/fts5_vocab.c  \
+ 
+-fts5parse.c:	$(TOP)/ext/fts5/fts5parse.y lemon$(BEXE)
++fts5parse.c:	$(TOP)/ext/fts5/fts5parse.y $(LEMON_FOR_BUILD)
+ 	cp $(TOP)/ext/fts5/fts5parse.y .
+ 	rm -f fts5parse.h
+-	./lemon$(BEXE) $(OPTS) -S fts5parse.y
++	./$(LEMON_FOR_BUILD)$(BEXE) $(OPTS) -S fts5parse.y
+ 
+ fts5parse.h: fts5parse.c
+ 
+@@ -1431,7 +1441,10 @@
+ 	rm -f *.lo *.la *.o sqlite3$(TEXE) libsqlite3.la
+ 	rm -f sqlite3.h opcodes.*
+ 	rm -rf .libs .deps
+-	rm -f lemon$(BEXE) lempar.c parse.* sqlite*.tar.gz
++	rm -f $(LEMON_FOR_BUILD) lempar.c parse.* sqlite*.tar.gz
++ifeq ($(CROSS_BUILDING), yes)
++	rm -f lemon$(TEXE)
++endif
+ 	rm -f mkkeywordhash$(BEXE) keywordhash.h
+ 	rm -f *.da *.bb *.bbg gmon.out
+ 	rm -rf tsrc .target_source

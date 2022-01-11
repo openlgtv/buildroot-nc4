@@ -1,0 +1,52 @@
+diff -rub a/include/private/util.hpp b/include/private/util.hpp
+--- a/include/private/util.hpp	2021-11-09 14:32:09.000000000 +0100
++++ b/include/private/util.hpp	2022-01-10 22:04:29.633297794 +0100
+@@ -19,6 +19,7 @@
+ 
+ #include <memory>
+ #include <utility>
++#include <string>
+ 
+ #include <glib.h>
+ 
+diff -rub a/src/ls-hubd/CMakeLists.txt b/src/ls-hubd/CMakeLists.txt
+--- a/src/ls-hubd/CMakeLists.txt	2021-11-09 14:32:09.000000000 +0100
++++ b/src/ls-hubd/CMakeLists.txt	2022-01-10 22:04:29.641297836 +0100
+@@ -58,8 +58,12 @@
+     add_definitions(-DLS_VALIDATE_CONF)
+ endif()
+ 
++find_library(SYSTEMD_LIBRARY systemd)
++if(SYSTEMD_LIBRARY)
++	target_link_libraries(${PROJECT_NAME} ${SYSTEMD_LIBRARY})
++endif()
++
+ set(LIBRARIES
+-    -lsystemd
+     luna-service2
+     luna-service2++
+     ${PMLOGLIB_LIBRARIES}
+diff -rub a/src/ls-hubd/hub.cpp b/src/ls-hubd/hub.cpp
+--- a/src/ls-hubd/hub.cpp	2021-11-09 14:32:09.000000000 +0100
++++ b/src/ls-hubd/hub.cpp	2022-01-10 22:04:29.641297836 +0100
+@@ -55,7 +55,9 @@
+ 
+ #include <fstream>
+ #include <iostream>
++#if !defined(WEBOS_TARGET_MACHINE_IMPL_GUEST)
+ #include <systemd/sd-daemon.h>
++#endif
+ #include <utility>
+ 
+ template <typename Arg, typename... Args>
+diff -rub a/src/ls-hubd/hub_service.hpp b/src/ls-hubd/hub_service.hpp
+--- a/src/ls-hubd/hub_service.hpp	2021-11-09 14:32:09.000000000 +0100
++++ b/src/ls-hubd/hub_service.hpp	2022-01-10 22:04:29.641297836 +0100
+@@ -17,6 +17,7 @@
+ #ifndef _HUB_SERVICE_HPP_
+ #define _HUB_SERVICE_HPP_
+ 
++#include <string>
+ #include <set>
+ #include <memory>
+ #include <unordered_map>

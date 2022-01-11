@@ -58,6 +58,9 @@ config BR2_PACKAGE_SDL2_OPENGLES
 comment "OpenGL ES support needs an OpenGL ES provider"
 	depends on !BR2_PACKAGE_HAS_LIBGLES
 
+config BR2_PACKAGE_SDL2_WEBOS
+	bool "WebOS support"
+
 endif
 
 comment "sdl2 needs a toolchain w/ dynamic library"

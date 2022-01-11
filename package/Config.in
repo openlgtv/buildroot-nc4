@@ -180,6 +180,7 @@ menu "Development tools"
 	source "package/grep/Config.in"
 	source "package/jo/Config.in"
 	source "package/jq/Config.in"
+	source "package/lemon/Config.in"
 	source "package/libtool/Config.in"
 	source "package/make/Config.in"
 	source "package/mawk/Config.in"
@@ -2057,6 +2058,15 @@ menu "Text and terminal handling"
 	source "package/utf8proc/Config.in"
 endmenu
 
+menu "WebOS"
+	source "package/cmake-modules-webos/Config.in"
+	source "package/pmloglib/Config.in"
+	source "package/libpbnjson/Config.in"
+	source "package/libwebosi18n/Config.in"
+	source "package/luna-service2/Config.in"
+	source "package/umediaserver/Config.in"
+endmenu
+
 endmenu
 
 menu "Mail"
@@ -2570,6 +2580,11 @@ menu "Text editors and viewers"
 	source "package/nano/Config.in"
 	source "package/uemacs/Config.in"
 	source "package/vim/Config.in"
+endmenu
+
+menu "WebOS"
+	source "package/hyperion-webos/Config.in"
+	source "package/moonlight-tv/Config.in"
 endmenu
 
 endmenu
