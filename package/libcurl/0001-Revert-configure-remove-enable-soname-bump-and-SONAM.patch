@@ -1,0 +1,96 @@
+From fcc15933495eb770170063abde85b2ed71a35668 Mon Sep 17 00:00:00 2001
+From: Stefano Moioli <smxdev4@gmail.com>
+Date: Tue, 11 Jan 2022 20:01:00 +0100
+Subject: [PATCH] Revert "configure: remove --enable-soname-bump and
+ SONAME_BUMP"
+
+This reverts commit d1da545a6881dbeafff86077f696f0dc22d3fc81.
+---
+ configure.ac    | 33 +++++++++++++++++++++++++++++++++
+ lib/Makefile.am | 14 ++++++++++++++
+ 2 files changed, 47 insertions(+)
+
+diff --git a/configure.ac b/configure.ac
+index 7430bd747..900bfef06 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -3150,6 +3150,8 @@ AX_COMPILE_CHECK_SIZEOF(curl_off_t, [
+ ])
+ CPPFLAGS=$o
+ 
++soname_bump=no
++
+ AC_CHECK_TYPE(long long,
+    [AC_DEFINE(HAVE_LONGLONG, 1,
+       [Define to 1 if the compiler supports the 'long long' data type.])]
+@@ -3943,6 +3945,26 @@ dnl hiding of library internal symbols
+ dnl
+ CURL_CONFIGURE_SYMBOL_HIDING
+ 
++dnl ************************************************************
++dnl enforce SONAME bump
++dnl
++
++AC_MSG_CHECKING([whether to enforce SONAME bump])
++AC_ARG_ENABLE(soname-bump,
++AC_HELP_STRING([--enable-soname-bump],[Enable enforced SONAME bump])
++AC_HELP_STRING([--disable-soname-bump],[Disable enforced SONAME bump]),
++[ case "$enableval" in
++  yes)   AC_MSG_RESULT(yes)
++         soname_bump=yes
++         ;;
++  *)
++         AC_MSG_RESULT(no)
++         ;;
++  esac ],
++        AC_MSG_RESULT($soname_bump)
++)
++AM_CONDITIONAL(SONAME_BUMP, test x$soname_bump = xyes)
++
+ dnl
+ dnl All the library dependencies put into $LIB apply to libcurl only.
+ dnl
+@@ -4305,3 +4327,14 @@ if test -n "$experimental"; then
+   WARNING: $experimental enabled but marked EXPERIMENTAL. Use with caution!
+ _EOF
+ fi
++
++if test "x$soname_bump" = "xyes"; then
++
++cat <<EOM
++  SONAME bump:     yes - WARNING: this library will be built with the SONAME
++                   number bumped due to (a detected) ABI breakage.
++                   See lib/README.curl_off_t for details on this.
++EOM
++
++fi
++
+diff --git a/lib/Makefile.am b/lib/Makefile.am
+index 769363941..0b3325d2d 100644
+--- a/lib/Makefile.am
++++ b/lib/Makefile.am
+@@ -66,7 +66,21 @@ endif
+ # Prevent LIBS from being used for all link targets
+ LIBS = $(BLANK_AT_MAKETIME)
+ 
++if SONAME_BUMP
++#
++# Bumping of SONAME conditionally may seem like a weird thing to do, and yeah
++# it is. The problem is that we try to avoid the bump as hard as possible, but
++# yet it is still necessary for a few rare situations. The configure script will
++# attempt to figure out these situations, and it can be forced to consider this
++# to be such a case! See README.curl_off_t for further details.
++#
++# This conditional soname bump SHOULD be removed at next "proper" bump.
++#
++VERSIONINFO=-version-info 12:0:7
++else
+ VERSIONINFO=-version-info 11:0:7
++endif
++
+ # This flag accepts an argument of the form current[:revision[:age]]. So,
+ # passing -version-info 3:12:1 sets current to 3, revision to 12, and age to
+ # 1.
+-- 
+2.33.0
+

@@ -15,6 +15,7 @@ LIBCURL_LICENSE_FILES = COPYING
 LIBCURL_CPE_ID_VENDOR = haxx
 LIBCURL_CPE_ID_PRODUCT = libcurl
 LIBCURL_INSTALL_STAGING = YES
+LIBCURL_AUTORECONF = YES
 
 # We disable NTLM support because it uses fork(), which doesn't work
 # on non-MMU platforms. Moreover, this authentication method is
@@ -25,6 +26,10 @@ LIBCURL_INSTALL_STAGING = YES
 LIBCURL_CONF_OPTS = --disable-manual --disable-ntlm-wb \
 	--enable-hidden-symbols --with-random=/dev/urandom --disable-curldebug \
 	--disable-libcurl-option --disable-ldap --disable-ldaps
+
+ifeq ($(BR2_PACKAGE_LIBCURL_SONAME_BUMP),y)
+LIBCURL_CONF_OPTS += --enable-soname-bump
+endif
 
 ifeq ($(BR2_TOOLCHAIN_HAS_THREADS),y)
 LIBCURL_CONF_OPTS += --enable-threaded-resolver

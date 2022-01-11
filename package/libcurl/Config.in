@@ -19,6 +19,9 @@ config BR2_PACKAGE_LIBCURL_VERBOSE
 	help
 	  Enable verbose text strings
 
+config BR2_PACKAGE_LIBCURL_SONAME_BUMP
+	bool "force soname bump"
+
 config BR2_PACKAGE_LIBCURL_PROXY_SUPPORT
 	bool "proxy support"
 	default y
