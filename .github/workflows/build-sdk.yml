@@ -12,6 +12,15 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Cache
+      uses: actions/cache@v2
+      with:
+        path: |
+          dl
+          output/build/host-*
+          output/host
+        key: ${{ runner.os }}-rev-1
+
     - name: Initialize config
       run: make webos_tv_defconfig
 
