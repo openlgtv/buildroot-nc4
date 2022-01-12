@@ -5,24 +5,33 @@ on:
     branches: [ webos-sdk ]
 
 jobs:
-  build:
+  load-config:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Initialize config
+        run: make webos_tv_defconfig
 
+  build-toolchain:
+    needs: load-config
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+      - name: Cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            dl
+            output
+          key: ${{ runner.os }}-toolchain-cache-1
 
-    - name: Cache
-      uses: actions/cache@v2
-      with:
-        path: |
-          dl
-          output/build/host-*
-          output/host
-        key: ${{ runner.os }}-rev-1
+      - name: Build Toolchain
+        run: make toolchain
 
-    - name: Initialize config
-      run: make webos_tv_defconfig
+  build-sdk:
+    needs: build-toolchain
+    runs-on: ubuntu-latest
 
-    - name: Build SDK
-      run: make sdk
+    steps:
+      - name: Build SDK
+        run: make sdk
