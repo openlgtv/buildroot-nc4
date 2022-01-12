@@ -1,0 +1,19 @@
+name: Build SDK
+
+on:
+  push:
+    branches: [ webos ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Initialize config
+      run: make webos_tv_defconfig
+
+    - name: Build SDK
+      run: make sdk
