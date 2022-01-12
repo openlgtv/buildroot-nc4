@@ -5,33 +5,25 @@ on:
     branches: [ webos-sdk ]
 
 jobs:
-  load-config:
+  build:
     runs-on: ubuntu-latest
+    env:
+      BR2_CCACHE: y
+      BR2_CCACHE_DIR: ~/.buildroot-ccache
+      BR2_CCACHE_INITIAL_SETUP:
+      BR2_CCACHE_USE_BASEDIR: y
     steps:
       - uses: actions/checkout@v2
       - name: Initialize config
         run: make webos_tv_defconfig
-
-  build-toolchain:
-    needs: load-config
-    runs-on: ubuntu-latest
-
-    steps:
       - name: Cache
         uses: actions/cache@v2
         with:
-          path: |
-            dl
-            output
-          key: ${{ runner.os }}-toolchain-cache-1
-
+          path: ~/.buildroot-ccache
+          key: ${{ runner.os }}-ccache-${{ hashFiles('.config') }}
+          restore-keys: |
+            ${{ runner.os }}-ccache-
       - name: Build Toolchain
         run: make toolchain
-
-  build-sdk:
-    needs: build-toolchain
-    runs-on: ubuntu-latest
-
-    steps:
       - name: Build SDK
         run: make sdk
