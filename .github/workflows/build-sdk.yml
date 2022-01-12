@@ -2,7 +2,7 @@ name: Build SDK
 
 on:
   push:
-    branches: [ webos ]
+    branches: [ webos-sdk ]
 
 jobs:
   build:
