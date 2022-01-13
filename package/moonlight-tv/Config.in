@@ -13,6 +13,7 @@ config BR2_PACKAGE_MOONLIGHT_TV
 	select BR2_PACKAGE_JSON_C
 	select BR2_PACKAGE_PULSEAUDIO
 	select BR2_PACKAGE_UMEDIASERVER
+        select BR2_PACKAGE_SDL2_WEBOS
 
 comment "moonlight-tv needs EGL and OpenGL ES support"
 	depends on !BR2_PACKAGE_HAS_LIBEGL || \
