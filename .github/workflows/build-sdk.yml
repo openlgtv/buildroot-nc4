@@ -12,18 +12,16 @@ jobs:
       BR2_CCACHE_DIR: ~/.buildroot-ccache
       BR2_CCACHE_INITIAL_SETUP:
       BR2_CCACHE_USE_BASEDIR: y
-      CCACHE_CONFIGPATH: ccache.conf
     steps:
       - uses: actions/checkout@v2
       - name: Initialize config
-        run: |
-          echo "cache_dir = ${BR2_CCACHE_DIR}" >> ccache.conf
-          make webos_tv_defconfig
+        run: make webos_tv_defconfig
+      - run: make ccache-options CCACHE_OPTIONS="-p"
       - name: Cache
         uses: actions/cache@v2
         with:
           path: ~/.buildroot-ccache
-          key: ${{ runner.os }}-ccache-${{ hashFiles('.config', 'ccache.conf') }}
+          key: ${{ runner.os }}-ccache-${{ hashFiles('.config') }}
           restore-keys: |
             ${{ runner.os }}-ccache-
       - name: Build Toolchain
