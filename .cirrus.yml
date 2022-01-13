@@ -1,6 +1,10 @@
 env:
   CIRRUS_CLONE_DEPTH: 1
   MSBUILDDISABLENODEREUSE: 1
+  BR2_CCACHE: y
+  BR2_CCACHE_DIR: .buildroot-ccache
+  BR2_CCACHE_INITIAL_SETUP: 
+  BR2_CCACHE_USE_BASEDIR: y
 
 linux_x64_task:
   container:
@@ -15,11 +19,11 @@ linux_x64_task:
   dl_cache:
     folder: dl
     # reupload the cache if the config changed
-    fingerprint_script: cat configs/nc4_defconfig
+    fingerprint_script: cat configs/webos_tv_defconfig
 
   build_script:
     # select the NC4 D32 config (minimum supported: mt5398 NC4.0)
-    - make nc4_defconfig
+    - make webos_tv_defconfig
     - make sdk
 
   sdk_artifacts:
