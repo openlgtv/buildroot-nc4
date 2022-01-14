@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Buildroot -g95484f723a Configuration
+# Buildroot -g7702a981c4 Configuration
 #
 BR2_HAVE_DOT_CONFIG=y
 BR2_HOST_GCC_AT_LEAST_4_9=y
@@ -997,9 +997,9 @@ BR2_PACKAGE_SDL2_OPENGLES=y
 BR2_PACKAGE_SDL2_WEBOS=y
 # BR2_PACKAGE_SDL2_GFX is not set
 BR2_PACKAGE_SDL2_IMAGE=y
-# BR2_PACKAGE_SDL2_MIXER is not set
-# BR2_PACKAGE_SDL2_NET is not set
-# BR2_PACKAGE_SDL2_TTF is not set
+BR2_PACKAGE_SDL2_MIXER=y
+BR2_PACKAGE_SDL2_NET=y
+BR2_PACKAGE_SDL2_TTF=y
 
 #
 # Other GUIs
