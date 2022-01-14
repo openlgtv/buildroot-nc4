@@ -21,16 +21,21 @@ linux_x64_task:
 
   dl_cache:
     folder: dl
-    # reupload the cache if the config changed
-    fingerprint_script: echo $BRANCH; cat .config
+    # reupload the cache if content changed
+    reupload_on_changes: true
 
   compile_cache:
     folder: .buildroot-ccache
-    # reupload the cache if the config changed
-    fingerprint_script: echo $BRANCH; cat .config
+    # reupload the cache if content changed
+    reupload_on_changes: true
 
   build_script:
     - make sdk
+  
+  upload_caches:
+    allow_failures: true
+    - .buildroot-ccache
+    - dl
 
   sdk_artifacts:
     path: output/images/*_sdk-buildroot.tar.gz
