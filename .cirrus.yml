@@ -32,10 +32,10 @@ linux_x64_task:
   build_script:
     - make sdk
   
-  upload_caches:
-    allow_failures: true
-    - .buildroot-ccache
-    - dl
+  always:
+    upload_caches:
+      - .buildroot-ccache
+      - dl
 
   sdk_artifacts:
     path: output/images/*_sdk-buildroot.tar.gz
