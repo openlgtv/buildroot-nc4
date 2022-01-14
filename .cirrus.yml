@@ -2,7 +2,7 @@ env:
   CIRRUS_CLONE_DEPTH: 1
   MSBUILDDISABLENODEREUSE: 1
   BR2_CCACHE: y
-  BR2_CCACHE_DIR: .buildroot-ccache
+  BR2_CCACHE_DIR: ${HOME}/.buildroot-ccache
   BR2_CCACHE_INITIAL_SETUP: 
   BR2_CCACHE_USE_BASEDIR: y
 
@@ -24,7 +24,7 @@ linux_x64_task:
     reupload_on_changes: true
 
   compile_cache:
-    folder: .buildroot-ccache
+    folder: ${HOME}/.buildroot-ccache
     # reupload the cache if content changed
     reupload_on_changes: true
 
