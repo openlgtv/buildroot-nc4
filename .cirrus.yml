@@ -33,7 +33,7 @@ linux_x64_task:
   
   always:
     upload_caches:
-      - .buildroot-ccache
+      - compile
       - dl
 
   sdk_artifacts:
