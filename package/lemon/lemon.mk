@@ -24,10 +24,10 @@ define HOST_LEMON_BUILD_CMDS
 endef
 
 define HOST_LEMON_INSTALL_CMDS
-	$(INSTALL) -m 0775 $(@D)/lemon $(STAGING_DIR)/usr/bin/
-	$(INSTALL) -d $(STAGING_DIR)/usr/share/lemon
+	$(INSTALL) -m 0775 $(@D)/lemon $(HOST_DIR)/usr/bin/
+	$(INSTALL) -d $(HOST_DIR)/usr/share/lemon
 	# FIXME: this is a ugly hack! lemon should fix this!
-	$(INSTALL) -m 0664 $(@D)/tool/lempar.c $(STAGING_DIR)/usr/bin/
+	$(INSTALL) -m 0664 $(@D)/tool/lempar.c $(HOST_DIR)/usr/bin/
 endef
 
 $(eval $(host-autotools-package))
