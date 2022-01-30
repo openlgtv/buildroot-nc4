@@ -1,0 +1,52 @@
+config BR2_PACKAGE_LIBCAPSTONE
+	bool "libcapstone"
+
+if BR2_PACKAGE_LIBCAPSTONE
+
+menu "Architectures"
+
+config BR2_PACKAGE_LIBCAPSTONE_ARM
+	bool "ARM support"
+
+config BR2_PACKAGE_LIBCAPSTONE_ARM64
+	bool "ARM64 support"
+
+config BR2_PACKAGE_LIBCAPSTONE_M680X
+	bool "M680X support"
+
+config BR2_PACKAGE_LIBCAPSTONE_M68K
+	bool "M68K support"
+
+config BR2_PACKAGE_LIBCAPSTONE_MIPS
+	bool "MIPS support"
+
+config BR2_PACKAGE_LIBCAPSTONE_MOS65XX
+	bool "MOS65XX support"
+
+config BR2_PACKAGE_LIBCAPSTONE_PPC
+	bool "PPC support"
+
+config BR2_PACKAGE_LIBCAPSTONE_SPARC
+	bool "SPARC support"
+
+config BR2_PACKAGE_LIBCAPSTONE_SYSZ
+	bool "SystemZ support"
+
+config BR2_PACKAGE_LIBCAPSTONE_XCORE
+	bool "XCORE support"
+
+config BR2_PACKAGE_LIBCAPSTONE_X86
+	bool "X86 support"
+
+config BR2_PACKAGE_LIBCAPSTONE_TMS320C64X
+	bool "TMS320C64X support"
+
+config BR2_PACKAGE_LIBCAPSTONE_EVM
+	bool "EVM support"
+
+endmenu # Architectures
+
+config BR2_PACKAGE_LIBCAPSTONE_DIET
+	bool "Diet mode"
+
+endif # BR2_PACKAGE_LIBCAPSTONE
