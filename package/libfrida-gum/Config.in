@@ -1,0 +1,9 @@
+config BR2_PACKAGE_LIBFRIDA_GUM
+	bool "libfrida-gum"
+
+if BR2_PACKAGE_LIBFRIDA_GUM
+
+config BR2_PACKAGE_LIBFRIDA_GUM_DIET
+	bool "Diet mode"
+
+endif # BR2_PACKAGE_LIBCAPSTONE
