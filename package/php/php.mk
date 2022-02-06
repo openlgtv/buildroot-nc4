@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-PHP_VERSION = 8.0.13
+PHP_VERSION = 8.1.2
 PHP_SITE = https://www.php.net/distributions
 PHP_SOURCE = php-$(PHP_VERSION).tar.xz
 PHP_INSTALL_STAGING = YES
@@ -83,6 +83,14 @@ endif
 PHP_CONF_OPTS += $(if $(BR2_PACKAGE_PHP_SAPI_CLI),--enable-cli,--disable-cli)
 PHP_CONF_OPTS += $(if $(BR2_PACKAGE_PHP_SAPI_CGI),--enable-cgi,--disable-cgi)
 PHP_CONF_OPTS += $(if $(BR2_PACKAGE_PHP_SAPI_FPM),--enable-fpm,--disable-fpm)
+ifeq ($(BR2_PACKAGE_PHP_SAPI_EMBED),y)
+ifeq ($(BR2_PACKAGE_PHP_SAPI_EMBED_STATIC),y)
+PHP_CFLAGS += -ffunction-sections -fdata-sections
+PHP_CONF_OPTS += --enable-embed=static
+else
+PHP_CONF_OPTS += --enable-embed=shared
+endif
+endif
 
 ifeq ($(BR2_PACKAGE_PHP_SAPI_APACHE),y)
 PHP_DEPENDENCIES += apache

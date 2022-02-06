@@ -47,6 +47,25 @@ config BR2_PACKAGE_PHP_SAPI_FPM
 	help
 	  PHP-FPM (FastCGI Process Manager)
 
+config BR2_PACKAGE_PHP_SAPI_EMBED
+	bool "EMBED interface"
+
+choice
+
+prompt "EMBED library type"
+	depends on BR2_PACKAGE_PHP_SAPI_EMBED
+	default BR2_PACKAGE_PHP_SAPI_EMBED_STATIC
+	help
+	  Select Python unicode database format for target
+
+config BR2_PACKAGE_PHP_SAPI_EMBED_STATIC
+	bool "static"
+
+config BR2_PACKAGE_PHP_SAPI_EMBED_SHARED
+	bool "shared"
+
+endchoice
+
 source "package/php/Config.ext"
 
 endif
