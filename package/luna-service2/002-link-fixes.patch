@@ -1,0 +1,11 @@
+diff -rub a/src/libluna-service2/CMakeLists.txt b/src/libluna-service2/CMakeLists.txt
+--- a/src/libluna-service2/CMakeLists.txt	2021-11-09 14:32:09.000000000 +0100
++++ b/src/libluna-service2/CMakeLists.txt	2022-02-06 20:57:59.854569037 +0100
+@@ -97,7 +97,6 @@
+     )
+ 
+ set(LIBRARIES_LDFLAGS
+-    ${GLIB2_LDFLAGS_OTHER}
+     ${GTHREAD2_LDFLAGS_OTHER}
+     ${PBNJSON_C_LDFLAGS_OTHER}
+     ${PMLOGLIB_LDFLAGS_OTHER}
