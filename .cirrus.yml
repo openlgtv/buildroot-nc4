@@ -16,7 +16,7 @@ linux_x64_task:
     - apt-get update -qq
     - apt-get install -y cpio rsync bc
     # select webos_tv config
-    - make webos_tv_defconfig
+    - make lgtv_defconfig
 
   dl_cache:
     folder: dl
