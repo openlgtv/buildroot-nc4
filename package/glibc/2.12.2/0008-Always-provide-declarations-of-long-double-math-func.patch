@@ -1,0 +1,70 @@
+From 998832a46688b9fb3a101eccae77bc45e7c1d7ab Mon Sep 17 00:00:00 2001
+From: Andreas Schwab <schwab@redhat.com>
+Date: Fri, 4 Nov 2011 14:39:05 +0100
+Subject: [PATCH] Always provide declarations of long double math functions
+ when !_LIBC
+
+---
+ ChangeLog      |  5 +++++
+ NEWS           | 10 +++++-----
+ math/complex.h |  5 +++--
+ math/math.h    |  9 +++++----
+ 4 files changed, 18 insertions(+), 11 deletions(-)
+
+diff --git a/math/complex.h b/math/complex.h
+index 751aaf763f..cc6006e760 100644
+--- a/math/complex.h
++++ b/math/complex.h
+@@ -1,4 +1,4 @@
+-/* Copyright (C) 1997, 1998, 1999, 2000, 2006 Free Software Foundation, Inc.
++/* Copyright (C) 1997, 1998, 1999, 2000, 2006, 2011 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -85,7 +85,8 @@ __BEGIN_DECLS
+ /* And the long double versions.  It is non-critical to define them
+    here unconditionally since `long double' is required in ISO C99.  */
+ #if (__STDC__ - 0 || __GNUC__ - 0) \
+-    && (!defined __NO_LONG_DOUBLE_MATH || defined __LDBL_COMPAT)
++    && (!(defined __NO_LONG_DOUBLE_MATH && defined _LIBC) \
++	|| defined __LDBL_COMPAT)
+ # ifdef __LDBL_COMPAT
+ #  undef __MATHDECL_1
+ #  define __MATHDECL_1(type, function, args) \
+diff --git a/math/math.h b/math/math.h
+index 8b98ff331e..a849a03da0 100644
+--- a/math/math.h
++++ b/math/math.h
+@@ -98,7 +98,8 @@ __BEGIN_DECLS
+ # undef	__MATH_PRECNAME
+ 
+ # if (__STDC__ - 0 || __GNUC__ - 0) \
+-     && (!defined __NO_LONG_DOUBLE_MATH || defined __LDBL_COMPAT)
++     && (!(defined __NO_LONG_DOUBLE_MATH && defined _LIBC) \
++	 || defined __LDBL_COMPAT)
+ #  ifdef __LDBL_COMPAT
+ 
+ #   ifdef __USE_ISOC99
+@@ -116,9 +117,6 @@ extern long double __REDIRECT_NTH (nexttowardl,
+ #    endif
+ #   endif
+ 
+-/* Include the file of declarations again, this time using `long double'
+-   instead of `double' and appending l to each function name.  */
+-
+ #   undef __MATHDECL_1
+ #   define __MATHDECL_2(type, function,suffix, args, alias) \
+   extern type __REDIRECT_NTH(__MATH_PRECNAME(function,suffix), \
+@@ -127,6 +125,9 @@ extern long double __REDIRECT_NTH (nexttowardl,
+   __MATHDECL_2(type, function,suffix, args, __CONCAT(function,suffix))
+ #  endif
+ 
++/* Include the file of declarations again, this time using `long double'
++   instead of `double' and appending l to each function name.  */
++
+ #  ifndef _Mlong_double_
+ #   define _Mlong_double_	long double
+ #  endif
+-- 
+2.33.0
+
