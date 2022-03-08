@@ -2166,7 +2166,7 @@ BR2_PACKAGE_GNU_EFI_ARCH_SUPPORTS=y
 #
 # libss7 needs a kernel to be built
 #
-# BR2_PACKAGE_LIBUSB is not set
+BR2_PACKAGE_LIBUSB=y
 # BR2_PACKAGE_LIBUSBGX is not set
 # BR2_PACKAGE_LIBV4L is not set
 # BR2_PACKAGE_LIBXKBCOMMON is not set
