@@ -11,15 +11,15 @@ linux_x64_task:
     cpu: 8
     memory: 8G
     image: gcc:11.2
-  
+
   matrix:
-    - name: LGTV config
+    - name: WebOS config
       env:
         TOOLCHAIN_TARGET: webos
         DEFCONFIG: webos_tv_defconfig
         BR2_CCACHE_DIR: ${HOME}/.buildroot-ccache-webos
 
-    - name: WebOS config
+    - name: LGTV config
       env:
         TOOLCHAIN_TARGET: lgtv
         DEFCONFIG: lgtv_defconfig
