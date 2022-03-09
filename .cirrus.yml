@@ -2,7 +2,6 @@ env:
   CIRRUS_CLONE_DEPTH: 1
   MSBUILDDISABLENODEREUSE: 1
   BR2_CCACHE: y
-  BR2_CCACHE_DIR: ${HOME}/.buildroot-ccache
   BR2_CCACHE_INITIAL_SETUP: 
   BR2_CCACHE_USE_BASEDIR: y
 
@@ -12,12 +11,24 @@ linux_x64_task:
     cpu: 8
     memory: 8G
     image: gcc:11.2
-  
+
+  matrix:
+    - name: WebOS config
+      env:
+        TOOLCHAIN_TARGET: webos
+        DEFCONFIG: webos_tv_defconfig
+        BR2_CCACHE_DIR: ${HOME}/.buildroot-ccache-webos
+
+    - name: LGTV config
+      env:
+        TOOLCHAIN_TARGET: lgtv
+        DEFCONFIG: lgtv_defconfig
+        BR2_CCACHE_DIR: ${HOME}/.buildroot-ccache-lgtv
+
   prepare_script:
     - apt-get update -qq
     - apt-get install -y cpio rsync bc
-    # select webos_tv config
-    - make lgtv_defconfig
+    - make ${DEFCONFIG}
 
   dl_cache:
     folder: dl
@@ -25,7 +36,7 @@ linux_x64_task:
     reupload_on_changes: true
 
   compile_cache:
-    folder: ${HOME}/.buildroot-ccache
+    folder: ${BR2_CCACHE_DIR}
     # reupload the cache if content changed
     reupload_on_changes: true
 
