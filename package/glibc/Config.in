@@ -33,7 +33,7 @@ config BR2_PACKAGE_GLIBC_SUPPORTS
 	# Make sure to keep these dependencies in sync with the
 	# Config.in comments in
 	# toolchain/toolchain-buildroot/Config.in
-	depends on BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_2
+	# depends on BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_2
 	depends on BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_10 || !BR2_powerpc64le
 	depends on BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_5 || !BR2_MIPS_NAN_2008
 	depends on BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_0 || !BR2_RISCV_64
