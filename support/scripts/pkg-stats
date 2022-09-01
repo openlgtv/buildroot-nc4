@@ -27,12 +27,16 @@ import re
 import subprocess
 import json
 import sys
+import time
+import gzip
+import xml.etree.ElementTree
+import requests
 
 brpath = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
 sys.path.append(os.path.join(brpath, "utils"))
 from getdeveloperlib import parse_developers  # noqa: E402
-from cpedb import CPEDB  # noqa: E402
+from cpedb import CPEDB_URL  # noqa: E402
 
 INFRA_RE = re.compile(r"\$\(eval \$\(([a-z-]*)-package\)\)")
 URL_RE = re.compile(r"\s*https?://\S*\s*$")
@@ -88,6 +92,11 @@ class Package:
         self.name = name
         self.path = path
         self.pkg_path = os.path.dirname(path)
+        # Contains a list of tuple (type, infra), such as ("target",
+        # "autotools"). When pkg-stats is run without -c, it contains
+        # the list of all infra/type supported by the package. When
+        # pkg-stats is run with -c, it contains the list of infra/type
+        # used by the current configuration.
         self.infras = None
         self.license = None
         self.has_license = False
@@ -101,6 +110,7 @@ class Package:
         self.cpeid = None
         self.cves = list()
         self.ignored_cves = list()
+        self.unsure_cves = list()
         self.latest_version = {'status': RM_API_STATUS_ERROR, 'version': None, 'id': None}
         self.status = {}
 
@@ -146,10 +156,20 @@ class Package:
             return False
         return True
 
-    def set_infra(self):
+    def set_infra(self, show_info_js):
         """
         Fills in the .infras field
         """
+        # If we're running pkg-stats for a given Buildroot
+        # configuration, keep only the type/infra that applies
+        if show_info_js:
+            keep_host = "host-%s" % self.name in show_info_js
+            keep_target = self.name in show_info_js
+        # Otherwise, keep all
+        else:
+            keep_host = True
+            keep_target = True
+
         self.infras = list()
         with open(os.path.join(brpath, self.path), 'r') as f:
             lines = f.readlines()
@@ -158,9 +178,9 @@ class Package:
                 if not match:
                     continue
                 infra = match.group(1)
-                if infra.startswith("host-"):
+                if infra.startswith("host-") and keep_host:
                     self.infras.append(("host", infra[5:]))
-                else:
+                elif keep_target:
                     self.infras.append(("target", infra))
 
     def set_license(self):
@@ -367,15 +387,15 @@ def get_pkglist(npackages, package_list):
     return packages
 
 
-def get_config_packages():
+def get_show_info_js():
     cmd = ["make", "--no-print-directory", "show-info"]
-    js = json.loads(subprocess.check_output(cmd))
-    return set([v["name"] for v in js.values()])
+    return json.loads(subprocess.check_output(cmd))
 
 
 def package_init_make_info():
     # Fetch all variables at once
-    variables = subprocess.check_output(["make", "BR2_HAVE_DOT_CONFIG=y", "-s", "printvars",
+    variables = subprocess.check_output(["make", "--no-print-directory", "-s",
+                                         "BR2_HAVE_DOT_CONFIG=y", "printvars",
                                          "VARS=%_LICENSE %_LICENSE_FILES %_VERSION %_IGNORE_CVES %_CPE_ID"])
     variable_list = variables.decode().splitlines()
 
@@ -449,7 +469,8 @@ async def check_url_status(session, pkg, npkgs, retry=True):
 async def check_package_urls(packages):
     tasks = []
     connector = aiohttp.TCPConnector(limit_per_host=5)
-    async with aiohttp.ClientSession(connector=connector, trust_env=True) as sess:
+    async with aiohttp.ClientSession(connector=connector, trust_env=True,
+                                     timeout=aiohttp.ClientTimeout(total=15)) as sess:
         packages = [p for p in packages if p.status['url'][0] == 'ok']
         for pkg in packages:
             tasks.append(asyncio.ensure_future(check_url_status(sess, pkg, len(packages))))
@@ -484,7 +505,12 @@ async def check_package_get_latest_version_by_distro(session, pkg, retry=True):
                 return False
 
             data = await resp.json()
-            version = data['stable_versions'][0] if 'stable_versions' in data else data['version'] if 'version' in data else None
+            if 'stable_versions' in data and data['stable_versions']:
+                version = data['stable_versions'][0]
+            elif 'version' in data:
+                version = data['version']
+            else:
+                version = None
             check_package_latest_version_set_status(pkg,
                                                     RM_API_STATUS_FOUND_BY_DISTRO,
                                                     version,
@@ -510,12 +536,17 @@ async def check_package_get_latest_version_by_guess(session, pkg, retry=True):
             projects = [p for p in data['projects'] if p['name'] == pkg.name and 'stable_versions' in p]
             projects.sort(key=lambda x: x['id'])
 
-            if len(projects) > 0:
-                check_package_latest_version_set_status(pkg,
-                                                        RM_API_STATUS_FOUND_BY_PATTERN,
-                                                        projects[0]['stable_versions'][0],
-                                                        projects[0]['id'])
-                return True
+            if len(projects) == 0:
+                return False
+
+            if len(projects[0]['stable_versions']) == 0:
+                return False
+
+            check_package_latest_version_set_status(pkg,
+                                                    RM_API_STATUS_FOUND_BY_PATTERN,
+                                                    projects[0]['stable_versions'][0],
+                                                    projects[0]['id'])
+            return True
 
     except (aiohttp.ClientError, asyncio.TimeoutError):
         if retry:
@@ -579,8 +610,11 @@ def check_package_cve_affects(cve, cpe_product_pkgs):
         if product not in cpe_product_pkgs:
             continue
         for pkg in cpe_product_pkgs[product]:
-            if cve.affects(pkg.name, pkg.current_version, pkg.ignored_cves, pkg.cpeid) == cve.CVE_AFFECTS:
+            cve_status = cve.affects(pkg.name, pkg.current_version, pkg.ignored_cves, pkg.cpeid)
+            if cve_status == cve.CVE_AFFECTS:
                 pkg.cves.append(cve.identifier)
+            elif cve_status == cve.CVE_UNKNOWN:
+                pkg.unsure_cves.append(cve.identifier)
 
 
 def check_package_cves(nvd_path, packages):
@@ -606,19 +640,48 @@ def check_package_cves(nvd_path, packages):
 
     for pkg in packages:
         if 'cve' not in pkg.status:
-            if pkg.cves:
+            if pkg.cves or pkg.unsure_cves:
                 pkg.status['cve'] = ("error", "affected by CVEs")
             else:
                 pkg.status['cve'] = ("ok", "not affected by CVEs")
 
 
 def check_package_cpes(nvd_path, packages):
-    cpedb = CPEDB(nvd_path)
-    cpedb.get_xml_dict()
+    class CpeXmlParser:
+        cpes = []
+
+        def start(self, tag, attrib):
+            if tag == "{http://scap.nist.gov/schema/cpe-extension/2.3}cpe23-item":
+                self.cpes.append(attrib['name'])
+
+        def close(self):
+            return self.cpes
+
+    print("CPE: Setting up NIST dictionary")
+    if not os.path.exists(os.path.join(nvd_path, "cpe")):
+        os.makedirs(os.path.join(nvd_path, "cpe"))
+
+    cpe_dict_local = os.path.join(nvd_path, "cpe", os.path.basename(CPEDB_URL))
+    if not os.path.exists(cpe_dict_local) or os.stat(cpe_dict_local).st_mtime < time.time() - 86400:
+        print("CPE: Fetching xml manifest from [" + CPEDB_URL + "]")
+        cpe_dict = requests.get(CPEDB_URL)
+        open(cpe_dict_local, "wb").write(cpe_dict.content)
+
+    print("CPE: Unzipping xml manifest...")
+    nist_cpe_file = gzip.GzipFile(fileobj=open(cpe_dict_local, 'rb'))
+
+    parser = xml.etree.ElementTree.XMLParser(target=CpeXmlParser())
+    while True:
+        c = nist_cpe_file.read(1024*1024)
+        if not c:
+            break
+        parser.feed(c)
+    cpes = parser.close()
+
     for p in packages:
         if not p.cpeid:
             continue
-        if cpedb.find(p.cpeid):
+        if p.cpeid in cpes:
             p.status['cpe'] = ("ok", "verified CPE identifier")
         else:
             p.status['cpe'] = ("error", "CPE version unknown in CPE database")
@@ -661,8 +724,11 @@ def calculate_stats(packages):
             stats["version-not-uptodate"] += 1
         stats["patches"] += pkg.patch_count
         stats["total-cves"] += len(pkg.cves)
+        stats["total-unsure-cves"] += len(pkg.unsure_cves)
         if len(pkg.cves) != 0:
             stats["pkg-cves"] += 1
+        if len(pkg.unsure_cves) != 0:
+            stats["pkg-unsure-cves"] += 1
         if pkg.cpeid:
             stats["cpe-id"] += 1
         else:
@@ -920,6 +986,8 @@ def dump_html_pkg(f, pkg):
     if pkg.is_status_error("cve"):
         for cve in pkg.cves:
             f.write("   <a href=\"https://security-tracker.debian.org/tracker/%s\">%s<br/>\n" % (cve, cve))
+        for cve in pkg.unsure_cves:
+            f.write("   <a href=\"https://security-tracker.debian.org/tracker/%s\">%s <i>(unsure)</i><br/>\n" % (cve, cve))
     elif pkg.is_status_na("cve"):
         f.write("    %s" % pkg.status['cve'][1])
     else:
@@ -1023,6 +1091,10 @@ def dump_html_stats(f, stats):
             stats["pkg-cves"])
     f.write("<tr><td>Total number of CVEs affecting all packages</td><td>%s</td></tr>\n" %
             stats["total-cves"])
+    f.write("<tr><td>Packages affected by unsure CVEs</td><td>%s</td></tr>\n" %
+            stats["pkg-unsure-cves"])
+    f.write("<tr><td>Total number of unsure CVEs affecting all packages</td><td>%s</td></tr>\n" %
+            stats["total-unsure-cves"])
     f.write("<tr><td>Packages with CPE ID</td><td>%s</td></tr>\n" %
             stats["cpe-id"])
     f.write("<tr><td>Packages without CPE ID</td><td>%s</td></tr>\n" %
@@ -1085,6 +1157,10 @@ def resolvepath(path):
     return os.path.abspath(os.path.expanduser(path))
 
 
+def list_str(values):
+    return values.split(',')
+
+
 def parse_args():
     parser = argparse.ArgumentParser()
     output = parser.add_argument_group('output', 'Output file(s)')
@@ -1101,6 +1177,9 @@ def parse_args():
                           help='List of packages (comma separated)')
     parser.add_argument('--nvd-path', dest='nvd_path',
                         help='Path to the local NVD database', type=resolvepath)
+    parser.add_argument('--disable', type=list_str,
+                        help='Features to disable, comma-separated (cve, upstream, url, cpe, warning)',
+                        default=[])
     args = parser.parse_args()
     if not args.html and not args.json:
         parser.error('at least one of --html or --json (or both) is required')
@@ -1115,10 +1194,12 @@ def __main__():
     if args.nvd_path:
         import cve as cvecheck
 
+    show_info_js = None
     if args.packages:
         package_list = args.packages.split(",")
     elif args.configpackages:
-        package_list = get_config_packages()
+        show_info_js = get_show_info_js()
+        package_list = set([v["name"] for v in show_info_js.values() if 'name' in v])
     else:
         package_list = None
     date = datetime.datetime.utcnow()
@@ -1137,25 +1218,30 @@ def __main__():
     package_init_make_info()
     print("Getting package details ...")
     for pkg in packages:
-        pkg.set_infra()
+        pkg.set_infra(show_info_js)
         pkg.set_license()
         pkg.set_hash_info()
         pkg.set_patch_count()
-        pkg.set_check_package_warnings()
+        if "warnings" not in args.disable:
+            pkg.set_check_package_warnings()
         pkg.set_current_version()
         pkg.set_cpeid()
         pkg.set_url()
         pkg.set_ignored_cves()
         pkg.set_developers(developers)
-    print("Checking URL status")
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(check_package_urls(packages))
-    print("Getting latest versions ...")
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(check_package_latest_version(packages))
-    if args.nvd_path:
+    if "url" not in args.disable:
+        print("Checking URL status")
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(check_package_urls(packages))
+    if "upstream" not in args.disable:
+        print("Getting latest versions ...")
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(check_package_latest_version(packages))
+    if "cve" not in args.disable and args.nvd_path:
         print("Checking packages CVEs")
         check_package_cves(args.nvd_path, packages)
+    if "cpe" not in args.disable and args.nvd_path:
+        print("Checking packages CPEs")
         check_package_cpes(args.nvd_path, packages)
     print("Calculate stats")
     stats = calculate_stats(packages)

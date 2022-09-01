@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-GHOSTSCRIPT_VERSION = 9.53.3
+GHOSTSCRIPT_VERSION = 9.56.1
 GHOSTSCRIPT_SITE = https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs$(subst .,,$(GHOSTSCRIPT_VERSION))
 GHOSTSCRIPT_LICENSE = AGPL-3.0
 GHOSTSCRIPT_LICENSE_FILES = LICENSE
@@ -20,9 +20,6 @@ GHOSTSCRIPT_DEPENDENCIES = \
 	lcms2 \
 	libpng \
 	tiff
-
-# 0002-Bug-704342-Include-device-specifier-strings-in-acces.patch
-GHOSTSCRIPT_IGNORE_CVES += CVE-2021-3781
 
 # Ghostscript includes (old) copies of several libraries, delete them.
 # Inspired by linuxfromscratch:
@@ -46,6 +43,7 @@ GHOSTSCRIPT_CONF_OPTS = \
 	--enable-freetype \
 	--disable-gtk \
 	--without-libpaper \
+	--without-pdf \
 	--with-system-libtiff
 
 ifeq ($(BR2_PACKAGE_JBIG2DEC),y)
@@ -83,6 +81,10 @@ GHOSTSCRIPT_DEPENDENCIES += xlib_libX11
 GHOSTSCRIPT_CONF_OPTS += --with-x
 else
 GHOSTSCRIPT_CONF_OPTS += --without-x
+endif
+
+ifeq ($(BR2_TOOLCHAIN_HAS_THREADS),)
+GHOSTSCRIPT_CONF_OPTS += --without-tesseract
 endif
 
 $(eval $(autotools-package))

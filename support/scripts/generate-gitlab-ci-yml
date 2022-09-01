@@ -26,7 +26,7 @@ gen_tests() {
     local do_basics do_defconfigs do_runtime do_testpkg
     local defconfigs_ext cfg tst
 
-    basics=( DEVELOPERS flake8 package )
+    basics=( check-package DEVELOPERS flake8 package )
 
     defconfigs=( $(cd configs; LC_ALL=C ls -1 *_defconfig) )
 
@@ -64,6 +64,11 @@ gen_tests() {
             defconfigs_ext=_check
             ;;
           (*-defconfigs)
+            do_defconfigs=base
+            ;;
+          (*-defconfigs-*)
+            pattern=$(echo ${CI_COMMIT_REF_NAME} | sed 's%^.*-defconfigs-\(.*\)%\1%')
+            defconfigs=( $(cd configs; LC_ALL=C ls -1 | grep ^${pattern}) )
             do_defconfigs=base
             ;;
           (*-*_defconfig)

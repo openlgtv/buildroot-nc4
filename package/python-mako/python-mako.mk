@@ -4,8 +4,6 @@
 #
 ################################################################################
 
-# Please keep in sync with
-# package/python3-mako/python3-mako.mk
 PYTHON_MAKO_VERSION = 1.1.5
 PYTHON_MAKO_SOURCE = Mako-$(PYTHON_MAKO_VERSION).tar.gz
 PYTHON_MAKO_SITE = https://files.pythonhosted.org/packages/d1/42/ff293411e980debfc647be9306d89840c8b82ea24571b014f1a35b2ad80f
