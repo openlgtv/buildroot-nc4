@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-UMEDIASERVER_VERSION = master
+UMEDIASERVER_VERSION = af89f8ac3355027a90d7b299a78fb6fab9b6ffca
 UMEDIASERVER_SITE = $(call github,webosose,umediaserver,$(UMEDIASERVER_VERSION))
 UMEDIASERVER_INSTALL_STAGING = YES
 UMEDIASERVER_SUPPORTS_IN_SOURCE_BUILD = NO
@@ -20,7 +20,7 @@ UMEDIASERVER_DEPENDENCIES = \
 	boost \
 	gstreamer1 \
 	sqlite \
-	python
+	python3
 
 define UMEDIASERVER_LINK_CMAKE_MODULES
 	ln -snf $(STAGING_DIR)/usr/local/webos/Modules/webOS $(@D)/webOS
