@@ -28,10 +28,6 @@ LIBCURL_CONF_OPTS = --disable-manual --disable-ntlm-wb \
 	--with-random=/dev/urandom --disable-curldebug \
 	--disable-libcurl-option --disable-ldap --disable-ldaps
 
-ifeq ($(BR2_PACKAGE_LIBCURL_SONAME_BUMP),y)
-LIBCURL_CONF_OPTS += --enable-soname-bump
-endif
-
 ifeq ($(BR2_TOOLCHAIN_HAS_THREADS),y)
 LIBCURL_CONF_OPTS += --enable-threaded-resolver
 else
