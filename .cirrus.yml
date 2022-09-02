@@ -10,7 +10,7 @@ linux_x64_task:
   container:
     cpu: 8
     memory: 8G
-    image: gcc:11.2
+    image: gcc:11.3
 
   matrix:
     - name: WebOS config
