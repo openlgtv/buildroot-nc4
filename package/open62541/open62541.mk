@@ -4,13 +4,14 @@
 #
 ################################################################################
 
-OPEN62541_VERSION = v1.2.2
+OPEN62541_VERSION = v1.2.4
 OPEN62541_SITE_METHOD = git
-OPEN62541_SITE = git://github.com/open62541/open62541.git
+OPEN62541_SITE = https://github.com/open62541/open62541.git
 OPEN62541_GIT_SUBMODULES = YES
 OPEN62541_INSTALL_STAGING = YES
 OPEN62541_LICENSE = MPL-2.0
 OPEN62541_LICENSE_FILES = LICENSE
+OPEN62541_CPE_ID_VENDOR = open62541
 
 # Force Release build to remove -Werror.
 # Don't use git describe to get the version number.

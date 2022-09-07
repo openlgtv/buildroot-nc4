@@ -1,0 +1,313 @@
+diff -rub a/test/python/binding/uMediaServer/uMSTest/main.py b/test/python/binding/uMediaServer/uMSTest/main.py
+--- a/test/python/binding/uMediaServer/uMSTest/main.py
++++ b/test/python/binding/uMediaServer/uMSTest/main.py
+@@ -11,7 +11,7 @@ class Timer(object):
+         self.tstart = time.time()
+ 
+     def __exit__(self, type, value, traceback):
+-        print "\nComplete '%s' in %.3fs" % (self.name, (time.time() - self.tstart))
++        print("\nComplete '%s' in %.3fs" % (self.name, (time.time() - self.tstart)))
+ 
+ class uMSTest:
+     suite = {}
+@@ -25,7 +25,7 @@ class uMSTest:
+         self.umc_ = umc if umc else uMediaClient.MediaPlayer()
+         self.umc_.setQueue(self.q_)
+         self.verbose_ = verbose
+-        if self.verbose_ > 2: print 'test: umc is', self.umc_
++        if self.verbose_ > 2: print('test: umc is', self.umc_)
+ 
+     def sendDebugMsg(self, msg):
+         self.umc_.sendDebugMsg(msg)
+@@ -40,11 +40,11 @@ class uMSTest:
+         if not timeout:
+             timeout = self.timeout_
+ 
+-        if self.verbose_ > 2: print "going to wait for", tags
++        if self.verbose_ > 2: print("going to wait for", tags)
+         while tags:
+             try:
+                 (ev, data) = self.q_.get(timeout = timeout)
+-                if self.verbose_ > 2: print 'got ev "%s" (data = %s)' % (ev, data)
++                if self.verbose_ > 2: print('got ev "%s" (data = %s)' % (ev, data))
+                 if ev != 'unknown':
+                     setattr(resp, ev, data)
+                 tags.remove(ev)
+@@ -68,14 +68,14 @@ class uMSTest:
+             if not tf: raise Exception('test "%s" specified in suite cannot be found' % tn)
+             with Timer(tn):
+                 for i in xrange(tc):
+-                    if self.verbose_: print 'test case "%s", loop #%d' % (tn, i+1)
++                    if self.verbose_: print('test case "%s", loop #%d' % (tn, i+1))
+                     self.umc_.loadAsync(self.uri_, self.class_, self.payload_)
+                     video = self.parse_reply(['load', 'duration'])
+-                    if self.verbose_ > 1: print 'video (duration = {0:.3f}s) loaded'.format(video.duration/1000.)
++                    if self.verbose_ > 1: print('video (duration = {0:.3f}s) loaded'.format(video.duration/1000.))
+ 
+                     try:
+                         tf(video)
+                     except Exception as e:
+-                        print "Unexpected error:", e.args[0]
++                        print("Unexpected error:", e.args[0])
+                     finally:
+                         self.umc_.unload()
+diff -rub a/test/python/client.py b/test/python/client.py
+--- a/test/python/client.py
++++ b/test/python/client.py
+@@ -9,7 +9,7 @@ class Test(uMSTest):
+ 
+     def Client(self, video):
+         pauses = dict([(random()*video.duration, self.dice(3)) for i in xrange(0, self.dice(2))])
+-        print "!!!", pauses
++        print("!!!", pauses)
+ 
+         ct = 0
+         self.do_one_cmd('play')
+@@ -23,16 +23,16 @@ class Test(uMSTest):
+ 
+         # if current time is second till end we most likely miss 'eos' event
+         if ct < video.duration - 1000:
+-            print "!!! waiting for EOS"
++            print("!!! waiting for EOS")
+             self.parse_reply(['eos'], timeout = 1)
+ 
+         if self.dice() > 4:
+             ct = random()*video.duration
+-            print "!!! seek back to", ct
++            print("!!! seek back to", ct)
+             self.do_one_cmd('seek', int(ct))
+             self.do_one_cmd('play')
+             self.sleep(video.duration - ct)
+-            print "!!! waiting for EOS"
++            print("!!! waiting for EOS")
+             self.parse_reply(['eos'], timeout = 1)
+ 
+ Test(**(cmd_line().get_args())).run()
+diff -rub a/test/python/console.py b/test/python/console.py
+--- a/test/python/console.py
++++ b/test/python/console.py
+@@ -24,7 +24,7 @@ import argparse
+ 
+ from uMediaServer.uMediaClient import MediaPlayer
+ 
+-print "uMediaClient OO (python)\n"
++print("uMediaClient OO (python)\n")
+ 
+ # commands:
+ # load <file/uri>
+@@ -40,7 +40,7 @@ done = False
+ def ev_worker(q):
+     while True:
+         (ev, data) = q.get()
+-        print "ev '%s' = (%s)" % (ev, data)
++        print("ev '%s' = (%s)" % (ev, data))
+ 
+ def start_ev_wrk(umc):
+     q = Queue.Queue()
+@@ -59,7 +59,7 @@ start_ev_wrk(umc)
+ 
+ while (not done):
+     input_command = raw_input("COMMANDS: 'load file:////media_files/rat.mp4', 'play', 'pause', 'unload', 'exit' : ")
+-    print " ", input_command
++    print(" ", input_command)
+ 
+     args = input_command.split(" ")
+ 
+@@ -67,7 +67,7 @@ while (not done):
+         if len(args) >= 2:
+             umc.load(args[1], args[2], args[3])
+         else:
+-            print "load command requires <file/uri>"
++            print("load command requires <file/uri>")
+ 
+     if args[0] == "play":
+         umc.play()
+diff -rub a/test/python/endurance.py b/test/python/endurance.py
+--- a/test/python/endurance.py
++++ b/test/python/endurance.py
+@@ -54,7 +54,7 @@ else:
+     umc = None
+ 
+ for i in xrange(conf.count):
+-    if conf.verbose: print 'Test loop #%d' % (i+1)
+-    if conf.verbose > 2: print 'umc is', umc
++    if conf.verbose: print('Test loop #%d' % (i+1))
++    if conf.verbose > 2: print('umc is', umc)
+ 
+     Test(umc=umc, **args).run()
+diff -rub a/test/python/framework/src/cli_analyzer.py b/test/python/framework/src/cli_analyzer.py
+--- a/test/python/framework/src/cli_analyzer.py
++++ b/test/python/framework/src/cli_analyzer.py
+@@ -44,4 +44,4 @@ for line in log_file:
+     except LSMessage.ParseException as e:
+         sys.stderr.write(e.args[0] + '\n')
+ detector.finalize()
+-print detector.summary()
++print(detector.summary())
+diff -rub a/test/python/framework/src/cli_controller.py b/test/python/framework/src/cli_controller.py
+--- a/test/python/framework/src/cli_controller.py
++++ b/test/python/framework/src/cli_controller.py
+@@ -83,9 +83,9 @@ def list_sessions(log_file):
+             sessions[session].add(parsed['msg']['message'][len(session_binder):])
+ 
+     for sid in sessions:
+-        print 'session: ' + sid
++        print('session: ' + sid)
+         for pid in sessions[sid]:
+-            print '\tpipeline: ' + pid
++            print('\tpipeline: ' + pid)
+ 
+ def filter_log(log_file):
+     # session => { pipelines : [], messages : [] }
+@@ -152,14 +152,14 @@ def filter_log(log_file):
+         if args['pipeline'] in pipelines:
+             pipeline = pipelines[args['pipeline']]
+             for parsed in pipeline['messages']:
+-                print Formatter.format(parsed, args['format']);
++                print(Formatter.format(parsed, args['format']);)
+         elif args['session'] in sessions:
+             session = sessions[args['session']]
+             for parsed in session['messages']:
+-                print Formatter.format(parsed, args['format']);
++                print(Formatter.format(parsed, args['format']);)
+         else:
+             for parsed in unfiltered:
+-                 print Formatter.format(parsed, args['format']);
++                 print(Formatter.format(parsed, args['format']);)
+ 
+     for line in log_file:
+         process_log_line(line)
+diff -rub a/test/python/hang.py b/test/python/hang.py
+--- a/test/python/hang.py
++++ b/test/python/hang.py
+@@ -7,7 +7,7 @@ from uMediaServer.uMediaClient import MediaPlayer
+ def proxy_thr(recv, send):
+     while True:
+         (ev, data) = recv.get()
+-        print "ev '%s' = (%s)" % (ev, data)
++        print("ev '%s' = (%s)" % (ev, data))
+         send.put_nowait((ev, data))
+ 
+ def start_proxy(umc, send):
+diff -rub a/test/python/load.py b/test/python/load.py
+--- a/test/python/load.py
++++ b/test/python/load.py
+@@ -27,6 +27,6 @@ args = cl.get_args()
+ conf = cl.get_conf()
+ 
+ for i in xrange(conf.count):
+-    if conf.verbose: print 'Test loop #%d' % (i+1)
++    if conf.verbose: print('Test loop #%d' % (i+1))
+ 
+     Test(**args).run()
+diff -rub a/test/python/memleak.py b/test/python/memleak.py
+--- a/test/python/memleak.py
++++ b/test/python/memleak.py
+@@ -32,7 +32,7 @@ def get_mem_info(pid):
+ def print_mem_info_diff(m1, m2):
+     for k in m2:
+         if m2[k] > m1[k]:
+-            print "usage of", k, "increased from", m1[k], "kB to", m2[k], "kB"
++            print("usage of", k, "increased from", m1[k], "kB to", m2[k], "kB")
+ 
+ def get_duration(raw):
+     scale = { 's': 1, 'm': 60, 'h': 60*60, 'd': 24*60*60 }
+@@ -58,15 +58,15 @@ meminfo_start = get_mem_info(pid)
+ meminfo_last  = meminfo_start
+ 
+ if conf.verbose:
+-    print "initial mem info:", meminfo_start
++    print("initial mem info:", meminfo_start)
+ 
+ begin = time.time()
+ while time.time() - begin < duration:
+     test.run()
+     meminfo = get_mem_info(pid)
+-    if conf.verbose: print "current mem info:", meminfo
++    if conf.verbose: print("current mem info:", meminfo)
+     print_mem_info_diff(meminfo_last, meminfo)
+     meminfo_last = meminfo
+ 
+-print "--- overal change info ---"
++print("--- overal change info ---")
+ print_mem_info_diff(meminfo_start, meminfo_last)
+diff -rub a/test/python/ping-pong.py b/test/python/ping-pong.py
+--- a/test/python/ping-pong.py
++++ b/test/python/ping-pong.py
+@@ -8,7 +8,7 @@ from uMediaServer.uMSTest import cmd_line
+ def proxy_thr(num, recv, send):
+     while True:
+         (ev, data) = recv.get()
+-        print '!!! %02d -> %s = %s' % (num, ev, data)
++        print('!!! %02d -> %s = %s' % (num, ev, data))
+         send.put_nowait((ev, data))
+ 
+ def start_proxy(num, umc, send):
+@@ -23,16 +23,16 @@ def play(uri, wait=1, number=3, count=1, verbose=0, timeout=5, media_class="sim"
+     def flush_queue(queue):
+         while not queue.empty():
+             (ev, data) = queue.get_nowait()
+-            if verbose > 0: print '<<< %s = %s' % (ev, data)
++            if verbose > 0: print('<<< %s = %s' % (ev, data))
+     def parse_reply(queue, tags):
+         class Resp: pass
+         resp = Resp()
+ 
+-        if verbose > 0: print ">>> wait for", tags
++        if verbose > 0: print(">>> wait for", tags)
+         while tags:
+             try:
+                 (ev, data) = queue.get(timeout = timeout)
+-                if verbose > 0: print '>>> %s = %s' % (ev, data)
++                if verbose > 0: print('>>> %s = %s' % (ev, data))
+                 if ev != 'unknown':
+                     setattr(resp, ev, data)
+                 tags.remove(ev)
+@@ -43,12 +43,12 @@ def play(uri, wait=1, number=3, count=1, verbose=0, timeout=5, media_class="sim"
+     if verbose == 0:
+         sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
+ 
+-    print "Working", ("with" if flush else "without"), "flush"
++    print("Working", ("with" if flush else "without"), "flush")
+     queue = []
+     umc = []
+     for i in xrange(number):
+         if verbose > 0:
+-            print "load(%d)" % i
++            print("load(%d)" % i)
+         else:
+             sys.stdout.write("loading %d\n" % (i+1))
+         queue.append(Queue.Queue())
+@@ -64,7 +64,7 @@ def play(uri, wait=1, number=3, count=1, verbose=0, timeout=5, media_class="sim"
+     for k in xrange(count):
+         for i in xrange(number):
+             if verbose > 0:
+-                print "play(%d)" % i
++                print("play(%d)" % i)
+             else:
+                 sys.stdout.write("->%d" % (i+1))
+             if flush:
+diff -rub a/test/python/pipelinePoolPerf.py b/test/python/pipelinePoolPerf.py
+--- a/test/python/pipelinePoolPerf.py
++++ b/test/python/pipelinePoolPerf.py
+@@ -9,7 +9,7 @@ from uMediaServer.uMediaClient import MediaPlayer
+ def proxy_thr(recv, send):
+     while True:
+         (ev, data) = recv.get()
+-        print "ev '%s' = (%s)" % (ev, data)
++        print("ev '%s' = (%s)" % (ev, data))
+         send.put_nowait((ev, data))
+ 
+ def start_proxy(umc, send):
+diff -rub a/test/python/simple.py b/test/python/simple.py
+--- a/test/python/simple.py
++++ b/test/python/simple.py
+@@ -9,7 +9,7 @@ from uMediaServer.uMediaClient import MediaPlayer
+ def proxy_thr(recv, send):
+     while True:
+         (ev, data) = recv.get()
+-        print "ev '%s' = (%s)" % (ev, data)
++        print("ev '%s' = (%s)" % (ev, data))
+         send.put_nowait((ev, data))
+ 
+ def start_proxy(umc, send):
