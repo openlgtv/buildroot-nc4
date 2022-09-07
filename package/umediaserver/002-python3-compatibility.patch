@@ -1,7 +1,21 @@
+diff -rub a/test/python/binding/CMakeLists.txt b/test/python/binding/CMakeLists.txt
+--- a/test/python/binding/CMakeLists.txt	2021-09-15 11:54:55.000000000 +0200
++++ b/test/python/binding/CMakeLists.txt	2022-09-07 21:46:02.971029079 +0200
+@@ -24,8 +24,8 @@
+ set(PYTHON_NAMESPACE "uMediaServer")
+ set(PYTHON_MODULE "uMediaClient.py")
+ 
+-FIND_PACKAGE(PythonInterp 2.7)
+-FIND_PACKAGE(PythonLibs 2.7)
++FIND_PACKAGE(PythonInterp 3.0)
++FIND_PACKAGE(PythonLibs 3.0)
+ INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
+ INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src/utils)
+ SET(CMAKE_SWIG_FLAGS "")
 diff -rub a/test/python/binding/uMediaServer/uMSTest/main.py b/test/python/binding/uMediaServer/uMSTest/main.py
---- a/test/python/binding/uMediaServer/uMSTest/main.py
-+++ b/test/python/binding/uMediaServer/uMSTest/main.py
-@@ -11,7 +11,7 @@ class Timer(object):
+--- a/test/python/binding/uMediaServer/uMSTest/main.py	2021-09-15 11:54:55.000000000 +0200
++++ b/test/python/binding/uMediaServer/uMSTest/main.py	2022-09-07 21:21:22.643547690 +0200
+@@ -11,7 +11,7 @@
          self.tstart = time.time()
  
      def __exit__(self, type, value, traceback):
@@ -10,7 +24,7 @@ diff -rub a/test/python/binding/uMediaServer/uMSTest/main.py b/test/python/bindi
  
  class uMSTest:
      suite = {}
-@@ -25,7 +25,7 @@ class uMSTest:
+@@ -25,7 +25,7 @@
          self.umc_ = umc if umc else uMediaClient.MediaPlayer()
          self.umc_.setQueue(self.q_)
          self.verbose_ = verbose
@@ -19,7 +33,7 @@ diff -rub a/test/python/binding/uMediaServer/uMSTest/main.py b/test/python/bindi
  
      def sendDebugMsg(self, msg):
          self.umc_.sendDebugMsg(msg)
-@@ -40,11 +40,11 @@ class uMSTest:
+@@ -40,11 +40,11 @@
          if not timeout:
              timeout = self.timeout_
  
@@ -33,7 +47,7 @@ diff -rub a/test/python/binding/uMediaServer/uMSTest/main.py b/test/python/bindi
                  if ev != 'unknown':
                      setattr(resp, ev, data)
                  tags.remove(ev)
-@@ -68,14 +68,14 @@ class uMSTest:
+@@ -68,14 +68,14 @@
              if not tf: raise Exception('test "%s" specified in suite cannot be found' % tn)
              with Timer(tn):
                  for i in xrange(tc):
@@ -52,9 +66,9 @@ diff -rub a/test/python/binding/uMediaServer/uMSTest/main.py b/test/python/bindi
                      finally:
                          self.umc_.unload()
 diff -rub a/test/python/client.py b/test/python/client.py
---- a/test/python/client.py
-+++ b/test/python/client.py
-@@ -9,7 +9,7 @@ class Test(uMSTest):
+--- a/test/python/client.py	2021-09-15 11:54:55.000000000 +0200
++++ b/test/python/client.py	2022-09-07 21:21:22.643547690 +0200
+@@ -9,7 +9,7 @@
  
      def Client(self, video):
          pauses = dict([(random()*video.duration, self.dice(3)) for i in xrange(0, self.dice(2))])
@@ -63,7 +77,7 @@ diff -rub a/test/python/client.py b/test/python/client.py
  
          ct = 0
          self.do_one_cmd('play')
-@@ -23,16 +23,16 @@ class Test(uMSTest):
+@@ -23,16 +23,16 @@
  
          # if current time is second till end we most likely miss 'eos' event
          if ct < video.duration - 1000:
@@ -84,9 +98,9 @@ diff -rub a/test/python/client.py b/test/python/client.py
  
  Test(**(cmd_line().get_args())).run()
 diff -rub a/test/python/console.py b/test/python/console.py
---- a/test/python/console.py
-+++ b/test/python/console.py
-@@ -24,7 +24,7 @@ import argparse
+--- a/test/python/console.py	2021-09-15 11:54:55.000000000 +0200
++++ b/test/python/console.py	2022-09-07 21:21:22.643547690 +0200
+@@ -24,7 +24,7 @@
  
  from uMediaServer.uMediaClient import MediaPlayer
  
@@ -95,7 +109,7 @@ diff -rub a/test/python/console.py b/test/python/console.py
  
  # commands:
  # load <file/uri>
-@@ -40,7 +40,7 @@ done = False
+@@ -40,7 +40,7 @@
  def ev_worker(q):
      while True:
          (ev, data) = q.get()
@@ -104,7 +118,7 @@ diff -rub a/test/python/console.py b/test/python/console.py
  
  def start_ev_wrk(umc):
      q = Queue.Queue()
-@@ -59,7 +59,7 @@ start_ev_wrk(umc)
+@@ -59,7 +59,7 @@
  
  while (not done):
      input_command = raw_input("COMMANDS: 'load file:////media_files/rat.mp4', 'play', 'pause', 'unload', 'exit' : ")
@@ -113,7 +127,7 @@ diff -rub a/test/python/console.py b/test/python/console.py
  
      args = input_command.split(" ")
  
-@@ -67,7 +67,7 @@ while (not done):
+@@ -67,7 +67,7 @@
          if len(args) >= 2:
              umc.load(args[1], args[2], args[3])
          else:
@@ -123,9 +137,9 @@ diff -rub a/test/python/console.py b/test/python/console.py
      if args[0] == "play":
          umc.play()
 diff -rub a/test/python/endurance.py b/test/python/endurance.py
---- a/test/python/endurance.py
-+++ b/test/python/endurance.py
-@@ -54,7 +54,7 @@ else:
+--- a/test/python/endurance.py	2021-09-15 11:54:55.000000000 +0200
++++ b/test/python/endurance.py	2022-09-07 21:21:22.643547690 +0200
+@@ -54,7 +54,7 @@
      umc = None
  
  for i in xrange(conf.count):
@@ -136,18 +150,18 @@ diff -rub a/test/python/endurance.py b/test/python/endurance.py
  
      Test(umc=umc, **args).run()
 diff -rub a/test/python/framework/src/cli_analyzer.py b/test/python/framework/src/cli_analyzer.py
---- a/test/python/framework/src/cli_analyzer.py
-+++ b/test/python/framework/src/cli_analyzer.py
-@@ -44,4 +44,4 @@ for line in log_file:
+--- a/test/python/framework/src/cli_analyzer.py	2021-09-15 11:54:55.000000000 +0200
++++ b/test/python/framework/src/cli_analyzer.py	2022-09-07 21:21:22.643547690 +0200
+@@ -44,4 +44,4 @@
      except LSMessage.ParseException as e:
          sys.stderr.write(e.args[0] + '\n')
  detector.finalize()
 -print detector.summary()
 +print(detector.summary())
 diff -rub a/test/python/framework/src/cli_controller.py b/test/python/framework/src/cli_controller.py
---- a/test/python/framework/src/cli_controller.py
-+++ b/test/python/framework/src/cli_controller.py
-@@ -83,9 +83,9 @@ def list_sessions(log_file):
+--- a/test/python/framework/src/cli_controller.py	2021-09-15 11:54:55.000000000 +0200
++++ b/test/python/framework/src/cli_controller.py	2022-09-07 21:21:22.643547690 +0200
+@@ -83,9 +83,9 @@
              sessions[session].add(parsed['msg']['message'][len(session_binder):])
  
      for sid in sessions:
@@ -159,7 +173,7 @@ diff -rub a/test/python/framework/src/cli_controller.py b/test/python/framework/
  
  def filter_log(log_file):
      # session => { pipelines : [], messages : [] }
-@@ -152,14 +152,14 @@ def filter_log(log_file):
+@@ -152,14 +152,14 @@
          if args['pipeline'] in pipelines:
              pipeline = pipelines[args['pipeline']]
              for parsed in pipeline['messages']:
@@ -178,9 +192,9 @@ diff -rub a/test/python/framework/src/cli_controller.py b/test/python/framework/
      for line in log_file:
          process_log_line(line)
 diff -rub a/test/python/hang.py b/test/python/hang.py
---- a/test/python/hang.py
-+++ b/test/python/hang.py
-@@ -7,7 +7,7 @@ from uMediaServer.uMediaClient import MediaPlayer
+--- a/test/python/hang.py	2021-09-15 11:54:55.000000000 +0200
++++ b/test/python/hang.py	2022-09-07 21:21:22.643547690 +0200
+@@ -7,7 +7,7 @@
  def proxy_thr(recv, send):
      while True:
          (ev, data) = recv.get()
@@ -190,9 +204,9 @@ diff -rub a/test/python/hang.py b/test/python/hang.py
  
  def start_proxy(umc, send):
 diff -rub a/test/python/load.py b/test/python/load.py
---- a/test/python/load.py
-+++ b/test/python/load.py
-@@ -27,6 +27,6 @@ args = cl.get_args()
+--- a/test/python/load.py	2021-09-15 11:54:55.000000000 +0200
++++ b/test/python/load.py	2022-09-07 21:21:22.643547690 +0200
+@@ -27,6 +27,6 @@
  conf = cl.get_conf()
  
  for i in xrange(conf.count):
@@ -201,9 +215,9 @@ diff -rub a/test/python/load.py b/test/python/load.py
  
      Test(**args).run()
 diff -rub a/test/python/memleak.py b/test/python/memleak.py
---- a/test/python/memleak.py
-+++ b/test/python/memleak.py
-@@ -32,7 +32,7 @@ def get_mem_info(pid):
+--- a/test/python/memleak.py	2021-09-15 11:54:55.000000000 +0200
++++ b/test/python/memleak.py	2022-09-07 21:21:22.643547690 +0200
+@@ -32,7 +32,7 @@
  def print_mem_info_diff(m1, m2):
      for k in m2:
          if m2[k] > m1[k]:
@@ -212,7 +226,7 @@ diff -rub a/test/python/memleak.py b/test/python/memleak.py
  
  def get_duration(raw):
      scale = { 's': 1, 'm': 60, 'h': 60*60, 'd': 24*60*60 }
-@@ -58,15 +58,15 @@ meminfo_start = get_mem_info(pid)
+@@ -58,15 +58,15 @@
  meminfo_last  = meminfo_start
  
  if conf.verbose:
@@ -232,9 +246,9 @@ diff -rub a/test/python/memleak.py b/test/python/memleak.py
 +print("--- overal change info ---")
  print_mem_info_diff(meminfo_start, meminfo_last)
 diff -rub a/test/python/ping-pong.py b/test/python/ping-pong.py
---- a/test/python/ping-pong.py
-+++ b/test/python/ping-pong.py
-@@ -8,7 +8,7 @@ from uMediaServer.uMSTest import cmd_line
+--- a/test/python/ping-pong.py	2021-09-15 11:54:55.000000000 +0200
++++ b/test/python/ping-pong.py	2022-09-07 21:21:22.643547690 +0200
+@@ -8,7 +8,7 @@
  def proxy_thr(num, recv, send):
      while True:
          (ev, data) = recv.get()
@@ -243,7 +257,7 @@ diff -rub a/test/python/ping-pong.py b/test/python/ping-pong.py
          send.put_nowait((ev, data))
  
  def start_proxy(num, umc, send):
-@@ -23,16 +23,16 @@ def play(uri, wait=1, number=3, count=1, verbose=0, timeout=5, media_class="sim"
+@@ -23,16 +23,16 @@
      def flush_queue(queue):
          while not queue.empty():
              (ev, data) = queue.get_nowait()
@@ -263,7 +277,7 @@ diff -rub a/test/python/ping-pong.py b/test/python/ping-pong.py
                  if ev != 'unknown':
                      setattr(resp, ev, data)
                  tags.remove(ev)
-@@ -43,12 +43,12 @@ def play(uri, wait=1, number=3, count=1, verbose=0, timeout=5, media_class="sim"
+@@ -43,12 +43,12 @@
      if verbose == 0:
          sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
  
@@ -278,7 +292,7 @@ diff -rub a/test/python/ping-pong.py b/test/python/ping-pong.py
          else:
              sys.stdout.write("loading %d\n" % (i+1))
          queue.append(Queue.Queue())
-@@ -64,7 +64,7 @@ def play(uri, wait=1, number=3, count=1, verbose=0, timeout=5, media_class="sim"
+@@ -64,7 +64,7 @@
      for k in xrange(count):
          for i in xrange(number):
              if verbose > 0:
@@ -288,9 +302,9 @@ diff -rub a/test/python/ping-pong.py b/test/python/ping-pong.py
                  sys.stdout.write("->%d" % (i+1))
              if flush:
 diff -rub a/test/python/pipelinePoolPerf.py b/test/python/pipelinePoolPerf.py
---- a/test/python/pipelinePoolPerf.py
-+++ b/test/python/pipelinePoolPerf.py
-@@ -9,7 +9,7 @@ from uMediaServer.uMediaClient import MediaPlayer
+--- a/test/python/pipelinePoolPerf.py	2021-09-15 11:54:55.000000000 +0200
++++ b/test/python/pipelinePoolPerf.py	2022-09-07 21:21:22.643547690 +0200
+@@ -9,7 +9,7 @@
  def proxy_thr(recv, send):
      while True:
          (ev, data) = recv.get()
@@ -300,9 +314,9 @@ diff -rub a/test/python/pipelinePoolPerf.py b/test/python/pipelinePoolPerf.py
  
  def start_proxy(umc, send):
 diff -rub a/test/python/simple.py b/test/python/simple.py
---- a/test/python/simple.py
-+++ b/test/python/simple.py
-@@ -9,7 +9,7 @@ from uMediaServer.uMediaClient import MediaPlayer
+--- a/test/python/simple.py	2021-09-15 11:54:55.000000000 +0200
++++ b/test/python/simple.py	2022-09-07 21:21:22.643547690 +0200
+@@ -9,7 +9,7 @@
  def proxy_thr(recv, send):
      while True:
          (ev, data) = recv.get()
