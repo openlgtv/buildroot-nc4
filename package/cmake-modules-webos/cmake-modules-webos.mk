@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-CMAKE_MODULES_WEBOS_VERSION = master
+CMAKE_MODULES_WEBOS_VERSION = c3a5d821d1723c89936eaca82dc6d15605ad45ee
 CMAKE_MODULES_WEBOS_SITE = $(call github,webosose,cmake-modules-webos,$(CMAKE_MODULES_WEBOS_VERSION))
 CMAKE_MODULES_WEBOS_SUPPORTS_IN_SOURCE_BUILD = NO
 CMAKE_MODULES_WEBOS_INSTALL_TARGET = NO

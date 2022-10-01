@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-LIBPBNJSON_VERSION = master
+LIBPBNJSON_VERSION = 19c047b28d73c50330c1c97d2fa94aa8fccebcf6
 LIBPBNJSON_SITE = $(call github,webosose,libpbnjson,$(LIBPBNJSON_VERSION))
 LIBPBNJSON_INSTALL_STAGING = YES
 

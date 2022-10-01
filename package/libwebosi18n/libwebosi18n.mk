@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-LIBWEBOSI18N_VERSION = master
+LIBWEBOSI18N_VERSION = 3e757518ad9fa280a0cb12aca8248da912052b8b
 LIBWEBOSI18N_SITE = $(call github,webosose,libwebosi18n,$(LIBWEBOSI18N_VERSION))
 LIBWEBOSI18N_INSTALL_STAGING = YES
 LIBWEBOSI18N_SUPPORTS_IN_SOURCE_BUILD = NO
