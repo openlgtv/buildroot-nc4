@@ -11,7 +11,7 @@ UMEDIASERVER_SUPPORTS_IN_SOURCE_BUILD = NO
 
 UMEDIASERVER_DEPENDENCIES = \
 	host-pkgconf \
-        host-swig \
+	host-swig \
 	cmake-modules-webos \
 	libpbnjson \
 	luna-service2 \
