@@ -247,8 +247,10 @@ def fixup_config(sysinfo, configfile):
     if 'BR2_ARM_CPU_ARMV7M=y\n' in configlines and \
        'BR2_PACKAGE_LIBFFI=y\n' in configlines:
         return False
-    if 'BR2_nds32=y\n' in configlines and \
-       'BR2_PACKAGE_LIBFFI=y\n' in configlines:
+    # libopenssl needs atomic, but propagating this dependency in
+    # Buildroot is really too much work, so we handle this here.
+    if 'BR2_PACKAGE_LIBOPENSSL=y\n' in configlines and \
+       'BR2_TOOLCHAIN_HAS_ATOMIC=y\n' not in configlines:
         return False
     if 'BR2_PACKAGE_SUNXI_BOARDS=y\n' in configlines:
         configlines.remove('BR2_PACKAGE_SUNXI_BOARDS_FEX_FILE=""\n')
@@ -475,6 +477,13 @@ def fixup_config(sysinfo, configfile):
         configlines.remove('BR2_TARGET_BAREBOX_BOARD_DEFCONFIG=""\n')
 
     if 'BR2_TARGET_OPTEE_OS=y\n' in configlines and \
+       'BR2_TARGET_OPTEE_OS_CUSTOM_TARBALL=y\n' in configlines and \
+       'BR2_TARGET_OPTEE_OS_CUSTOM_TARBALL_LOCATION=""\n' in configlines:
+        configlines.remove('BR2_TARGET_OPTEE_OS_CUSTOM_TARBALL=y\n')
+        configlines.append('BR2_TARGET_OPTEE_OS_LATEST=y\n')
+        configlines.remove('BR2_TARGET_OPTEE_OS_CUSTOM_TARBALL_LOCATION=""\n')
+
+    if 'BR2_TARGET_OPTEE_OS=y\n' in configlines and \
        'BR2_TARGET_OPTEE_OS_PLATFORM=""\n' in configlines:
         configlines.remove('BR2_TARGET_OPTEE_OS=y\n')
         configlines.remove('BR2_TARGET_OPTEE_OS_PLATFORM=""\n')
@@ -538,6 +547,69 @@ def fixup_config(sysinfo, configfile):
         configlines.remove('BR2_TOOLCHAIN_EXTERNAL_URL=""\n')
         if 'BR2_ARCH_HAS_NO_TOOLCHAIN_BUILDROOT=y\n' in configlines:
             return False
+
+    if 'BR2_TARGET_MXS_BOOTLETS=y\n' in configlines and \
+       'BR2_TARGET_MXS_BOOTLETS_CUSTOM_GIT=y\n' in configlines and \
+       'BR2_TARGET_MXS_BOOTLETS_CUSTOM_GIT_URL=""\n' in configlines:
+        configlines.remove('BR2_TARGET_MXS_BOOTLETS_CUSTOM_GIT=y\n')
+        configlines.append('BR2_TARGET_MXS_BOOTLETS_FREESCALE=y\n')
+        configlines.remove('BR2_TARGET_MXS_BOOTLETS_CUSTOM_GIT_URL=""\n')
+
+    if 'BR2_TARGET_MXS_BOOTLETS=y\n' in configlines and \
+       'BR2_TARGET_MXS_BOOTLETS_CUSTOM_TARBALL=y\n' in configlines and \
+       'BR2_TARGET_MXS_BOOTLETS_CUSTOM_TARBALL_URL=""\n' in configlines:
+        configlines.remove('BR2_TARGET_MXS_BOOTLETS_CUSTOM_TARBALL=y\n')
+        configlines.append('BR2_TARGET_MXS_BOOTLETS_FREESCALE=y\n')
+        configlines.remove('BR2_TARGET_MXS_BOOTLETS_CUSTOM_TARBALL_URL=""\n')
+
+    if 'BR2_TARGET_OPENSBI=y\n' in configlines and \
+       'BR2_TARGET_OPENSBI_CUSTOM_GIT=y\n' in configlines and \
+       'BR2_TARGET_OPENSBI_CUSTOM_REPO_URL=""\n' in configlines:
+        configlines.remove('BR2_TARGET_OPENSBI_CUSTOM_GIT=y\n')
+        configlines.append('BR2_TARGET_OPENSBI_LATEST_VERSION=y\n')
+        configlines.remove('BR2_TARGET_OPENSBI_CUSTOM_REPO_URL=""\n')
+
+    if 'BR2_TARGET_OPENSBI=y\n' in configlines and \
+       'BR2_TARGET_OPENSBI_CUSTOM_TARBALL=y\n' in configlines and \
+       'BR2_TARGET_OPENSBI_CUSTOM_TARBALL_LOCATION=""\n' in configlines:
+        configlines.remove('BR2_TARGET_OPENSBI_CUSTOM_TARBALL=y\n')
+        configlines.append('BR2_TARGET_OPENSBI_LATEST_VERSION=y\n')
+        configlines.remove('BR2_TARGET_OPENSBI_CUSTOM_TARBALL_LOCATION=""\n')
+
+    if 'BR2_TARGET_OPENSBI=y\n' in configlines and \
+       'BR2_TARGET_OPENSBI_CUSTOM_VERSION=y\n' in configlines and \
+       'BR2_TARGET_OPENSBI_CUSTOM_VERSION_VALUE=""\n' in configlines:
+        configlines.remove('BR2_TARGET_OPENSBI_CUSTOM_VERSION=y\n')
+        configlines.append('BR2_TARGET_OPENSBI_LATEST_VERSION=y\n')
+        configlines.remove('BR2_TARGET_OPENSBI_CUSTOM_VERSION_VALUE=""\n')
+
+    if 'BR2_PACKAGE_REFPOLICY=y\n' in configlines and \
+       'BR2_PACKAGE_REFPOLICY_CUSTOM_GIT=y\n' in configlines and \
+       'BR2_PACKAGE_REFPOLICY_CUSTOM_REPO_URL=""\n' in configlines:
+        configlines.remove('BR2_PACKAGE_REFPOLICY_CUSTOM_GIT=y\n')
+        configlines.append('BR2_PACKAGE_REFPOLICY_UPSTREAM_VERSION=y\n')
+        configlines.remove('BR2_PACKAGE_REFPOLICY_CUSTOM_REPO_URL=""\n')
+
+    if 'BR2_PACKAGE_XENOMAI=y\n' in configlines and \
+       'BR2_PACKAGE_XENOMAI_CUSTOM_GIT=y\n' in configlines and \
+       'BR2_PACKAGE_XENOMAI_REPOSITORY=""\n' in configlines:
+        configlines.remove('BR2_PACKAGE_XENOMAI_CUSTOM_GIT=y\n')
+        configlines.append('BR2_PACKAGE_XENOMAI_LATEST_VERSION=y\n')
+        configlines.remove('BR2_PACKAGE_XENOMAI_REPOSITORY=""\n')
+
+    if 'BR2_PACKAGE_XENOMAI=y\n' in configlines and \
+       'BR2_PACKAGE_XENOMAI_CUSTOM_TARBALL=y\n' in configlines and \
+       'BR2_PACKAGE_XENOMAI_CUSTOM_TARBALL_URL=""\n' in configlines:
+        configlines.remove('BR2_PACKAGE_XENOMAI_CUSTOM_TARBALL=y\n')
+        configlines.append('BR2_PACKAGE_XENOMAI_LATEST_VERSION=y\n')
+        configlines.remove('BR2_PACKAGE_XENOMAI_CUSTOM_TARBALL_URL=""\n')
+
+    if 'BR2_PACKAGE_XENOMAI=y\n' in configlines and \
+       'BR2_PACKAGE_XENOMAI_CUSTOM_VERSION=y\n' in configlines and \
+       'BR2_PACKAGE_XENOMAI_CUSTOM_VERSION_VALUE=""\n' in configlines:
+        configlines.remove('BR2_PACKAGE_XENOMAI_CUSTOM_VERSION=y\n')
+        configlines.append('BR2_PACKAGE_XENOMAI_LATEST_VERSION=y\n')
+        configlines.remove('BR2_PACKAGE_XENOMAI_CUSTOM_VERSION_VALUE=""\n')
 
     if 'BR2_PACKAGE_XVISOR=y\n' in configlines and \
        'BR2_PACKAGE_XVISOR_USE_CUSTOM_CONFIG=y\n' in configlines and \
