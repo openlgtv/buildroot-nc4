@@ -422,4 +422,10 @@ config BR2_PACKAGE_PHP_EXT_FFI
 comment "PHP FFI extension needs a toolchain w/ threads, dynamic library"
 	depends on !BR2_TOOLCHAIN_HAS_THREADS || BR2_STATIC_LIBS
 
+config BR2_PACKAGE_PHP_EXT_OPENSWOOLE
+	bool "openswoole"
+	select BR2_PACKAGE_PHP_OPENSWOOLE
+	help
+	  PECL openswoole extension
+
 endmenu

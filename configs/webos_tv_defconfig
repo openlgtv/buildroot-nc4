@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Buildroot 2022.08.1-575-gcfe72ff00c-dirty Configuration
+# Buildroot 2022.08.1-576-g0ec195b1da-dirty Configuration
 #
 BR2_HAVE_DOT_CONFIG=y
 BR2_HOST_GCC_AT_LEAST_4_9=y

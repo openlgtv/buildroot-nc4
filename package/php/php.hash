@@ -1,5 +1,6 @@
 # From https://www.php.net/downloads.php
 sha256  90e7120c77ee83630e6ac928d23bc6396603d62d83a3cf5df8a450d2e3070162  php-8.1.10.tar.xz
+sha256  28892bfc2428c441fca6e79cfbcc62d188731642e652e6ed147fa83b09336611  v4.11.1.tar.gz
 
 # License file
 sha256  a188db807d711536f71e27b7d36879d63480f7994dc18adc08e624b3c5430fff  LICENSE
