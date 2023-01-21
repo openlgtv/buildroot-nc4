@@ -301,8 +301,19 @@ def fixup_config(sysinfo, configfile):
     if 'BR2_TOOLCHAIN_EXTERNAL_CODESOURCERY_NIOSII=y\n' in configlines and \
        'BR2_PACKAGE_FLANN=y\n' in configlines:
         return False
+    # No C library for internal toolchain
+    if 'BR2_TOOLCHAIN_BUILDROOT_NONE=y' in configlines:
+        return False
+    # Xtensa custom cores require an overlay file with internal
+    # toolchains
+    if 'BR2_XTENSA_CUSTOM=y' in configlines and \
+       'BR2_TOOLCHAIN_BUILDROOT=y' in configlines:
+        return False
+
     if 'BR2_PACKAGE_AUFS_UTIL=y\n' in configlines and \
        'BR2_PACKAGE_AUFS_UTIL_VERSION=""\n' in configlines:
+        return False
+    if 'BR2_PACKAGE_A10DISP=y\n' in configlines:
         return False
 
     if 'BR2_PACKAGE_HOST_UBOOT_TOOLS_ENVIMAGE=y\n' in configlines and \
@@ -549,6 +560,13 @@ def fixup_config(sysinfo, configfile):
             return False
 
     if 'BR2_TARGET_MXS_BOOTLETS=y\n' in configlines and \
+       'BR2_TARGET_MXS_BOOTLETS_CUSTOM_BOARD=y\n' in configlines and \
+       'BR2_TARGET_MXS_BOOTLETS_CUSTOM_BOARD_NAME=""\n' in configlines:
+        configlines.remove('BR2_TARGET_MXS_BOOTLETS_CUSTOM_BOARD=y\n')
+        configlines.append('BR2_TARGET_MXS_BOOTLETS_STMP37xx=y\n')
+        configlines.remove('BR2_TARGET_MXS_BOOTLETS_CUSTOM_BOARD_NAME=""\n')
+
+    if 'BR2_TARGET_MXS_BOOTLETS=y\n' in configlines and \
        'BR2_TARGET_MXS_BOOTLETS_CUSTOM_GIT=y\n' in configlines and \
        'BR2_TARGET_MXS_BOOTLETS_CUSTOM_GIT_URL=""\n' in configlines:
         configlines.remove('BR2_TARGET_MXS_BOOTLETS_CUSTOM_GIT=y\n')
@@ -617,6 +635,13 @@ def fixup_config(sysinfo, configfile):
         configlines.remove('BR2_PACKAGE_XVISOR_USE_CUSTOM_CONFIG=y\n')
         configlines.append('BR2_PACKAGE_XVISOR_USE_DEFCONFIG=y\n')
         configlines.remove('BR2_PACKAGE_XVISOR_CUSTOM_CONFIG_FILE=""\n')
+
+    # Don't build igh-ethercat driver as they are highly
+    # kernel-version specific
+    for opt in ['8139TOO', 'E100', 'E1000', 'E1000E', 'R8169']:
+        optstr = 'BR2_PACKAGE_IGH_ETHERCAT_%s=y\n' % opt
+        if optstr in configlines:
+            configlines.remove(optstr)
 
     with open(configfile, "w+") as configf:
         configf.writelines(configlines)

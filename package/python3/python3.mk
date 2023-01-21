@@ -5,13 +5,19 @@
 ################################################################################
 
 PYTHON3_VERSION_MAJOR = 3.10
-PYTHON3_VERSION = $(PYTHON3_VERSION_MAJOR).7
+PYTHON3_VERSION = $(PYTHON3_VERSION_MAJOR).8
 PYTHON3_SOURCE = Python-$(PYTHON3_VERSION).tar.xz
 PYTHON3_SITE = https://python.org/ftp/python/$(PYTHON3_VERSION)
 PYTHON3_LICENSE = Python-2.0, others
 PYTHON3_LICENSE_FILES = LICENSE
 PYTHON3_CPE_ID_VENDOR = python
 PYTHON3_CPE_ID_PRODUCT = python
+
+# 0033-3.11-gh-98433-Fix-quadratic-time-idna-decoding.-GH-9.patch
+PYTHON3_IGNORE_CVES += CVE-2022-45061
+
+# 0034-3-10-gh-98517-Fix-buffer-overflows-in-_sha3-module.patch
+PYTHON3_IGNORE_CVES += CVE-2022-37454
 
 # This host Python is installed in $(HOST_DIR), as it is needed when
 # cross-compiling third-party Python modules.
