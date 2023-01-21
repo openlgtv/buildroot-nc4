@@ -83,30 +83,6 @@ else
 SCONESERVER_CONF_OPTS += -DWITH_SQLITE=OFF
 endif
 
-ifeq ($(BR2_PACKAGE_SCONESERVER_MYSQL),y)
-SCONESERVER_DEPENDENCIES += mysql
-SCONESERVER_CONF_OPTS += \
-	--with-mysql \
-	--with-mysql_config="$(STAGING_DIR)/usr/bin/mysql_config" \
-	LDFLAGS="$(TARGET_LDFLAGS) -L$(STAGING_DIR)/usr/lib/mysql"
-else
-SCONESERVER_CONF_OPTS += --without-mysql
-endif
-
-ifeq ($(BR2_PACKAGE_SCONESERVER_RSS),y)
-SCONESERVER_DEPENDENCIES += libxml2
-SCONESERVER_CONF_OPTS += --with-rss
-else
-SCONESERVER_CONF_OPTS += --without-rss
-endif
-
-ifeq ($(BR2_PACKAGE_SCONESERVER_SQLITE),y)
-SCONESERVER_DEPENDENCIES += sqlite
-SCONESERVER_CONF_OPTS += --with-sqlite
-else
-SCONESERVER_CONF_OPTS += --without-sqlite
-endif
-
 ifeq ($(BR2_PACKAGE_SCONESERVER_TESTBUILDER),y)
 SCONESERVER_CONF_OPTS += -DWITH_TESTBUILDER=ON
 else
