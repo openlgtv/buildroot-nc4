@@ -2702,6 +2702,7 @@ endmenu
 menu "WebOS"
 	source "package/hyperion-webos/Config.in"
 	source "package/moonlight-tv/Config.in"
+	source "package/webos-userland/Config.in"
 endmenu
 
 endmenu
