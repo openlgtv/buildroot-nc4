@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Buildroot -ga0df7fd6d4-dirty Configuration
+# Buildroot 2022.11.1-655-g1d1b67a34f Configuration
 #
 BR2_HAVE_DOT_CONFIG=y
 BR2_HOST_GCC_AT_LEAST_4_9=y
@@ -602,14 +602,8 @@ BR2_PACKAGE_KODI_ARCH_SUPPORTS=y
 #
 # kodi needs python3 w/ .py modules, a uClibc or glibc toolchain w/ C++, threads, wchar, dynamic library, gcc >= 4.9
 #
-
-#
-# kodi needs udev support for gbm
-#
-
-#
-# kodi needs an OpenGL EGL backend with OpenGL or GLES support
-#
+BR2_PACKAGE_KODI_PLATFORM_SUPPORTS=y
+BR2_PACKAGE_KODI_PLATFORM_SUPPORTS_WAYLAND=y
 # BR2_PACKAGE_LAME is not set
 # BR2_PACKAGE_MADPLAY is not set
 # BR2_PACKAGE_MIMIC is not set
@@ -624,6 +618,7 @@ BR2_PACKAGE_KODI_ARCH_SUPPORTS=y
 # BR2_PACKAGE_MPD is not set
 # BR2_PACKAGE_MPD_MPC is not set
 # BR2_PACKAGE_MPG123 is not set
+BR2_PACKAGE_MPV_SUPPORTS_VAAPI=y
 # BR2_PACKAGE_MPV is not set
 # BR2_PACKAGE_MULTICAT is not set
 # BR2_PACKAGE_MUSEPACK is not set
@@ -737,6 +732,7 @@ BR2_PACKAGE_LTRACE_ARCH_SUPPORTS=y
 BR2_PACKAGE_OPROFILE_ARCH_SUPPORTS=y
 # BR2_PACKAGE_OPROFILE is not set
 # BR2_PACKAGE_PAX_UTILS is not set
+# BR2_PACKAGE_PIGLIT is not set
 BR2_PACKAGE_PLY_ARCH_SUPPORTS=y
 
 #
@@ -955,10 +951,9 @@ BR2_PACKAGE_LIBTOOL=y
 #
 # BR2_PACKAGE_FSWEBCAM is not set
 # BR2_PACKAGE_GHOSTSCRIPT is not set
-
-#
-# glmark2 needs an OpenGL or an openGL ES and EGL backend
-#
+BR2_PACKAGE_GLMARK2_FLAVOR_ANY=y
+BR2_PACKAGE_GLMARK2_FLAVOR_WAYLAND_GLESV2=y
+# BR2_PACKAGE_GLMARK2 is not set
 # BR2_PACKAGE_GLSLSANDBOX_PLAYER is not set
 # BR2_PACKAGE_GNUPLOT is not set
 # BR2_PACKAGE_JHEAD is not set
@@ -2292,6 +2287,7 @@ BR2_PACKAGE_PROVIDES_JPEG="jpeg-turbo"
 #
 # libglew depends on X.org and needs an OpenGL backend
 #
+# BR2_PACKAGE_LIBGLFW is not set
 
 #
 # libglu needs an OpenGL backend
@@ -2322,7 +2318,12 @@ BR2_PACKAGE_HAS_LIBGLES=y
 # BR2_PACKAGE_PIXMAN is not set
 # BR2_PACKAGE_POPPLER is not set
 # BR2_PACKAGE_TIFF is not set
-# BR2_PACKAGE_WAYLAND is not set
+BR2_PACKAGE_WAFFLE_SUPPORTS_WAYLAND=y
+# BR2_PACKAGE_WAFFLE is not set
+BR2_PACKAGE_WAYLAND=y
+# BR2_PACKAGE_WAYLAND_PROTOCOLS is not set
+# BR2_PACKAGE_WAYLAND_UTILS is not set
+# BR2_PACKAGE_WAYLANDPP is not set
 BR2_PACKAGE_WEBKITGTK_ARCH_SUPPORTS=y
 
 #
@@ -2468,7 +2469,7 @@ BR2_PACKAGE_JSON_C=y
 # BR2_PACKAGE_LIBJSON is not set
 # BR2_PACKAGE_LIBROXML is not set
 # BR2_PACKAGE_LIBUCL is not set
-# BR2_PACKAGE_LIBXML2 is not set
+BR2_PACKAGE_LIBXML2=y
 # BR2_PACKAGE_LIBXMLPP is not set
 # BR2_PACKAGE_LIBXMLRPC is not set
 # BR2_PACKAGE_LIBXSLT is not set
