@@ -1,0 +1,65 @@
+diff -rbu a/xbmc/platform/linux/CPUInfoLinux.cpp b/xbmc/platform/linux/CPUInfoLinux.cpp
+--- a/xbmc/platform/linux/CPUInfoLinux.cpp	2022-03-02 19:38:51.000000000 +0100
++++ b/xbmc/platform/linux/CPUInfoLinux.cpp	2023-02-01 01:37:35.932513584 +0100
+@@ -20,7 +20,7 @@
+ 
+ #if (defined(__arm__) && defined(HAS_NEON)) || defined(__aarch64__)
+ #include <asm/hwcap.h>
+-#include <sys/auxv.h>
++//#include <sys/auxv.h>
+ #elif defined(__i386__) || defined(__x86_64__)
+ #include <cpuid.h>
+ #endif
+@@ -252,6 +252,7 @@
+   }
+ #endif
+ 
++#if 0
+ #if defined(HAS_NEON) && defined(__arm__)
+   if (getauxval(AT_HWCAP) & HWCAP_NEON)
+     m_cpuFeatures |= CPU_FEATURE_NEON;
+@@ -261,6 +262,8 @@
+   if (getauxval(AT_HWCAP) & HWCAP_ASIMD)
+     m_cpuFeatures |= CPU_FEATURE_NEON;
+ #endif
++#endif
++  m_cpuFeatures |= CPU_FEATURE_NEON;
+ 
+   // Set MMX2 when SSE is present as SSE is a superset of MMX2 and Intel doesn't set the MMX2 cap
+   if (m_cpuFeatures & CPU_FEATURE_SSE)
+diff -rbu a/xbmc/windowing/wayland/InputProcessorPointer.cpp b/xbmc/windowing/wayland/InputProcessorPointer.cpp
+--- a/xbmc/windowing/wayland/InputProcessorPointer.cpp	2022-03-02 19:38:51.000000000 +0100
++++ b/xbmc/windowing/wayland/InputProcessorPointer.cpp	2023-02-01 00:27:21.122446943 +0100
+@@ -12,7 +12,7 @@
+ 
+ #include <cmath>
+ 
+-#include <linux/input-event-codes.h>
++#include <linux/input.h>
+ 
+ using namespace KODI::WINDOWING::WAYLAND;
+ 
+diff -rbu a/xbmc/windowing/wayland/WindowDecorator.cpp b/xbmc/windowing/wayland/WindowDecorator.cpp
+--- a/xbmc/windowing/wayland/WindowDecorator.cpp	2022-03-02 19:38:51.000000000 +0100
++++ b/xbmc/windowing/wayland/WindowDecorator.cpp	2023-02-01 00:23:16.821418221 +0100
+@@ -18,7 +18,7 @@
+ #include <cmath>
+ #include <vector>
+ 
+-#include <linux/input-event-codes.h>
++#include <linux/input.h>
+ 
+ using namespace KODI::UTILS::POSIX;
+ using namespace KODI::WINDOWING::WAYLAND;
+diff -rbu a/xbmc/windowing/wayland/WinSystemWaylandEGLContext.cpp b/xbmc/windowing/wayland/WinSystemWaylandEGLContext.cpp
+--- a/xbmc/windowing/wayland/WinSystemWaylandEGLContext.cpp	2022-03-02 19:38:51.000000000 +0100
++++ b/xbmc/windowing/wayland/WinSystemWaylandEGLContext.cpp	2023-02-01 00:33:14.456143416 +0100
+@@ -71,7 +71,7 @@
+   // to the resolution that should be used for the initial surface size
+   // - the compositor might want something other than the resolution given
+   if (!m_eglContext.CreatePlatformSurface(
+-          m_nativeWindow.c_ptr(), reinterpret_cast<khronos_uintptr_t>(m_nativeWindow.c_ptr())))
++          m_nativeWindow.c_ptr(), reinterpret_cast<EGLNativeWindowType>(m_nativeWindow.c_ptr())))
+   {
+     return false;
+   }
