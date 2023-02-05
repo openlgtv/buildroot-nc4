@@ -107,7 +107,7 @@ KODI_CONF_OPTS += \
 	-DPC_WAYLANDPP_SCANNER=$(HOST_DIR)/bin/wayland-scanner \
 	-DPC_WAYLANDPP_SCANNER_FOUND=ON
 KODI_CORE_PLATFORM_NAME += wayland
-KODI_DEPENDENCIES += libxkbcommon waylandpp
+KODI_DEPENDENCIES += libxkbcommon waylandpp wayland-protocols
 endif
 
 ifeq ($(BR2_PACKAGE_KODI_PLATFORM_SUPPORTS_X11),y)
