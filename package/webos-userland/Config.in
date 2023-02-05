@@ -22,9 +22,6 @@ config BR2_PACKAGE_PROVIDES_LIBEGL
 config BR2_PACKAGE_PROVIDES_LIBGLES
 	default "webos-userland"
 
-config BR2_PACKAGE_PROVIDES_LIBEGL_WAYLAND
-	default "webos-userland"
-
 endif
 
 comment "webos-userland needs a toolchain w/ C++, threads, dynamic library"
