@@ -1,0 +1,33 @@
+config BR2_PACKAGE_WEBOS_USERLAND
+	bool "webos-userland"
+	depends on BR2_arm
+	depends on BR2_INSTALL_LIBSTDCPP
+	depends on BR2_TOOLCHAIN_HAS_THREADS
+	depends on !BR2_STATIC_LIBS
+	select BR2_PACKAGE_HAS_LIBEGL
+	select BR2_PACKAGE_HAS_LIBGLES
+	select BR2_PACKAGE_HAS_LIBEGL_WAYLAND
+	help
+	  Webos Userland contains the necessary stub libraries to link
+	  against.
+
+	  Includes source for the ARM side code to interface to: EGL,
+	  GLESv1_cm, GLESv2, wayland-egl.
+
+if BR2_PACKAGE_WEBOS_USERLAND
+
+config BR2_PACKAGE_PROVIDES_LIBEGL
+	default "webos-userland"
+
+config BR2_PACKAGE_PROVIDES_LIBGLES
+	default "webos-userland"
+
+config BR2_PACKAGE_PROVIDES_LIBEGL_WAYLAND
+	default "webos-userland"
+
+endif
+
+comment "webos-userland needs a toolchain w/ C++, threads, dynamic library"
+	depends on BR2_arm
+	depends on !BR2_INSTALL_LIBSTDCPP || !BR2_TOOLCHAIN_HAS_THREADS || \
+		BR2_STATIC_LIBS
