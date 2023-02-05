@@ -2149,15 +2149,6 @@ menu "Text and terminal handling"
 	source "package/utf8proc/Config.in"
 endmenu
 
-menu "WebOS"
-	source "package/cmake-modules-webos/Config.in"
-	source "package/pmloglib/Config.in"
-	source "package/libpbnjson/Config.in"
-	source "package/libwebosi18n/Config.in"
-	source "package/luna-service2/Config.in"
-	source "package/umediaserver/Config.in"
-endmenu
-
 endmenu
 
 menu "Mail"
@@ -2700,8 +2691,14 @@ menu "Text editors and viewers"
 endmenu
 
 menu "WebOS"
+	source "package/webos/Config.in"
+	source "package/cmake-modules-webos/Config.in"
 	source "package/hyperion-webos/Config.in"
-	source "package/moonlight-tv/Config.in"
+	source "package/pmloglib/Config.in"
+	source "package/libpbnjson/Config.in"
+	source "package/libwebosi18n/Config.in"
+	source "package/luna-service2/Config.in"
+	source "package/umediaserver/Config.in"
 	source "package/webos-userland/Config.in"
 endmenu
 

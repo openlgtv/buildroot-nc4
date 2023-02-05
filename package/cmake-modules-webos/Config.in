@@ -1,2 +1,3 @@
 config BR2_PACKAGE_CMAKE_MODULES_WEBOS
 	bool "cmake-modules-webos"
+	depends on BR2_PACKAGE_WEBOS
