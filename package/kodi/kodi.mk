@@ -74,6 +74,12 @@ KODI_CPP_FLAGS += $(KODI_COMMON_FLAGS)
 
 ifeq ($(BR2_PACKAGE_WEBOS),y)
 KODI_CONF_OPTS += -DSYSTEM_LDFLAGS="-lrt"
+
+define KODI_BACKPORTS_PATCH
+	@$(call MESSAGE,"Applying Backports Patch")
+	$(APPLY_PATCHES) $(@D) package/kodi/webos \*.patch
+endef
+KODI_POST_PATCH_HOOKS += KODI_BACKPORTS_PATCH
 endif
 
 KODI_CONF_OPTS += \
