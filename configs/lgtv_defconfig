@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Buildroot -ga0df7fd6d4-dirty Configuration
+# Buildroot 2022.11.1-666-gfc320c77cc-dirty Configuration
 #
 BR2_HAVE_DOT_CONFIG=y
 BR2_HOST_GCC_AT_LEAST_4_9=y
@@ -567,7 +567,10 @@ BR2_PACKAGE_GST1_PLUGINS_BASE_PLUGIN_VOLUME=y
 #
 # plugins with external dependencies
 #
-# BR2_PACKAGE_GST1_PLUGINS_BASE_LIB_OPENGL is not set
+
+#
+# opengl needs an OpenGL or OpenGL ES backend
+#
 # BR2_PACKAGE_GST1_PLUGINS_BASE_PLUGIN_ALSA is not set
 # BR2_PACKAGE_GST1_PLUGINS_BASE_PLUGIN_TREMOR is not set
 # BR2_PACKAGE_GST1_PLUGINS_BASE_PLUGIN_OGG is not set
@@ -965,7 +968,10 @@ BR2_PACKAGE_LIBTOOL=y
 #
 # glmark2 needs an OpenGL or an openGL ES and EGL backend
 #
-# BR2_PACKAGE_GLSLSANDBOX_PLAYER is not set
+
+#
+# glslsandbox-player needs openGL ES and EGL driver
+#
 # BR2_PACKAGE_GNUPLOT is not set
 # BR2_PACKAGE_JHEAD is not set
 
@@ -973,7 +979,6 @@ BR2_PACKAGE_LIBTOOL=y
 # kmscube needs EGL, GBM and OpenGL ES, and a toolchain w/ thread support
 #
 # BR2_PACKAGE_LIBVA_UTILS is not set
-# BR2_PACKAGE_MESA3D_DEMOS is not set
 BR2_PACKAGE_MIDORI_ARCH_SUPPORTS=y
 
 #
@@ -1004,8 +1009,6 @@ BR2_PACKAGE_NETSURF_ARCH_SUPPORTS=y
 # BR2_PACKAGE_GRAPHICSMAGICK is not set
 # BR2_PACKAGE_IMAGEMAGICK is not set
 # BR2_PACKAGE_LIBGLVND is not set
-BR2_PACKAGE_PROVIDES_LIBEGL="webos-userland"
-BR2_PACKAGE_PROVIDES_LIBGLES="webos-userland"
 
 #
 # linux-fusion needs a Linux kernel to be built
@@ -1035,7 +1038,10 @@ BR2_PACKAGE_SDL2=y
 #
 # OpenGL support needs X11 and an OpenGL provider
 #
-# BR2_PACKAGE_SDL2_OPENGLES is not set
+
+#
+# OpenGL ES support needs an OpenGL ES provider
+#
 BR2_PACKAGE_SDL2_WEBOS=y
 # BR2_PACKAGE_SDL2_GFX is not set
 BR2_PACKAGE_SDL2_IMAGE=y
@@ -1047,7 +1053,6 @@ BR2_PACKAGE_SDL2_IMAGE=y
 #
 # Other GUIs
 #
-BR2_PACKAGE_QT5_GL_AVAILABLE=y
 BR2_PACKAGE_QT5_JSCORE_AVAILABLE=y
 # BR2_PACKAGE_QT5 is not set
 BR2_PACKAGE_QT6_ARCH_SUPPORTS=y
@@ -1062,6 +1067,10 @@ BR2_PACKAGE_QT6_ARCH_SUPPORTS=y
 #
 # BR2_PACKAGE_XORG7 is not set
 # BR2_PACKAGE_APITRACE is not set
+
+#
+# vte needs an OpenGL or an OpenGL-EGL/wayland backend
+#
 # BR2_PACKAGE_XKEYBOARD_CONFIG is not set
 
 #
@@ -2291,7 +2300,10 @@ BR2_PACKAGE_JPEG_SIMD_SUPPORT=y
 # BR2_PACKAGE_LIBART is not set
 # BR2_PACKAGE_LIBDMTX is not set
 # BR2_PACKAGE_LIBDRM is not set
-# BR2_PACKAGE_LIBEPOXY is not set
+
+#
+# libepoxy needs an OpenGL and/or OpenGL EGL backend
+#
 # BR2_PACKAGE_LIBEXIF is not set
 
 #
@@ -2310,10 +2322,17 @@ BR2_PACKAGE_JPEG_SIMD_SUPPORT=y
 #
 
 #
+# libglfw depends on X.org or Wayland and an OpenGL or GLES backend
+#
+
+#
 # libglu needs an OpenGL backend
 #
 # BR2_PACKAGE_LIBGTA is not set
-# BR2_PACKAGE_LIBGTK3 is not set
+
+#
+# libgtk3 needs an OpenGL or an OpenGL-EGL/wayland backend
+#
 # BR2_PACKAGE_LIBMEDIAART is not set
 # BR2_PACKAGE_LIBMNG is not set
 # BR2_PACKAGE_LIBPNG is not set
@@ -2325,13 +2344,13 @@ BR2_PACKAGE_JPEG_SIMD_SUPPORT=y
 # BR2_PACKAGE_LIBSVGTINY is not set
 # BR2_PACKAGE_LIBVA is not set
 # BR2_PACKAGE_LIBVIPS is not set
-# BR2_PACKAGE_LIBWPE is not set
+
+#
+# libwpe needs a toolchain w/ C++, dynamic library and an OpenEGL-capable backend
+#
 # BR2_PACKAGE_MENU_CACHE is not set
 # BR2_PACKAGE_OPENCV3 is not set
 # BR2_PACKAGE_OPENCV4 is not set
-BR2_PACKAGE_HAS_LIBEGL=y
-BR2_PACKAGE_HAS_LIBEGL_WAYLAND=y
-BR2_PACKAGE_HAS_LIBGLES=y
 # BR2_PACKAGE_OPENJPEG is not set
 # BR2_PACKAGE_PANGO is not set
 # BR2_PACKAGE_PANGOMM is not set
@@ -2350,9 +2369,15 @@ BR2_PACKAGE_WEBKITGTK_ARCH_SUPPORTS=y
 # wlroots needs udev, EGL w/ Wayland backend and OpenGL ES support
 #
 # BR2_PACKAGE_WOFF2 is not set
-# BR2_PACKAGE_WPEBACKEND_FDO is not set
+
+#
+# wpebackend-fdo needs a toolchain w/ C++, wchar, threads, dynamic library and an OpenEGL-capable Wayland backend
+#
 BR2_PACKAGE_WPEWEBKIT_ARCH_SUPPORTS=y
-# BR2_PACKAGE_WPEWEBKIT is not set
+
+#
+# wpewebkit needs an OpenGL ES w/ EGL-capable Wayland backend
+#
 # BR2_PACKAGE_ZBAR is not set
 # BR2_PACKAGE_ZXING_CPP is not set
 
@@ -3002,16 +3027,6 @@ BR2_PACKAGE_PCRE2_JIT_ARCH_SUPPORTS=y
 # BR2_PACKAGE_SLANG is not set
 # BR2_PACKAGE_TCLAP is not set
 # BR2_PACKAGE_UTF8PROC is not set
-
-#
-# WebOS
-#
-BR2_PACKAGE_CMAKE_MODULES_WEBOS=y
-BR2_PACKAGE_PMLOGLIB=y
-BR2_PACKAGE_LIBPBNJSON=y
-BR2_PACKAGE_LIBWEBOSI18N=y
-BR2_PACKAGE_LUNA_SERVICE2=y
-BR2_PACKAGE_UMEDIASERVER=y
 
 #
 # Mail
@@ -3719,17 +3734,11 @@ BR2_PACKAGE_UTIL_LINUX_LIBUUID=y
 #
 # WebOS
 #
-# BR2_PACKAGE_HYPERION_WEBOS is not set
+# BR2_PACKAGE_WEBOS is not set
 
 #
 # hyperion-webos needs EGL and OpenGL ES support
 #
-# BR2_PACKAGE_MOONLIGHT_TV is not set
-
-#
-# moonlight-tv needs EGL and OpenGL ES support
-#
-BR2_PACKAGE_WEBOS_USERLAND=y
 
 #
 # Filesystem images
