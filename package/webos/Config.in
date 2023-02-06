@@ -1,0 +1,7 @@
+config BR2_PACKAGE_WEBOS
+	bool "webos"
+	depends on BR2_arm
+	depends on BR2_INSTALL_LIBSTDCPP
+	depends on BR2_TOOLCHAIN_HAS_THREADS
+	help
+	  WebOS meta-package
