@@ -2699,6 +2699,7 @@ menu "WebOS"
 	source "package/libwebosi18n/Config.in"
 	source "package/luna-service2/Config.in"
 	source "package/umediaserver/Config.in"
+	source "package/webos-wayland-extensions/Config.in"
 	source "package/webos-userland/Config.in"
 endmenu
 

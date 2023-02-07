@@ -1,0 +1,5 @@
+config BR2_PACKAGE_WEBOS_WAYLAND_EXTENSIONS
+	bool "webos-wayland-extensions"
+	depends on BR2_PACKAGE_WEBOS
+	depends on BR2_PACKAGE_WAYLAND
+	select BR2_PACKAGE_CMAKE_MODULES_WEBOS
