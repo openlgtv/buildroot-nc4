@@ -9,7 +9,7 @@ linux_x64_task:
   timeout_in: 90m
   container:
     cpu: 8
-    memory: 8G
+    memory: 10G
     image: gcc:10.4-buster
 
   matrix:
@@ -42,7 +42,7 @@ linux_x64_task:
 
   build_script:
     - make sdk
-  
+
   always:
     upload_caches:
       - compile
