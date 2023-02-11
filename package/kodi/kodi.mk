@@ -7,9 +7,10 @@
 # When updating the version, please also update kodi-jsonschemabuilder
 # and kodi-texturepacker
 KODI_VERSION_MAJOR = 19.4
-KODI_VERSION_NAME = Matrix
+KODI_VERSION_NAME = Matrix-WebOS
 KODI_VERSION = $(KODI_VERSION_MAJOR)-$(KODI_VERSION_NAME)
-KODI_SITE = $(call github,xbmc,xbmc,$(KODI_VERSION))
+KODI_SITE = $(call github,sundermann,xbmc,$(KODI_VERSION))
+BR_NO_CHECK_HASH_FOR += $(KODI_SOURCE)
 KODI_LICENSE = GPL-2.0
 KODI_LICENSE_FILES = LICENSE.md
 KODI_CPE_ID_VENDOR = kodi
@@ -74,15 +75,10 @@ KODI_CPP_FLAGS += $(KODI_COMMON_FLAGS)
 
 ifeq ($(BR2_PACKAGE_WEBOS),y)
 KODI_CONF_OPTS += -DSYSTEM_LDFLAGS="-lrt"
-
-define KODI_BACKPORTS_PATCH
-	@$(call MESSAGE,"Applying Backports Patch")
-	$(APPLY_PATCHES) $(@D) package/kodi/webos \*.patch
-endef
-KODI_POST_PATCH_HOOKS += KODI_BACKPORTS_PATCH
 endif
 
 KODI_CONF_OPTS += \
+	-DTARGET_WEBOS=ON \
 	-DCMAKE_C_FLAGS="$(TARGET_CFLAGS) $(KODI_C_FLAGS)" \
 	-DCMAKE_CXX_FLAGS="$(TARGET_CPPFLAGS) $(KODI_CPP_FLAGS)" \
 	-DENABLE_APP_AUTONAME=OFF \
