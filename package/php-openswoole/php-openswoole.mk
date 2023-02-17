@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-PHP_OPENSWOOLE_VERSION = 4.11.1
+PHP_OPENSWOOLE_VERSION = 4.12.1
 PHP_OPENSWOOLE_SITE = $(call github,openswoole,swoole-src,v$(PHP_OPENSWOOLE_VERSION))
 PHP_OPENSWOOLE_INSTALL_STAGING = YES
 PHP_OPENSWOOLE_LICENSE = Apache License 2.0

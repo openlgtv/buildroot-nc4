@@ -132,12 +132,12 @@ PHP_CONF_OPTS += \
 ifeq ($(BR2_PACKAGE_PHP_EXT_OPENSWOOLE),y)
 define PHP_OPENSWOOLE_UNPACK
 	mkdir -p $(@D)/ext/openswoole
-	$(TAR) -xf $(PHP_DL_DIR)/v4.11.1.tar.gz -C $(@D)/ext/openswoole --strip-components=1
+	$(TAR) -xf $(PHP_DL_DIR)/v4.12.1.tar.gz -C $(@D)/ext/openswoole --strip-components=1
 endef
 
 # FIXME: $(call github) does not work here
 # FIXME: this duplicates package php-openswoole
-PHP_EXTRA_DOWNLOADS += https://github.com/openswoole/swoole-src/archive/refs/tags/v4.11.1.tar.gz
+PHP_EXTRA_DOWNLOADS += https://github.com/openswoole/swoole-src/archive/refs/tags/v4.12.1.tar.gz
 PHP_CONF_OPTS += --enable-openswoole
 PHP_POST_EXTRACT_HOOKS += PHP_OPENSWOOLE_UNPACK
 endif
