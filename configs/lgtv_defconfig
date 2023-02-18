@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Buildroot 2022.11.1-678-g0fd97a428e Configuration
+# Buildroot 2022.11.1-680-gf7b5f09622 Configuration
 #
 BR2_HAVE_DOT_CONFIG=y
 BR2_HOST_GCC_AT_LEAST_4_9=y
@@ -1483,7 +1483,7 @@ BR2_PACKAGE_PHP_EXT_PDO_SQLITE=y
 # Gettext support needs NLS enabled
 #
 BR2_PACKAGE_PHP_EXT_ICONV=y
-BR2_PACKAGE_PHP_EXT_INTL=y
+# BR2_PACKAGE_PHP_EXT_INTL is not set
 BR2_PACKAGE_PHP_EXT_MBSTRING=y
 
 #
@@ -3000,8 +3000,7 @@ BR2_PACKAGE_PROTOBUF_ARCH_SUPPORTS=y
 # BR2_PACKAGE_ENCHANT is not set
 # BR2_PACKAGE_FMT is not set
 # BR2_PACKAGE_FSTRCMP is not set
-BR2_PACKAGE_ICU=y
-BR2_PACKAGE_ICU_CUSTOM_DATA_PATH=""
+# BR2_PACKAGE_ICU is not set
 # BR2_PACKAGE_INIH is not set
 # BR2_PACKAGE_LIBCLI is not set
 # BR2_PACKAGE_LIBEDIT is not set
