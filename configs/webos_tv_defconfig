@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Buildroot 2022.11.1-670-g08ad64b587-dirty Configuration
+# Buildroot -ga489616e Configuration
 #
 BR2_HAVE_DOT_CONFIG=y
 BR2_HOST_GCC_AT_LEAST_4_9=y
@@ -2371,7 +2371,10 @@ BR2_PACKAGE_GNU_EFI_ARCH_SUPPORTS=y
 # BR2_PACKAGE_LIBCEC is not set
 # BR2_PACKAGE_LIBFREEFARE is not set
 # BR2_PACKAGE_LIBFTDI is not set
-# BR2_PACKAGE_LIBFTDI1 is not set
+BR2_PACKAGE_LIBFTDI1=y
+# BR2_PACKAGE_LIBFTDI1_LIBFTDIPP1 is not set
+# BR2_PACKAGE_LIBFTDI1_PYTHON_BINDINGS is not set
+# BR2_PACKAGE_LIBFTDI1_FDTI_EEPROM is not set
 # BR2_PACKAGE_LIBGPHOTO2 is not set
 
 #
