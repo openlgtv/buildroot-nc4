@@ -1,0 +1,4 @@
+config BR2_PACKAGE_GLIBC_POLYFILLS
+	bool "glibc-polyfills"
+	help
+	  glibc compatibility layer and backports

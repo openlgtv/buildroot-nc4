@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Buildroot 2022.11.1-684-g87bda1150e-dirty Configuration
+# Buildroot 2022.11.1-685-g8690c92319-dirty Configuration
 #
 BR2_HAVE_DOT_CONFIG=y
 BR2_HOST_GCC_AT_LEAST_4_9=y
@@ -813,6 +813,7 @@ BR2_PACKAGE_PROVIDES_HOST_GETTEXT="host-gettext-tiny"
 BR2_PACKAGE_GETTEXT_TINY=y
 # BR2_PACKAGE_GIT is not set
 # BR2_PACKAGE_GIT_CRYPT is not set
+BR2_PACKAGE_GLIBC_POLYFILLS=y
 # BR2_PACKAGE_GPERF is not set
 # BR2_PACKAGE_JO is not set
 # BR2_PACKAGE_JQ is not set
