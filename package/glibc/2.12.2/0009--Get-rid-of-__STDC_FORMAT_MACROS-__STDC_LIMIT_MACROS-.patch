@@ -1,0 +1,76 @@
+From 1ef74943ce2f114c78b215af57c2ccc72ccdb0b7 Mon Sep 17 00:00:00 2001
+From: Paul Pluzhnikov <ppluzhnikov@google.com>
+Date: Thu, 25 Apr 2013 11:08:31 -0700
+Subject: [PATCH] Get rid of __STDC_FORMAT_MACROS, __STDC_LIMIT_MACROS and
+ __STDC_CONSTANT_MACROS
+
+---
+ ChangeLog                  |  9 +++++++++
+ sysdeps/generic/inttypes.h |  7 -------
+ sysdeps/generic/stdint.h   | 13 -------------
+ 3 files changed, 9 insertions(+), 20 deletions(-)
+
+diff --git a/sysdeps/generic/inttypes.h b/sysdeps/generic/inttypes.h
+index dc97519056..95d781815b 100644
+--- a/sysdeps/generic/inttypes.h
++++ b/sysdeps/generic/inttypes.h
+@@ -40,11 +40,6 @@ typedef wchar_t __gwchar_t;
+ # define ____gwchar_t_defined	1
+ #endif
+ 
+-
+-/* The ISO C99 standard specifies that these macros must only be
+-   defined if explicitly requested.  */
+-#if !defined __cplusplus || defined __STDC_FORMAT_MACROS
+-
+ # if __WORDSIZE == 64
+ #  define __PRI64_PREFIX	"l"
+ #  define __PRIPTR_PREFIX	"l"
+@@ -267,8 +262,6 @@ typedef wchar_t __gwchar_t;
+ # define SCNuPTR	__PRIPTR_PREFIX "u"
+ # define SCNxPTR	__PRIPTR_PREFIX "x"
+ 
+-#endif	/* C++ && format macros */
+-
+ 
+ __BEGIN_DECLS
+ 
+diff --git a/sysdeps/generic/stdint.h b/sysdeps/generic/stdint.h
+index 15f7508078..94c3203c84 100644
+--- a/sysdeps/generic/stdint.h
++++ b/sysdeps/generic/stdint.h
+@@ -141,10 +141,6 @@ typedef unsigned long long int	uintmax_t;
+ #endif
+ 
+ 
+-/* The ISO C99 standard specifies that in C++ implementations these
+-   macros should only be defined if explicitly requested.  */
+-#if !defined __cplusplus || defined __STDC_LIMIT_MACROS
+-
+ # if __WORDSIZE == 64
+ #  define __INT64_C(c)	c ## L
+ #  define __UINT64_C(c)	c ## UL
+@@ -278,13 +274,6 @@ typedef unsigned long long int	uintmax_t;
+ # define WINT_MIN		(0u)
+ # define WINT_MAX		(4294967295u)
+ 
+-#endif	/* C++ && limit macros */
+-
+-
+-/* The ISO C99 standard specifies that in C++ implementations these
+-   should only be defined if explicitly requested.  */
+-#if !defined __cplusplus || defined __STDC_CONSTANT_MACROS
+-
+ /* Signed.  */
+ # define INT8_C(c)	c
+ # define INT16_C(c)	c
+@@ -314,6 +303,4 @@ typedef unsigned long long int	uintmax_t;
+ #  define UINTMAX_C(c)	c ## ULL
+ # endif
+ 
+-#endif	/* C++ && constant macros */
+-
+ #endif /* stdint.h */
+-- 
+2.35.1
+
