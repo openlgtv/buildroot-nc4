@@ -18,21 +18,7 @@ else
 #   git describe --match 'glibc-*' --abbrev=40 origin/release/MAJOR.MINOR/master | cut -d '-' -f 2-
 # When updating the version, please also update localedef
 #GLIBC_VERSION = 2.35-134-gb6aade18a7e5719c942aa2da6cf3157aca993fa4
-GLIBC_VERSION = 2.12.2
-
-GLIBC_PORTS_VERSION = 2.12.1
-GLIBC_PORTS_SOURCE = glibc-ports-$(GLIBC_PORTS_VERSION).tar.bz2
-
-GLIBC_EXTRA_DOWNLOADS = https://ftp.gnu.org/gnu/glibc/$(GLIBC_PORTS_SOURCE)
-
-define GLIBC_EXTRACT_PORTS
-	@mkdir $(@D)/ports
-	$(call suitable-extractor,$(GLIBC_PORTS_SOURCE)) \
-		$(GLIBC_DL_DIR)/$(GLIBC_PORTS_SOURCE) | \
-		$(TAR) --strip-components=1 -C $(@D)/ports $(TAR_OPTIONS) -
-endef
-
-GLIBC_POST_EXTRACT_HOOKS += GLIBC_EXTRACT_PORTS
+GLIBC_VERSION = 54b91396c8cf89433adbb2ff2e5a80f4edde3d15
 
 # Upstream doesn't officially provide an https download link.
 # There is one (https://sourceware.org/git/glibc.git) but it's not reliable,
@@ -40,9 +26,10 @@ GLIBC_POST_EXTRACT_HOOKS += GLIBC_EXTRACT_PORTS
 # When updating the version, check it on the official repository;
 # *NEVER* decide on a version string by looking at the mirror.
 # Then check that the mirror has been synced already (happens once a day.)
-#GLIBC_SITE = $(call github,bminor,glibc,$(GLIBC_VERSION))
-GLIBC_SITE = https://github.com/bminor/glibc/archive
+GLIBC_SITE = $(call github,openlgtv,glibc,$(GLIBC_VERSION))
 endif
+
+#BR_NO_CHECK_HASH_FOR += $(GLIBC_SOURCE)
 
 GLIBC_LICENSE = GPL-2.0+ (programs), LGPL-2.1+, BSD-3-Clause, MIT (library)
 GLIBC_LICENSE_FILES = COPYING COPYING.LIB LICENSES
@@ -84,6 +71,11 @@ endif
 ifeq ($(BR2_TOOLCHAIN_GCC_AT_LEAST_4_7),y)
 GLIBC_EXTRA_CFLAGS += -fno-lto
 endif
+
+## FIXME
+#ifeq ($(BR2_PACKAGE_LGTV),y)
+#GLIBC_EXTRA_CFLAGS += -tno-webos-compat
+#endif
 
 # The stubs.h header is not installed by install-headers, but is
 # needed for the gcc build. An empty stubs.h will work, as explained
