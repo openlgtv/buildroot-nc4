@@ -1,8 +1,7 @@
-config BR2_PACKAGE_WEBOS
-	bool "webos"
+config BR2_PACKAGE_LGTV
+	bool "lgtv"
 	depends on BR2_arm
 	depends on BR2_INSTALL_LIBSTDCPP
 	depends on BR2_TOOLCHAIN_HAS_THREADS
-	depends on BR2_PACKAGE_LGTV
 	help
-	  WebOS meta-package
+	  LGTV meta-package
