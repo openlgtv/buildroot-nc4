@@ -72,10 +72,10 @@ ifeq ($(BR2_TOOLCHAIN_GCC_AT_LEAST_4_7),y)
 GLIBC_EXTRA_CFLAGS += -fno-lto
 endif
 
-## FIXME
-#ifeq ($(BR2_PACKAGE_LGTV),y)
-#GLIBC_EXTRA_CFLAGS += -tno-webos-compat
-#endif
+# Don't use webOS compatibility hacks
+ifeq ($(BR2_PACKAGE_LGTV),y)
+GLIBC_EXTRA_CFLAGS += -tno-lgtv-compat
+endif
 
 # The stubs.h header is not installed by install-headers, but is
 # needed for the gcc build. An empty stubs.h will work, as explained
