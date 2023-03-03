@@ -72,11 +72,6 @@ ifeq ($(BR2_TOOLCHAIN_GCC_AT_LEAST_4_7),y)
 GLIBC_EXTRA_CFLAGS += -fno-lto
 endif
 
-# Don't use webOS compatibility hacks
-ifeq ($(BR2_PACKAGE_LGTV),y)
-GLIBC_EXTRA_CFLAGS += -tno-lgtv-compat
-endif
-
 # The stubs.h header is not installed by install-headers, but is
 # needed for the gcc build. An empty stubs.h will work, as explained
 # in http://gcc.gnu.org/ml/gcc/2002-01/msg00900.html. The same trick
@@ -93,6 +88,12 @@ GLIBC_CONF_ENV = \
 	libc_cv_forced_unwind=yes \
 	libc_cv_c_cleanup=yes \
 	libc_cv_ssp=no
+
+# Don't use webOS compatibility hacks
+ifeq ($(BR2_PACKAGE_LGTV),y)
+# Ugly hack to modify CC (because CFLAGS isn't used everywhere we need)
+GLIBC_CONF_ENV += CC="$(TARGET_CC) -tno-lgtv-compat"
+endif
 
 # POSIX shell does not support localization, so remove the corresponding
 # syntax from ldd if bash is not selected.
