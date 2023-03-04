@@ -27,14 +27,6 @@ endif
 
 HOST_GCC_FINAL_POST_PATCH_HOOKS += HOST_GCC_APPLY_PATCHES
 
-define HOST_GCC_FINAL_APPLY_WEBOS_LIBRT_PATCH
-	$(APPLY_PATCHES) $(@D) package/gcc/gcc-final 0001-webOS-compat-auto-librt.patch || exit 1
-endef
-
-ifeq ($(BR2_PACKAGE_LGTV),y)
-HOST_GCC_FINAL_POST_PATCH_HOOKS += HOST_GCC_APPLY_WEBOS_LIBRT_PATCH
-endif
-
 # gcc doesn't support in-tree build, so we create a 'build'
 # subdirectory in the gcc sources, and build from there.
 HOST_GCC_FINAL_SUBDIR = build

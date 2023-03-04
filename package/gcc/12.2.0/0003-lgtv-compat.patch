@@ -1,0 +1,67 @@
+diff --git a/gcc/config.gcc b/gcc/config.gcc
+index c5064dd37..90db0cf74 100644
+--- a/gcc/config.gcc
++++ b/gcc/config.gcc
+@@ -5915,3 +5915,10 @@ i[34567]86-*-* | x86_64-*-*)
+ 	fi
+ 	;;
+ esac
++
++case ${target} in
++*-webos-*|*-lgtv-*)
++	tm_file="${tm_file} linux-webos.h"
++	extra_options="${extra_options} linux-webos.opt"
++	;;
++esac
+diff --git a/gcc/config/linux-webos.h b/gcc/config/linux-webos.h
+new file mode 100644
+index 000000000..2f70c4db0
+--- /dev/null
++++ b/gcc/config/linux-webos.h
+@@ -0,0 +1,18 @@
++#ifdef HAVE_LD_AS_NEEDED
++# define WEBOS_AS_NEEDED(_LIB) LD_AS_NEEDED_OPTION " " _LIB " " LD_NO_AS_NEEDED_OPTION
++#else
++# define WEBOS_AS_NEEDED(_LIB) _LIB
++#endif
++
++#define WEBOS_LIB_LIBRT_COMPAT \
++	"%{!tno-librt-compat:%{tlibrt-compat|!tno-lgtv-compat:" WEBOS_AS_NEEDED("-lrt") "}}"
++#define WEBOS_LIB_LIBRT_COMPAT_PROFILE \
++	"%{!tno-librt-compat:%{tlibrt-compat|!tno-lgtv-compat:" WEBOS_AS_NEEDED("-lrt_p") "}}"
++/* glibc_polyfills is expected to be static, but --as-needed shouldn't hurt. */
++#define WEBOS_LIB_GLIBC_POLYFILL \
++	"%{!tno-glibc-polyfill:%{tglibc-polyfill|!tno-lgtv-compat:" WEBOS_AS_NEEDED("-lglibc_polyfills") "}}"
++
++#undef GNU_USER_TARGET_NO_PTHREADS_LIB_SPEC
++#define GNU_USER_TARGET_NO_PTHREADS_LIB_SPEC \
++    "%{shared:-lc " WEBOS_LIB_LIBRT_COMPAT "} " \
++    "%{!shared:%{profile:-lc_p " WEBOS_LIB_LIBRT_COMPAT_PROFILE "}%{!profile:-lc " WEBOS_LIB_LIBRT_COMPAT "}} " WEBOS_LIB_GLIBC_POLYFILL
+diff --git a/gcc/config/linux-webos.opt b/gcc/config/linux-webos.opt
+new file mode 100644
+index 000000000..99a85d7f9
+--- /dev/null
++++ b/gcc/config/linux-webos.opt
+@@ -0,0 +1,22 @@
++; webOS specific options.
++
++tno-lgtv-compat
++Driver
++Disable all LG/webOS compatibility hacks.
++
++tno-glibc-polyfill
++Driver Negative(tglibc-polyfill)
++Disable glibc polyfills.
++
++tglibc-polyfill
++Driver Negative(tno-glibc-polyfill)
++Enable glibc polyfills.
++
++tno-librt-compat
++Driver Negative(tlibrt-compat)
++Disable automatic linking against librt.
++
++tlibrt-compat
++Driver Negative(tno-librt-compat)
++Enable automatic linking against librt.
++
