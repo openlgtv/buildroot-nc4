@@ -18,7 +18,7 @@ else
 #   git describe --match 'glibc-*' --abbrev=40 origin/release/MAJOR.MINOR/master | cut -d '-' -f 2-
 # When updating the version, please also update localedef
 #GLIBC_VERSION = 2.35-134-gb6aade18a7e5719c942aa2da6cf3157aca993fa4
-GLIBC_VERSION = 54b91396c8cf89433adbb2ff2e5a80f4edde3d15
+GLIBC_VERSION = d9e2650d7b2a6f3cd1db5a51cf6eea1beca79e55
 
 # Upstream doesn't officially provide an https download link.
 # There is one (https://sourceware.org/git/glibc.git) but it's not reliable,
