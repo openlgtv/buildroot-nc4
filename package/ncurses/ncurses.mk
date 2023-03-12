@@ -156,6 +156,11 @@ NCURSES_POST_INSTALL_STAGING_HOOKS += NCURSES_LINK_STAGING_PC
 
 endif # BR2_PACKAGE_NCURSES_WCHAR
 
+ifeq ($(BR2_PACKAGE_LGTV),y)
+# webOS has libtinfo
+NCURSES_CONF_OPTS += --with-termlib=tinfo
+endif
+
 ifneq ($(BR2_ENABLE_DEBUG),y)
 NCURSES_CONF_OPTS += --without-debug
 endif
