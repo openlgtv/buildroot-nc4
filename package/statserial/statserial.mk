@@ -18,4 +18,11 @@ define STATSERIAL_INSTALL_TARGET_CMDS
 	$(INSTALL) -D -m 0755 $(@D)/statserial $(TARGET_DIR)/usr/bin/statserial
 endef
 
+ifeq ($(BR2_PACKAGE_LGTV),y)
+define STATSERIAL_LGTV_USE_LIBTINFO
+	$(SED) 's:\s-lncurses\>:& -ltinfo:' $(@D)/Makefile
+endef
+STATSERIAL_POST_PATCH_HOOKS += STATSERIAL_LGTV_USE_LIBTINFO
+endif
+
 $(eval $(generic-package))
