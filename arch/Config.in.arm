@@ -31,6 +31,9 @@ config BR2_ARM_CPU_HAS_VFPV3
 	bool
 	select BR2_ARM_CPU_HAS_VFPV2
 
+config BR2_ARM_CPU_HAS_FP16
+	bool
+
 # for some cores, VFPv4 is optional
 config BR2_ARM_CPU_MAYBE_HAS_VFPV4
 	bool
@@ -39,6 +42,7 @@ config BR2_ARM_CPU_MAYBE_HAS_VFPV4
 config BR2_ARM_CPU_HAS_VFPV4
 	bool
 	select BR2_ARM_CPU_HAS_VFPV3
+	select BR2_ARM_CPU_HAS_FP16
 
 # FPv4 is always optional
 config BR2_ARM_CPU_MAYBE_HAS_FPV4
@@ -511,6 +515,14 @@ config BR2_ARM_ENABLE_VFP
 	  this option if you are certain your particular
 	  implementation has VFP support and you want to use it.
 
+config BR2_ARM_ENABLE_FP16
+	bool "Enable half-precision (16-bit) floating point"
+	depends on BR2_ARM_CPU_HAS_VFPV3 && !BR2_ARM_CPU_HAS_VFPV4
+	select BR2_ARM_CPU_HAS_FP16
+	help
+	  FP16 is an optional extension to VFPv3 but is included in
+	  all VFPv4 implementations.
+
 choice
 	prompt "Target ABI"
 	default BR2_ARM_EABIHF if BR2_ARM_CPU_HAS_FPU
@@ -615,6 +627,14 @@ config BR2_ARM_FPU_VFPV3
 	  with VFPv3. They must of course also have 32
 	  double-precision registers.
 
+config BR2_ARM_FPU_VFPV3_FP16
+	bool "NEON-FP16"
+	depends on BR2_ARM_CPU_HAS_FP16
+	depends on BR2_ARM_CPU_HAS_VFPV3
+	help
+	  Allows VFPv3 with half-precision (16-bit) floating point
+	  instructions.
+
 config BR2_ARM_FPU_VFPV3D16
 	bool "VFPv3-D16"
 	depends on BR2_ARM_CPU_HAS_VFPV3
@@ -629,6 +649,15 @@ config BR2_ARM_FPU_VFPV3D16
 	  Note that this option is also safe to use for newer cores
 	  such that have a VFPv4 unit, because the VFPv4 is backward
 	  compatible with VFPv3.
+
+config BR2_ARM_FPU_VFPV3D16_FP16
+	bool "VFPv3-D16-FP16"
+	depends on BR2_ARM_CPU_HAS_FP16
+	depends on BR2_ARM_CPU_HAS_VFPV3
+	help
+	  Allows VFPv3 with half-precision (16-bit) floating point
+	  instructions on processors with at least 16 double-precision
+	  registers.
 
 config BR2_ARM_FPU_VFPV4
 	bool "VFPv4"
@@ -669,6 +698,14 @@ config BR2_ARM_FPU_NEON
 	  should however be noted that using NEON for floating point
 	  operations doesn't provide a complete compatibility with the
 	  IEEE 754.
+
+config BR2_ARM_FPU_NEON_FP16
+	bool "NEON-FP16"
+	depends on BR2_ARM_CPU_HAS_FP16
+	depends on BR2_ARM_CPU_HAS_NEON
+	help
+	  Allows NEON with half-precision (16-bit) floating point
+	  instructions.
 
 config BR2_ARM_FPU_NEON_VFPV4
 	bool "NEON/VFPv4"
@@ -883,10 +920,13 @@ config BR2_GCC_TARGET_ABI
 config BR2_GCC_TARGET_FPU
 	default "vfp"		if BR2_ARM_FPU_VFPV2
 	default "vfpv3"		if BR2_ARM_FPU_VFPV3
+	default "vfpv3-fp16"	if BR2_ARM_FPU_VFPV3_FP16
 	default "vfpv3-d16"	if BR2_ARM_FPU_VFPV3D16
+	default "vfpv3-d16-fp16"	if BR2_ARM_FPU_VFPV3D16_FP16
 	default "vfpv4"		if BR2_ARM_FPU_VFPV4
 	default "vfpv4-d16"	if BR2_ARM_FPU_VFPV4D16
 	default "neon"		if BR2_ARM_FPU_NEON
+	default "neon-fp16"	if BR2_ARM_FPU_NEON_FP16
 	default "neon-vfpv4"	if BR2_ARM_FPU_NEON_VFPV4
 	default "fpv4-sp-d16"   if BR2_ARM_FPU_FPV4D16
 	default "fpv5-sp-d16"	if BR2_ARM_FPU_FPV5D16
