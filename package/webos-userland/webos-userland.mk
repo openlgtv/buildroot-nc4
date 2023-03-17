@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-WEBOS_USERLAND_VERSION = f3a6cb591dac7525f6f2ce145361757ca4e043b5
+WEBOS_USERLAND_VERSION = b780edca27060a1ce3c139ab49fee21ef4860c64
 WEBOS_USERLAND_SITE = $(call github,sundermann,webos-userland,$(WEBOS_USERLAND_VERSION))
 WEBOS_USERLAND_LICENSE = Apache/MIT
 WEBOS_USERLAND_INSTALL_STAGING = YES
