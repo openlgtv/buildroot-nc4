@@ -1,0 +1,31 @@
+OpenEmbedded modifies the bzip2 build scripts to use libtool, resulting in a
+soname of libbz2.so.1.
+
+Prior to webOS 4, the soname was libbz2.so.0. It's ABI-compatible though,
+since it's actually the same version.
+
+For more information, see:
+https://www.openembedded.org/pipermail/openembedded-core/2016-April/238341.html
+
+--- bzip2-1.0.8/Makefile-libbz2_so.orig	2023-05-23 14:14:17.890837755 -0400
++++ bzip2-1.0.8/Makefile-libbz2_so	2023-05-23 14:14:43.858329522 -0400
+@@ -34,16 +34,16 @@
+       bzlib.sho
+ 
+ all: $(OBJS)
+-	$(CC) -shared -Wl,-soname -Wl,libbz2.so.1.0 -o libbz2.so.1.0.8 $(OBJS)
++	$(CC) -shared -Wl,-soname,libbz2.so.1 -o libbz2.so.1.0.8 $(OBJS)
+ 	$(CC) $(CFLAGS) -o bzip2-shared bzip2.c libbz2.so.1.0.8
+ 
+ install:
+ 	install -m 0755 -D libbz2.so.1.0.8 $(PREFIX)/lib/libbz2.so.1.0.8
+ 	ln -sf libbz2.so.1.0.8 $(PREFIX)/lib/libbz2.so
+-	ln -sf libbz2.so.1.0.8 $(PREFIX)/lib/libbz2.so.1.0
++	ln -sf libbz2.so.1.0.8 $(PREFIX)/lib/libbz2.so.1
+ 
+ clean: 
+-	rm -f $(OBJS) bzip2.o libbz2.so.1.0.8 libbz2.so.1.0 bzip2-shared
++	rm -f $(OBJS) bzip2.o libbz2.so.1.0.8 libbz2.so.1 bzip2-shared
+ 
+ %.sho: %.c
+ 	$(CC) $(CFLAGS) -o $@ -c $<

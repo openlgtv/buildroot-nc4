@@ -66,5 +66,13 @@ define HOST_BZIP2_INSTALL_CMDS
 		$(MAKE) -f Makefile-libbz2_so PREFIX=$(HOST_DIR) -C $(@D) install
 endef
 
+define BZIP2_APPLY_WEBOS_PATCHES
+	$(APPLY_PATCHES) $(@D) package/bzip2/webos \*.patch
+endef
+
+ifeq ($(BR2_PACKAGE_LGTV),y)
+BZIP2_POST_PATCH_HOOKS += BZIP2_APPLY_WEBOS_PATCHES
+endif
+
 $(eval $(generic-package))
 $(eval $(host-generic-package))

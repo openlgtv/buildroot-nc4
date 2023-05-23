@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Buildroot -g48f264737c Configuration
+# Buildroot -g7989555c69-dirty Configuration
 #
 BR2_HAVE_DOT_CONFIG=y
 BR2_HOST_GCC_AT_LEAST_4_9=y
@@ -655,7 +655,7 @@ BR2_PACKAGE_PULSEAUDIO=y
 # Compressors and decompressors
 #
 # BR2_PACKAGE_BROTLI is not set
-# BR2_PACKAGE_BZIP2 is not set
+BR2_PACKAGE_BZIP2=y
 # BR2_PACKAGE_LRZIP is not set
 # BR2_PACKAGE_LZIP is not set
 # BR2_PACKAGE_LZOP is not set
