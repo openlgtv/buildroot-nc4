@@ -51,12 +51,12 @@ define SDL2_FIX_SDL2_CONFIG_CMAKE
 endef
 SDL2_POST_INSTALL_STAGING_HOOKS += SDL2_FIX_SDL2_CONFIG_CMAKE
 
-define APPLY_WEBOS_PATCHES
+define SDL2_APPLY_WEBOS_PATCHES
 	$(APPLY_PATCHES) $(@D) package/sdl2/webos \*.patch
 endef
 
 ifeq ($(BR2_PACKAGE_SDL2_WEBOS),y)
-SDL2_POST_PATCH_HOOKS += APPLY_WEBOS_PATCHES
+SDL2_POST_PATCH_HOOKS += SDL2_APPLY_WEBOS_PATCHES
 endif
 
 # We must enable static build to get compilation successful.
