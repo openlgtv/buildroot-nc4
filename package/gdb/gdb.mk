@@ -214,6 +214,10 @@ else
 GDB_CONF_OPTS += --without-lzma
 endif
 
+ifeq ($(BR2_PACKAGE_LGTV),y)
+GDB_CONF_OPTS += --with-static-standard-libraries
+endif
+
 ifeq ($(BR2_PACKAGE_GDB_PYTHON),)
 # This removes some unneeded Python scripts and XML target description
 # files that are not useful for a normal usage of the debugger.
