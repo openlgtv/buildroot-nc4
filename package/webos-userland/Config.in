@@ -1,6 +1,5 @@
 config BR2_PACKAGE_WEBOS_USERLAND
 	bool "webos-userland"
-	depends on BR2_arm
 	depends on BR2_INSTALL_LIBSTDCPP
 	depends on BR2_TOOLCHAIN_HAS_THREADS
 	depends on !BR2_STATIC_LIBS
@@ -25,7 +24,23 @@ config BR2_PACKAGE_PROVIDES_LIBGLES
 
 endif
 
+
+choice
+	prompt "libwayland-egl SONAME"
+	default BR2_WAYLAND_EGL_SOVERSION_NONE if BR2_arm
+	default BR2_WAYLAND_EGL_SOVERSION_1 if BR2_i386
+	depends on BR2_PACKAGE_WEBOS_USERLAND && BR2_PACKAGE_HAS_LIBEGL_WAYLAND
+	help
+	  Select the SOVERSION of libwayland-egl.so you wish to use.
+
+config BR2_WAYLAND_EGL_SOVERSION_NONE
+	bool "libwayland-egl.so"
+
+config BR2_WAYLAND_EGL_SOVERSION_1
+	bool "libwayland-egl.so.1"
+
+endchoice
+
 comment "webos-userland needs a toolchain w/ C++, threads, dynamic library"
-	depends on BR2_arm
 	depends on !BR2_INSTALL_LIBSTDCPP || !BR2_TOOLCHAIN_HAS_THREADS || \
 		BR2_STATIC_LIBS
