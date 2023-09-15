@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-WEBOS_USERLAND_VERSION = 0.0.8
+WEBOS_USERLAND_VERSION = 0.0.10
 WEBOS_USERLAND_SITE = $(call github,webosbrew,webos-userland,$(WEBOS_USERLAND_VERSION))
 WEBOS_USERLAND_LICENSE = Apache/MIT
 WEBOS_USERLAND_INSTALL_STAGING = YES
@@ -19,5 +19,9 @@ define WEBOS_USERLAND_POST_TARGET_CLEANUP
 	rm -Rf $(TARGET_DIR)/usr/src
 endef
 WEBOS_USERLAND_POST_INSTALL_TARGET_HOOKS += WEBOS_USERLAND_POST_TARGET_CLEANUP
+
+ifeq ($(BR2_WAYLAND_EGL_SOVERSION_1),y)
+WEBOS_USERLAND_CONF_OPTS += "-DWAYLAND_EGL_SOVERSION_1=ON"
+endif
 
 $(eval $(cmake-package))
