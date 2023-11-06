@@ -298,7 +298,7 @@ int main(int argc, char **argv)
 			perror(__FILE__ ": _NSGetExecutablePath");
 			return 2;
 		}
-#elif
+#else
 		ret = readlink("/proc/self/exe", absbasedir, PATH_MAX);
 		if (ret < 0) {
 			perror(__FILE__ ": readlink");
