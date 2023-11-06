@@ -25,6 +25,11 @@
 #include <time.h>
 #include <stdbool.h>
 
+#ifdef __APPLE__
+#include <mach-o/dyld.h>
+#define program_invocation_short_name getprogname()
+#endif
+
 #ifdef BR_CCACHE
 static char ccache_path[PATH_MAX];
 #endif
@@ -286,11 +291,20 @@ int main(int argc, char **argv)
 	} else {
 		basename = progpath;
 		absbasedir = malloc(PATH_MAX + 1);
+#if __APPLE__
+		uint32_t size = PATH_MAX;
+		ret = _NSGetExecutablePath(absbasedir, &size);
+		if (ret < 0) {
+			perror(__FILE__ ": _NSGetExecutablePath");
+			return 2;
+		}
+#elif
 		ret = readlink("/proc/self/exe", absbasedir, PATH_MAX);
 		if (ret < 0) {
 			perror(__FILE__ ": readlink");
 			return 2;
 		}
+#endif
 		absbasedir[ret] = '\0';
 		for (i = ret; i > 0; i--) {
 			if (absbasedir[i] == '/') {
