@@ -4,10 +4,10 @@
 #
 ################################################################################
 
-LEMON_VERSION = 3.7.9
-LEMON_TAR_VERSION = 3070900
+LEMON_VERSION = 3.45.0
+LEMON_TAR_VERSION = 3450000
 LEMON_SOURCE = sqlite-src-$(LEMON_TAR_VERSION).zip
-LEMON_SITE = https://sqlite.org/
+LEMON_SITE = https://sqlite.org/2024
 LEMON_LICENSE = Public domain
 LEMON_LICENSE_FILES = tea/license.terms
 LEMON_CPE_ID_VENDOR = sqlite
