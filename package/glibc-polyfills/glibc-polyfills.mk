@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-GLIBC_POLYFILLS_VERSION = e778cbd37d78dcbbc5808d6cd3e49611f9c57b77
+GLIBC_POLYFILLS_VERSION = cf6fa6f9b00f833a2bcc4cec12ecb3ff65ab83aa
 GLIBC_POLYFILLS_SITE = $(call github,smx-smx,glibc-polyfills,$(GLIBC_POLYFILLS_VERSION))
 
 GLIBC_POLYFILLS_INSTALL_STAGING = YES
