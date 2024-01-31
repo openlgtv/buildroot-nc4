@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-WEBOS_WAYLAND_EXTENSIONS_VERSION = 715829259cfb061ddcb5e16efa2a420e99af57e8
+WEBOS_WAYLAND_EXTENSIONS_VERSION = bc33a88c5dcf60cff7cbe998a41ca2404358a5ed
 WEBOS_WAYLAND_EXTENSIONS_SITE = $(call github,webosose,webos-wayland-extensions,$(WEBOS_WAYLAND_EXTENSIONS_VERSION))
 
 WEBOS_WAYLAND_EXTENSIONS_INSTALL_STAGING = YES

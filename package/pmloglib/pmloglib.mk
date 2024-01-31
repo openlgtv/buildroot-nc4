@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-PMLOGLIB_VERSION = 5a26755c09cd9d0355ec2907ded4078d00bd38c1
+PMLOGLIB_VERSION = c07d8b3232739adcefe1f667062f9de82253f3af
 PMLOGLIB_SITE = $(call github,webosose,pmloglib,$(PMLOGLIB_VERSION))
 PMLOGLIB_INSTALL_STAGING = YES
 PMLOGLIB_SUPPORTS_IN_SOURCE_BUILD = NO
