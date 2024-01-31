@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-LUNA_SERVICE2_VERSION = e9473aa78576d8a772a64859bb321bc429977810
+LUNA_SERVICE2_VERSION = 5d80c2779b2867f5c999d931510a83b7ec61bee1
 LUNA_SERVICE2_SITE = $(call github,webosose,luna-service2,$(LUNA_SERVICE2_VERSION))
 LUNA_SERVICE2_INSTALL_STAGING = YES
 LUNA_SERVICE2_SUPPORTS_IN_SOURCE_BUILD = NO
