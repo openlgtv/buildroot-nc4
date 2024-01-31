@@ -2704,6 +2704,7 @@ menu "WebOS"
 	source "package/pmloglib/Config.in"
 	source "package/umediaserver/Config.in"
 	source "package/webos/Config.in"
+	source "package/webos-gmp/Config.in"
 	source "package/webos-userland/Config.in"
 	source "package/webos-wayland-extensions/Config.in"
 endmenu

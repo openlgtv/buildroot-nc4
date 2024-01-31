@@ -154,7 +154,7 @@ endif
 ifeq ($(BR2_GDB_VERSION_10)$(BR2_arc):$(BR2_PACKAGE_GDB_DEBUGGER),:y)
 GDB_CONF_OPTS += \
 	--with-libgmp-prefix=$(STAGING_DIR)/usr
-GDB_DEPENDENCIES += gmp
+GDB_DEPENDENCIES += $(if $(BR2_PACKAGE_WEBOS_GMP),webos-gmp,gmp)
 endif
 
 ifeq ($(BR2_PACKAGE_GDB_SERVER),y)

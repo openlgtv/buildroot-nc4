@@ -14,7 +14,7 @@ NFTABLES_CONF_OPTS = --disable-debug --disable-man-doc --disable-pdf-doc
 NFTABLES_SELINUX_MODULES = iptables
 
 ifeq ($(BR2_PACKAGE_GMP),y)
-NFTABLES_DEPENDENCIES += gmp
+NFTABLES_DEPENDENCIES += $(if $(BR2_PACKAGE_WEBOS_GMP),webos-gmp,gmp)
 NFTABLES_CONF_OPTS += --without-mini-gmp
 else
 NFTABLES_CONF_OPTS += --with-mini-gmp

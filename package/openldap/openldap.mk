@@ -36,7 +36,7 @@ OPENLDAP_DEPENDENCIES += openssl
 OPENLDAP_CONF_ENV = LIBS="`$(PKG_CONFIG_HOST_BINARY) --libs libssl libcrypto`"
 else ifeq ($(BR2_PACKAGE_GMP),y)
 OPENLDAP_MP = gmp
-OPENLDAP_DEPENDENCIES += gmp
+OPENLDAP_DEPENDENCIES += $(if $(BR2_PACKAGE_WEBOS_GMP),webos-gmp,gmp)
 else
 OPENLDAP_MP = longlong
 endif
