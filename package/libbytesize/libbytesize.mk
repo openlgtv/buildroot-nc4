@@ -13,7 +13,7 @@ LIBBYTESIZE_INSTALL_STAGING = YES
 LIBBYTESIZE_DEPENDENCIES = \
 	host-pkgconf \
 	host-gettext \
-	gmp \
+	$(if $(BR2_PACKAGE_WEBOS_GMP),webos-gmp,gmp) \
 	mpfr \
 	pcre2
 
