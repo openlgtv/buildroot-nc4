@@ -1,0 +1,5 @@
+# Locally calculated after checking pgp signature
+sha256  41d70107ead3de2f12390909a05eefc9a88def6cd1f0d90ea82a7dac8b8effee  gnutls-3.3.30.tar.xz
+# Locally calculated
+sha256  8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903  COPYING
+sha256  6095e9ffa777dd22839f7801aa845b31c9ed07f3d6bf8a26dc5d2dec8ccc0ef3  COPYING.LESSER
