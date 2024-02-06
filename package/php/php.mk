@@ -203,7 +203,7 @@ endif
 
 ifeq ($(BR2_PACKAGE_PHP_EXT_GMP),y)
 PHP_CONF_OPTS += --with-gmp=$(STAGING_DIR)/usr
-PHP_DEPENDENCIES += gmp
+PHP_DEPENDENCIES += $(if $(BR2_PACKAGE_WEBOS_GMP),webos-gmp,gmp)
 endif
 
 ifeq ($(BR2_PACKAGE_PHP_EXT_READLINE),y)
