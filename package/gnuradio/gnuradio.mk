@@ -19,7 +19,7 @@ GNURADIO_DEPENDENCIES = \
 	host-swig \
 	boost \
 	log4cpp \
-	gmp \
+	$(if $(BR2_PACKAGE_WEBOS_GMP),webos-gmp,gmp) \
 	volk
 
 GNURADIO_CONF_OPTS = \

@@ -10,7 +10,7 @@ MINETEST_LICENSE = LGPL-2.1+ (code), CC-BY-SA-3.0 (textures and sounds), Zlib (i
 MINETEST_LICENSE_FILES = LICENSE.txt lib/irrlichtmt/doc/irrlicht-license.txt
 MINETEST_CPE_ID_VENDOR = minetest
 
-MINETEST_DEPENDENCIES = gmp jsoncpp luajit sqlite zlib zstd
+MINETEST_DEPENDENCIES = $(if $(BR2_PACKAGE_WEBOS_GMP),webos-gmp,gmp) jsoncpp luajit sqlite zlib zstd
 
 MINETEST_IRRLICHTMT_VERSION = 1.9.0mt5
 MINETEST_EXTRA_DOWNLOADS = $(call github,minetest,irrlicht,$(MINETEST_IRRLICHTMT_VERSION))/irrlicht-$(MINETEST_IRRLICHTMT_VERSION).tar.gz

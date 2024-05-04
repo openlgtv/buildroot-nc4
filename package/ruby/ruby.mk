@@ -76,7 +76,7 @@ ifeq ($(BR2_PACKAGE_ZLIB),y)
 RUBY_DEPENDENCIES += zlib
 endif
 ifeq ($(BR2_PACKAGE_GMP),y)
-RUBY_DEPENDENCIES += gmp
+RUBY_DEPENDENCIES += $(if $(BR2_PACKAGE_WEBOS_GMP),webos-gmp,gmp)
 RUBY_CONF_OPTS += --with-gmp
 else
 RUBY_CONF_OPTS += --without-gmp
