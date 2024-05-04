@@ -5,7 +5,7 @@
 ################################################################################
 
 NETTLE_VERSION = 2.7.1
-NETTLE_SITE = http://www.lysator.liu.se/~nisse/archive
+NETTLE_SITE = https://ftp.gnu.org/gnu/nettle
 NETTLE_DEPENDENCIES = gmp
 NETTLE_INSTALL_STAGING = YES
 NETTLE_LICENSE = LGPLv2.1+
