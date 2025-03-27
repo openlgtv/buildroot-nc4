@@ -29,5 +29,9 @@ else
 GMP_CONF_OPTS += --disable-cxx
 endif
 
+# Don't build for target if using webOS GMP instead
+#ifneq ($(BR2_PACKAGE_WEBOS_GMP),y)
 $(eval $(autotools-package))
+#endif
+
 $(eval $(host-autotools-package))
