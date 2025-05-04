@@ -4,21 +4,16 @@
 #
 ################################################################################
 
-GRUB2_VERSION = 2.06
-GRUB2_SITE = http://ftp.gnu.org/gnu/grub
+GRUB2_VERSION = 2.12
+GRUB2_SITE = $(BR2_GNU_MIRROR)/grub
 GRUB2_SOURCE = grub-$(GRUB2_VERSION).tar.xz
 GRUB2_LICENSE = GPL-3.0+
 GRUB2_LICENSE_FILES = COPYING
-GRUB2_DEPENDENCIES = host-bison host-flex host-grub2
-HOST_GRUB2_DEPENDENCIES = host-bison host-flex
+GRUB2_DEPENDENCIES = host-bison host-flex host-gawk host-grub2 \
+	$(BR2_PYTHON3_HOST_DEPENDENCY)
+HOST_GRUB2_DEPENDENCIES = host-bison host-flex host-gawk \
+	$(BR2_PYTHON3_HOST_DEPENDENCY)
 GRUB2_INSTALL_IMAGES = YES
-
-# 0001-Makefile-Make-grub_fstest.pp-depend-on-config-util.h.patch
-define GRUB2_AVOID_AUTORECONF
-	$(Q)touch $(@D)/Makefile.in
-endef
-GRUB2_POST_PATCH_HOOKS += GRUB2_AVOID_AUTORECONF
-HOST_GRUB2_POST_PATCH_HOOKS += GRUB2_AVOID_AUTORECONF
 
 # CVE-2019-14865 is about a flaw in the grub2-set-bootflag tool, which
 # doesn't exist upstream, but is added by the Redhat/Fedora
@@ -30,10 +25,14 @@ GRUB2_IGNORE_CVES += CVE-2019-14865
 # grub_linuxefi_secure_validate() is not implemented in the grub2
 # version available in Buildroot.
 GRUB2_IGNORE_CVES += CVE-2020-15705
-# 0002-grub-mkconfig-Restore-umask-for-the-grub.cfg.patch
-GRUB2_IGNORE_CVES += CVE-2021-3981
 # vulnerability is specific to the SUSE distribution
 GRUB2_IGNORE_CVES += CVE-2021-46705
+# vulnerability is specific to the Redhat distribution, affects a
+# downstream change from Redhat related to password authentication
+GRUB2_IGNORE_CVES += CVE-2023-4001
+# vulnerability is specific to the Redhat distribution, affects the
+# grub2-set-bootflag tool, which doesn't exist upstream
+GRUB2_IGNORE_CVES += CVE-2024-1048
 
 ifeq ($(BR2_TARGET_GRUB2_INSTALL_TOOLS),y)
 GRUB2_INSTALL_TARGET = YES
@@ -101,6 +100,15 @@ GRUB2_PLATFORM_arm64-efi = efi
 GRUB2_BUILTIN_CONFIG_arm64-efi = $(GRUB2_BUILTIN_CONFIG_EFI)
 GRUB2_BUILTIN_MODULES_arm64-efi = $(GRUB2_BUILTIN_MODULES_EFI)
 GRUB2_TUPLES-$(BR2_TARGET_GRUB2_ARM64_EFI) += arm64-efi
+
+GRUB2_IMAGE_riscv64-efi = $(BINARIES_DIR)/efi-part/EFI/BOOT/bootriscv64.efi
+GRUB2_CFG_riscv64-efi = $(BINARIES_DIR)/efi-part/EFI/BOOT/grub.cfg
+GRUB2_PREFIX_riscv64-efi = /EFI/BOOT
+GRUB2_TARGET_riscv64-efi = riscv64
+GRUB2_PLATFORM_riscv64-efi = efi
+GRUB2_BUILTIN_CONFIG_riscv64-efi = $(GRUB2_BUILTIN_CONFIG_EFI)
+GRUB2_BUILTIN_MODULES_riscv64-efi = $(GRUB2_BUILTIN_MODULES_EFI)
+GRUB2_TUPLES-$(BR2_TARGET_GRUB2_RISCV64_EFI) += riscv64-efi
 
 # Grub2 is kind of special: it considers CC, LD and so on to be the
 # tools to build the host programs and uses TARGET_CC, TARGET_CFLAGS,

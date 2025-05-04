@@ -12,6 +12,9 @@ config BR2_SOFT_FLOAT
 config BR2_USE_MMU
 	bool
 
+config BR2_ARCH_HAS_FDPIC_SUPPORT
+	bool
+
 choice
 	prompt "Target Architecture"
 	default BR2_i386
@@ -139,14 +142,6 @@ config BR2_mips64el
 	  endian.
 	  http://www.mips.com/
 	  http://en.wikipedia.org/wiki/MIPS_Technologies
-
-config BR2_nios2
-	bool "Nios II"
-	select BR2_USE_MMU
-	help
-	  Nios II is a soft core processor from Altera Corporation.
-	  http://www.altera.com/
-	  http://en.wikipedia.org/wiki/Nios_II
 
 config BR2_or1k
 	bool "OpenRISC"
@@ -304,6 +299,18 @@ config BR2_ARCH_NEEDS_GCC_AT_LEAST_12
 	bool
 	select BR2_ARCH_NEEDS_GCC_AT_LEAST_11
 
+config BR2_ARCH_NEEDS_GCC_AT_LEAST_13
+	bool
+	select BR2_ARCH_NEEDS_GCC_AT_LEAST_12
+
+config BR2_ARCH_NEEDS_GCC_AT_LEAST_14
+	bool
+	select BR2_ARCH_NEEDS_GCC_AT_LEAST_13
+
+config BR2_ARCH_NEEDS_GCC_AT_LEAST_15
+	bool
+	select BR2_ARCH_NEEDS_GCC_AT_LEAST_14
+
 # The following string values are defined by the individual
 # Config.in.$ARCH files
 config BR2_ARCH
@@ -378,10 +385,6 @@ if BR2_mips || BR2_mips64 || BR2_mipsel || BR2_mips64el
 source "arch/Config.in.mips"
 endif
 
-if BR2_nios2
-source "arch/Config.in.nios2"
-endif
-
 if BR2_or1k
 source "arch/Config.in.or1k"
 endif
@@ -429,6 +432,16 @@ config BR2_BINFMT_ELF
 	  and executables used across different architectures and
 	  operating systems.
 
+config BR2_BINFMT_FDPIC
+	bool "FDPIC"
+	depends on BR2_ARCH_HAS_FDPIC_SUPPORT
+	select BR2_BINFMT_SUPPORTS_SHARED
+	help
+	  ELF FDPIC binaries are based on ELF, but allow the individual
+	  load segments of a binary to be located in memory
+	  independently of each other. This makes this format ideal for
+	  use in environments where no MMU is available.
+
 config BR2_BINFMT_FLAT
 	bool "FLAT"
 	depends on !BR2_USE_MMU
@@ -436,31 +449,6 @@ config BR2_BINFMT_FLAT
 	  FLAT binary is a relatively simple and lightweight executable
 	  format based on the original a.out format. It is widely used
 	  in environment where no MMU is available.
-
-endchoice
-
-# Set up flat binary type
-choice
-	prompt "FLAT Binary type"
-	default BR2_BINFMT_FLAT_ONE
-	depends on BR2_BINFMT_FLAT
-
-config BR2_BINFMT_FLAT_ONE
-	bool "One memory region"
-	help
-	  All segments are linked into one memory region.
-
-config BR2_BINFMT_FLAT_SHARED
-	bool "Shared binary"
-	depends on BR2_m68k
-	# Even though this really generates shared binaries, there is no libdl
-	# and dlopen() cannot be used. So packages that require shared
-	# libraries cannot be built. Therefore, we don't select
-	# BR2_BINFMT_SUPPORTS_SHARED and therefore force BR2_STATIC_LIBS.
-	# Although this adds -static to the compilation, that's not a problem
-	# because the -mid-shared-library option overrides it.
-	help
-	  Allow to load and link indiviual FLAT binaries at run time.
 
 endchoice
 

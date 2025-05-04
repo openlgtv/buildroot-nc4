@@ -4,19 +4,23 @@
 #
 ################################################################################
 
-CNI_PLUGINS_VERSION = 1.1.1
+CNI_PLUGINS_VERSION = 1.3.0
 CNI_PLUGINS_SITE = $(call github,containernetworking,plugins,v$(CNI_PLUGINS_VERSION))
 CNI_PLUGINS_LICENSE = Apache-2.0
 CNI_PLUGINS_LICENSE_FILES = LICENSE
 
 CNI_PLUGINS_BUILD_TARGETS = \
 	plugins/ipam/dhcp \
+	plugins/ipam/host-local \
+	plugins/ipam/static \
 	plugins/main/bridge \
+	plugins/main/dummy \
 	plugins/main/host-device \
 	plugins/main/ipvlan \
 	plugins/main/loopback \
 	plugins/main/macvlan \
 	plugins/main/ptp \
+	plugins/main/tap \
 	plugins/main/vlan \
 	plugins/meta/bandwidth \
 	plugins/meta/firewall \

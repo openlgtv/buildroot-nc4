@@ -246,12 +246,22 @@ config BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_WAVPARSE
 	help
 	  Parse a .wav file into raw audio
 
+config BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_XINGMUX
+	bool "xingmux"
+	help
+	  Add XING tags to mpeg audio files
+
 config BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_Y4M
 	bool "y4m"
 	help
 	  Encodes a YUV frame into the yuv4mpeg format (mjpegtools)
 
 comment "plugins with external dependencies"
+
+config BR2_PACKAGE_GST1_PLUGINS_GOOD_ADAPTIVEMUX2
+	bool "adaptivedemux2 (Adaptive Streaming 2)"
+	select BR2_PACKAGE_LIBXML2
+	select BR2_PACKAGE_LIBSOUP3
 
 config BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_LAME
 	bool "lame (*.mp3 audio encoder)"
@@ -283,6 +293,8 @@ config BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_QMLGL
 	select BR2_PACKAGE_QT5BASE_WIDGETS
 	select BR2_PACKAGE_QT5DECLARATIVE
 	select BR2_PACKAGE_QT5DECLARATIVE_QUICK
+	select BR2_PACKAGE_QT5TOOLS
+	select BR2_PACKAGE_QT5TOOLS_LINGUIST_TOOLS
 	select BR2_PACKAGE_QT5X11EXTRAS if BR2_PACKAGE_QT5BASE_XCB
 	help
 	  QT5 plugin which includes elements qmlglsrc and qmlglsink
@@ -373,11 +385,11 @@ comment "pulseaudio support needs a toolchain w/ threads, wchar, dynamic library
 
 config BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_SOUPHTTPSRC
 	bool "souphttpsrc (http client)"
-	depends on BR2_USE_WCHAR # libsoup -> glib2
-	depends on BR2_TOOLCHAIN_HAS_THREADS # libsoup -> glib2
-	select BR2_PACKAGE_LIBSOUP
+	depends on BR2_USE_WCHAR # libsoup3 -> glib2
+	depends on BR2_TOOLCHAIN_HAS_THREADS # libsoup3 -> glib2
+	select BR2_PACKAGE_LIBSOUP3
 	help
-	  libsoup HTTP client src/sink
+	  libsoup3 HTTP client src/sink
 
 comment "souphttpsrc needs a toolchain w/ wchar, threads"
 	depends on !BR2_USE_WCHAR || !BR2_TOOLCHAIN_HAS_THREADS
@@ -407,7 +419,7 @@ config BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_TWOLAME
 
 config BR2_PACKAGE_GST1_PLUGINS_GOOD_PLUGIN_VPX
 	bool "vpx (webm)"
-	depends on BR2_TOOLCHAIN_HAS_THREADS # libvpx
+	depends on BR2_TOOLCHAIN_HAS_THREADS_NPTL # libvpx
 	select BR2_PACKAGE_LIBVPX
 	help
 	  VP8 plugin

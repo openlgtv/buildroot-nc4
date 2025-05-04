@@ -4,12 +4,12 @@
 #
 ################################################################################
 
-PYTHON_JINJA2_VERSION = 3.1.2
-PYTHON_JINJA2_SOURCE = Jinja2-$(PYTHON_JINJA2_VERSION).tar.gz
-PYTHON_JINJA2_SITE = https://files.pythonhosted.org/packages/7a/ff/75c28576a1d900e87eb6335b063fab47a8ef3c8b4d88524c4bf78f670cce
-PYTHON_JINJA2_SETUP_TYPE = setuptools
+PYTHON_JINJA2_VERSION = 3.1.6
+PYTHON_JINJA2_SOURCE = jinja2-$(PYTHON_JINJA2_VERSION).tar.gz
+PYTHON_JINJA2_SITE = https://files.pythonhosted.org/packages/df/bf/f7da0350254c0ed7c72f3e33cef02e048281fec7ecec5f032d4aac52226b
+PYTHON_JINJA2_SETUP_TYPE = flit
 PYTHON_JINJA2_LICENSE = BSD-3-Clause
-PYTHON_JINJA2_LICENSE_FILES = LICENSE.rst
+PYTHON_JINJA2_LICENSE_FILES = LICENSE.txt
 PYTHON_JINJA2_CPE_ID_VENDOR = pocoo
 PYTHON_JINJA2_CPE_ID_PRODUCT = jinja2
 

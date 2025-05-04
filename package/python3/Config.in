@@ -11,6 +11,7 @@ config BR2_PACKAGE_PYTHON3
 	depends on !BR2_STATIC_LIBS
 	select BR2_PACKAGE_LIBFFI
 	select BR2_PACKAGE_BLUEZ5_UTILS_HEADERS if BR2_PACKAGE_BLUEZ5_UTILS
+	select BR2_PACKAGE_HOST_PYTHON3
 	help
 	  The python language interpreter.
 
@@ -48,6 +49,7 @@ config BR2_PACKAGE_PYTHON3_2TO3
 config BR2_PACKAGE_PYTHON3_BERKELEYDB
 	bool "berkeleydb"
 	select BR2_PACKAGE_BERKELEYDB
+	select BR2_PACKAGE_BERKELEYDB_DBM
 	help
 	  berkeleydb module for Python3
 

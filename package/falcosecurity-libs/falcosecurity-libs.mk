@@ -8,7 +8,6 @@ FALCOSECURITY_LIBS_VERSION = e5c53d648f3c4694385bbe488e7d47eaa36c229a
 FALCOSECURITY_LIBS_SITE = $(call github,falcosecurity,libs,$(FALCOSECURITY_LIBS_VERSION))
 FALCOSECURITY_LIBS_LICENSE = Apache-2.0 (userspace), MIT or GPL-2.0 (driver)
 FALCOSECURITY_LIBS_LICENSE_FILES = COPYING driver/MIT.txt driver/GPL2.txt
-FALCOSECURITY_LIBS_CPE_ID_VENDOR = falco
 
 FALCOSECURITY_LIBS_DEPENDENCIES = \
 	c-ares \
@@ -45,7 +44,7 @@ define FALCOSECURITY_LIBS_LINUX_CONFIG_FIXUPS
 endef
 
 # falcosecurity-libs creates the module Makefile from a template, which contains
-# a single place-holder, KBUILD_FLAGS, wich is only replaced with debug flags,
+# a single place-holder, KBUILD_FLAGS, which is only replaced with debug flags,
 # which we don't care about here.
 # So, just replace the place-holder with the only meaningful value: nothing.
 # For the DRIVER_NAME, we set it to FALCOSECURITY_LIBS_DRIVER_NAME.

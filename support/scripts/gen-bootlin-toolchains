@@ -62,7 +62,7 @@ arches = {
         'prefix': 'armeb',
     },
     'armv7m': {
-        'conditions': ['BR2_arm', 'BR2_ARM_CPU_ARMV7M'],
+        'conditions': ['BR2_arm', 'BR2_ARM_CPU_ARMV7M', 'BR2_BINFMT_FLAT'],
         'test_options': ['BR2_arm', 'BR2_cortex_m4'],
         'prefix': 'arm',
     },
@@ -117,10 +117,6 @@ arches = {
     'mips64r6el-n32': {
         'conditions': ['BR2_mips64el', 'BR2_mips_64r6', 'BR2_MIPS_NABI32', '!BR2_MIPS_SOFT_FLOAT'],
         'prefix': 'mips64el',
-    },
-    'nios2': {
-        'conditions': ['BR2_nios2'],
-        'prefix': 'nios2',
     },
     'openrisc': {
         'conditions': ['BR2_or1k'],
@@ -293,7 +289,7 @@ class Toolchain:
     @property
     def tarball_url(self):
         return os.path.join(BASE_URL, self.arch, "tarballs",
-                            self.fname_prefix + ".tar.bz2")
+                            self.fname_prefix + ".tar.xz")
 
     @property
     def hash_url(self):
@@ -338,6 +334,8 @@ class Toolchain:
                 m = re.match("^BR2_TOOLCHAIN_EXTERNAL_GCC_([0-9_]*)=y$", frag)
                 assert m, "Cannot get gcc version for toolchain %s" % self.fname_prefix
                 selects.append("BR2_TOOLCHAIN_GCC_AT_LEAST_%s" % m[1])
+                # respect the GCC requirement for the selected CPU/arch tuning
+                depends.append("!BR2_ARCH_NEEDS_GCC_AT_LEAST_%s" % str(int(m[1]) + 1))
 
             # kernel headers version
             if frag.startswith("BR2_TOOLCHAIN_EXTERNAL_HEADERS_"):
@@ -414,7 +412,7 @@ class Toolchain:
     def gen_mk(self, f):
         f.write("ifeq ($(%s),y)\n" % self.option_name)
         f.write("TOOLCHAIN_EXTERNAL_BOOTLIN_VERSION = %s\n" % self.version)
-        f.write("TOOLCHAIN_EXTERNAL_BOOTLIN_SOURCE = %s--%s--%s-$(TOOLCHAIN_EXTERNAL_BOOTLIN_VERSION).tar.bz2\n" %
+        f.write("TOOLCHAIN_EXTERNAL_BOOTLIN_SOURCE = %s--%s--%s-$(TOOLCHAIN_EXTERNAL_BOOTLIN_VERSION).tar.xz\n" %
                 (self.arch, self.libc, self.variant))
         f.write("TOOLCHAIN_EXTERNAL_BOOTLIN_SITE = %s\n" %
                 os.path.join(BASE_URL, self.arch, "tarballs"))
@@ -480,6 +478,12 @@ def get_toolchains():
             elif parts[2].startswith("bleeding-edge-"):
                 variant = "bleeding-edge"
                 version = parts[2][len("bleeding-edge-"):]
+
+            # GCC 14.x on Microblaze is very broken, see
+            # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=118280
+            if arch in ["microblazeel", "microblazebe"] and variant == "bleeding-edge":
+                continue
+
             tmp[(arch, libc, variant)] = version
 
         if len(tmp) == 0:

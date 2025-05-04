@@ -1,7 +1,7 @@
 autoconf: don't append -dirty to version
 
 Don't append -dirty to autoconf version number if the buildroot git tree
-has uncommited changes.
+has uncommitted changes.
 
 This script is meant for the autoconf developers, but it also activates
 if you build autoconf in a subdirectory of a git tree (E.G. like how it's
@@ -17,7 +17,7 @@ Signed-off-by: Gustavo Zacarias <gustavo@zacarias.com.ar>
 diff -Nura autoconf-2.69.orig/build-aux/git-version-gen autoconf-2.69/build-aux/git-version-gen
 --- autoconf-2.69.orig/build-aux/git-version-gen	2013-06-27 11:31:02.340200154 -0300
 +++ autoconf-2.69/build-aux/git-version-gen	2013-06-27 11:31:13.734577033 -0300
-@@ -203,7 +203,7 @@
+@@ -210,7 +210,7 @@
        *) # Append the suffix only if there isn't one already.
            case $v in
              *-dirty) ;;

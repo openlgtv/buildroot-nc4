@@ -154,6 +154,7 @@ class CommentsMenusPackagesOrder(_CheckFunction):
 
 class HelpText(_CheckFunction):
     HELP_TEXT_FORMAT = re.compile(r"^\t  .{,62}$")
+    HELP_TEXT_FORMAT_1 = re.compile(r"^\t  \S.{,61}$")
     URL_ONLY = re.compile(r"^(http|https|git)://\S*$")
 
     def before(self):
@@ -170,12 +171,18 @@ class HelpText(_CheckFunction):
             return
         if text.strip() == "help":
             self.help_text = True
+            self.help_first_line = True
             return
 
         if not self.help_text:
             return
 
-        if self.HELP_TEXT_FORMAT.match(text.rstrip()):
+        if self.help_first_line:
+            help_text_match = self.HELP_TEXT_FORMAT_1
+            self.help_first_line = False
+        else:
+            help_text_match = self.HELP_TEXT_FORMAT
+        if help_text_match.match(text.rstrip()):
             return
         if self.URL_ONLY.match(text.strip()):
             return
@@ -233,3 +240,41 @@ class Indent(_CheckFunction):
                 return ["{}:{}: should not be indented"
                         .format(self.filename, lineno),
                         text]
+
+
+class RedefinedConfig(_CheckFunction):
+    CONFIG = re.compile(r"^\s*(menu|)config\s+(BR2_\w+)\b")
+    IF = re.compile(r"^\s*if\s+([^#]*)\b")
+    ENDIF = re.compile(r"^\s*endif\b")
+
+    def before(self):
+        self.configs = {}
+        self.conditional = []
+
+    def check_line(self, lineno, text):
+        if _empty_or_comment(text) or _part_of_help_text(text):
+            return
+
+        m = self.IF.search(text)
+        if m is not None:
+            condition = m.group(1)
+            self.conditional.append(condition)
+            return
+
+        m = self.ENDIF.search(text)
+        if m is not None:
+            self.conditional.pop()
+            return
+
+        m = self.CONFIG.search(text)
+        if m is None:
+            return
+        config = m.group(2)
+
+        key = (config, ' AND '.join(self.conditional))
+        if key in self.configs.keys():
+            previous_line = self.configs[key]
+            return ["{}:{}: config {} redeclared (previous line: {})"
+                    .format(self.filename, lineno, config, previous_line),
+                    text]
+        self.configs[key] = lineno

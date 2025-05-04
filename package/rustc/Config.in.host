@@ -1,9 +1,8 @@
 # All host rust packages should depend on this option
+# When adding new entries below, update RUST_HOSTS in utils/update-rust
 config BR2_PACKAGE_HOST_RUSTC_ARCH_SUPPORTS
 	bool
 	default y if BR2_HOSTARCH = "aarch64"
-	default y if BR2_HOSTARCH = "mips"
-	default y if BR2_HOSTARCH = "mipsel"
 	default y if BR2_HOSTARCH = "powerpc"
 	default y if BR2_HOSTARCH = "powerpc64"
 	default y if BR2_HOSTARCH = "powerpc64le"
@@ -20,6 +19,7 @@ config BR2_PACKAGE_HOST_RUSTC_ARCH_SUPPORTS
 
 # The below entries match Tier 1 platforms as described at
 # https://doc.rust-lang.org/nightly/rustc/platform-support.html.
+# When adding new entries below, update RUST_TARGETS in utils/update-rust
 config BR2_PACKAGE_HOST_RUSTC_TARGET_TIER1_PLATFORMS
 	bool
 	# aarch64-unknown-linux-gnu
@@ -32,6 +32,7 @@ config BR2_PACKAGE_HOST_RUSTC_TARGET_TIER1_PLATFORMS
 # The below entries match Tier 2 platforms with host tools as
 # described at
 # https://doc.rust-lang.org/nightly/rustc/platform-support.html.
+# When adding new entries below, update RUST_TARGETS in utils/update-rust
 config BR2_PACKAGE_HOST_RUSTC_TARGET_TIER2_HOST_TOOLS_PLATFORMS
 	bool
 	# aarch64-unknown-linux-musl
@@ -45,14 +46,6 @@ config BR2_PACKAGE_HOST_RUSTC_TARGET_TIER2_HOST_TOOLS_PLATFORMS
 	# armv7-unknown-linux-gnueabihf for armv8 hardware with 32-bit
 	# userspace
 	default y if BR2_arm && BR2_ARM_CPU_ARMV8A && BR2_ARM_EABIHF && BR2_TOOLCHAIN_USES_GLIBC
-	# mips-unknown-linux-gnu
-	default y if BR2_mips && BR2_TOOLCHAIN_USES_GLIBC && !BR2_MIPS_CPU_MIPS32R6
-	# mips64-unknown-linux-gnuabi64
-	default y if BR2_mips64 && BR2_TOOLCHAIN_USES_GLIBC && BR2_MIPS_NABI64 && !BR2_MIPS_CPU_MIPS64R6
-	# mipsel-unknown-linux-gnu
-	default y if BR2_mipsel && BR2_TOOLCHAIN_USES_GLIBC && !BR2_MIPS_CPU_MIPS32R6
-	# mips64el-unknown-linux-gnuabi64
-	default y if BR2_mips64el && BR2_TOOLCHAIN_USES_GLIBC && BR2_MIPS_NABI64 && !BR2_MIPS_CPU_MIPS64R6
 	# powerpc-unknown-linux-gnu
 	default y if BR2_powerpc && BR2_TOOLCHAIN_USES_GLIBC
 	# powerpc64-unknown-linux-gnu
@@ -73,6 +66,7 @@ config BR2_PACKAGE_HOST_RUSTC_TARGET_TIER2_HOST_TOOLS_PLATFORMS
 # The below entries match Tier 2 platforms without host tools as
 # described at
 # https://doc.rust-lang.org/nightly/rustc/platform-support.html.
+# When adding new entries below, update RUST_TARGETS in utils/update-rust
 config BR2_PACKAGE_HOST_RUSTC_TARGET_TIER2_PLATFORMS
 	bool
 	# arm-unknown-linux-musleabi
@@ -98,14 +92,6 @@ config BR2_PACKAGE_HOST_RUSTC_TARGET_TIER2_PLATFORMS
 	default y if BR2_x86_i586 && BR2_TOOLCHAIN_USES_MUSL
 	# i686-unknown-linux-musl
 	default y if (BR2_x86_i686 || BR2_x86_pentiumpro || BR2_X86_CPU_HAS_MMX) && BR2_TOOLCHAIN_USES_MUSL
-	# mips-unknown-linux-musl
-	default y if BR2_mips && BR2_TOOLCHAIN_USES_MUSL && !BR2_MIPS_CPU_MIPS32R6
-	# mips64-unknown-linux-muslabi64
-	default y if BR2_mips64 && BR2_TOOLCHAIN_USES_MUSL && BR2_MIPS_NABI64 && !BR2_MIPS_CPU_MIPS64R6
-	# mips64el-unknown-linux-muslabi64
-	default y if BR2_mips64el && BR2_TOOLCHAIN_USES_MUSL && BR2_MIPS_NABI64 && !BR2_MIPS_CPU_MIPS64R6
-	# mipsel-unknown-linux-musl
-	default y if BR2_mipsel && BR2_TOOLCHAIN_USES_MUSL && !BR2_MIPS_CPU_MIPS32R6
 	# sparc64-unknown-linux-gnu
 	default y if BR2_sparc64 && BR2_TOOLCHAIN_USES_GLIBC
 
@@ -159,6 +145,8 @@ config BR2_PACKAGE_HOST_RUST
 	depends on BR2_PACKAGE_HOST_RUSTC_TARGET_ARCH_SUPPORTS
 	# triggers ICE on trunc_int_for_mode, at explow.c:56
 	depends on BR2_TOOLCHAIN_GCC_AT_LEAST_5 || !BR2_aarch64
+	# rust uses llvm >= 17 since 1.73.0
+	select BR2_HOST_CMAKE_AT_LEAST_3_20
 	help
 	  This package will build the compiler for the host as well as
 	  two flavors of the standard library: one for the host, another

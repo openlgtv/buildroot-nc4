@@ -4,11 +4,11 @@
 #
 ################################################################################
 
-POLKIT_VERSION = 121
-POLKIT_SITE = https://www.freedesktop.org/software/polkit/releases
+POLKIT_VERSION = 125
+POLKIT_SITE = $(call github,polkit-org,polkit,$(POLKIT_VERSION))
 POLKIT_LICENSE = GPL-2.0
 POLKIT_LICENSE_FILES = COPYING
-POLKIT_CPE_ID_VENDOR = polkit_project
+POLKIT_CPE_ID_VALID = YES
 POLKIT_INSTALL_STAGING = YES
 POLKIT_DEPENDENCIES = \
 	duktape libglib2 host-intltool expat $(TARGET_NLS_DEPENDENCIES)
@@ -28,6 +28,10 @@ POLKIT_CONF_OPTS += -Dintrospection=true
 POLKIT_DEPENDENCIES += gobject-introspection
 else
 POLKIT_CONF_OPTS += -Dintrospection=false
+endif
+
+ifeq ($(BR2_PACKAGE_LIBXCRYPT),y)
+POLKIT_DEPENDENCIES += libxcrypt
 endif
 
 ifeq ($(BR2_PACKAGE_LINUX_PAM),y)
@@ -52,8 +56,8 @@ define POLKIT_USERS
 endef
 
 define POLKIT_PERMISSIONS
-	/etc/polkit-1/rules.d d 700 polkitd root - - - - -
-	/usr/share/polkit-1/rules.d d 700 polkitd root - - - - -
+	/etc/polkit-1/rules.d d 750 root polkitd - - - - -
+	/usr/share/polkit-1/rules.d d 750 root polkitd - - - - -
 	/usr/bin/pkexec f 4755 root root - - - - -
 	/usr/lib/polkit-1/polkit-agent-helper-1 f 4755 root root - - - - -
 endef

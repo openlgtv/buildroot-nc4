@@ -1,4 +1,5 @@
-# sha256 from https://pypi.org/pypi/s3transfer/json
-sha256  2ed07d3866f523cc561bf4a00fc5535827981b117dd7876f036b0c1aca42c947  s3transfer-0.6.0.tar.gz
+# md5, sha256 from https://pypi.org/pypi/s3transfer/json
+md5  b0d1e6875220ce4b1b3db6d6c15b9ebd  s3transfer-0.11.2.tar.gz
+sha256  3b39185cb72f5acc77db1a58b6e25b977f28d20496b6e58d6813d75f464d632f  s3transfer-0.11.2.tar.gz
 # Locally computed sha256 checksums
 sha256  cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30  LICENSE.txt

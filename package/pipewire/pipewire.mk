@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-PIPEWIRE_VERSION = 0.3.59
+PIPEWIRE_VERSION = 1.2.7
 PIPEWIRE_SOURCE = pipewire-$(PIPEWIRE_VERSION).tar.bz2
 PIPEWIRE_SITE = https://gitlab.freedesktop.org/pipewire/pipewire/-/archive/$(PIPEWIRE_VERSION)
 PIPEWIRE_LICENSE = MIT, LGPL-2.1+ (libspa-alsa), GPL-2.0 (libjackserver)
@@ -30,11 +30,16 @@ PIPEWIRE_CONF_OPTS += \
 	-Dvideoconvert=enabled \
 	-Dvideotestsrc=enabled \
 	-Dvolume=enabled \
+	-Dvulkan=disabled \
 	-Dsession-managers=[] \
 	-Dlegacy-rtkit=false \
 	-Davb=disabled \
+	-Droc=disabled \
 	-Dlibcanberra=disabled \
-	-Dflatpak=disabled
+	-Dlibmysofa=disabled \
+	-Dlibffado=disabled \
+	-Dflatpak=disabled \
+	-Dsnap=disabled
 
 ifeq ($(BR2_PACKAGE_DBUS),y)
 PIPEWIRE_CONF_OPTS += -Ddbus=enabled
@@ -102,24 +107,36 @@ else
 PIPEWIRE_CONF_OPTS += -Dpipewire-jack=disabled -Djack=disabled
 endif
 
-ifeq ($(BR2_PACKAGE_BLUEZ5_UTILS)$(BR2_PACKAGE_SBC),yy)
+ifeq ($(BR2_PACKAGE_BLUEZ5_UTILS)$(BR2_PACKAGE_SBC)$(BR2_PACKAGE_LIBGLIB2),yyy)
 PIPEWIRE_CONF_OPTS += -Dbluez5=enabled
-PIPEWIRE_DEPENDENCIES += bluez5_utils sbc
+PIPEWIRE_DEPENDENCIES += bluez5_utils sbc libglib2
+ifeq ($(BR2_PACKAGE_MODEM_MANAGER),y)
+PIPEWIRE_CONF_OPTS += -Dbluez5-backend-native-mm=enabled
+PIPEWIRE_DEPENDENCIES += modem-manager
+else
+PIPEWIRE_CONF_OPTS += -Dbluez5-backend-native-mm=disabled
+endif
 ifeq ($(BR2_PACKAGE_OPUS),y)
 PIPEWIRE_CONF_OPTS += -Dbluez5-codec-opus=enabled
 PIPEWIRE_DEPENDENCIES += opus
 else
 PIPEWIRE_CONF_OPTS += -Dbluez5-codec-opus=disabled
 endif
+ifeq ($(BR2_PACKAGE_FDK_AAC),y)
+PIPEWIRE_CONF_OPTS += -Dbluez5-codec-aac=enabled
+PIPEWIRE_DEPENDENCIES += fdk-aac
 else
-PIPEWIRE_CONF_OPTS += -Dbluez5=disabled -Dbluez5-codec-opus=disabled
+PIPEWIRE_CONF_OPTS += -Dbluez5-codec-aac=disabled
+endif
+else
+PIPEWIRE_CONF_OPTS += -Dbluez5=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_FFMPEG),y)
-PIPEWIRE_CONF_OPTS += -Dffmpeg=enabled
+PIPEWIRE_CONF_OPTS += -Dffmpeg=enabled -Dpw-cat-ffmpeg=enabled
 PIPEWIRE_DEPENDENCIES += ffmpeg
 else
-PIPEWIRE_CONF_OPTS += -Dffmpeg=disabled
+PIPEWIRE_CONF_OPTS += -Dffmpeg=disabled -Dpw-cat-ffmpeg=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_NCURSES_WCHAR),y)
@@ -160,6 +177,13 @@ else
 PIPEWIRE_CONF_OPTS += -Dx11-xfixes=disabled
 endif
 
+ifeq ($(BR2_PACKAGE_LIBGLIB2),y)
+PIPEWIRE_CONF_OPTS += -Dgsettings=enabled
+PIPEWIRE_DEPENDENCIES += libglib2
+else
+PIPEWIRE_CONF_OPTS += -Dgsettings=disabled
+endif
+
 ifeq ($(BR2_PACKAGE_LIBUSB),y)
 PIPEWIRE_CONF_OPTS += -Dlibusb=enabled
 PIPEWIRE_DEPENDENCIES += libusb
@@ -167,18 +191,18 @@ else
 PIPEWIRE_CONF_OPTS += -Dlibusb=disabled
 endif
 
-ifeq ($(BR2_PACKAGE_MESA3D_VULKAN_DRIVER),y)
-PIPEWIRE_CONF_OPTS += -Dvulkan=enabled
-PIPEWIRE_DEPENDENCIES += mesa3d
-else
-PIPEWIRE_CONF_OPTS += -Dvulkan=disabled
-endif
-
 ifeq ($(BR2_PACKAGE_LIBSNDFILE),y)
 PIPEWIRE_CONF_OPTS += -Dpw-cat=enabled -Dsndfile=enabled
 PIPEWIRE_DEPENDENCIES += libsndfile
 else
 PIPEWIRE_CONF_OPTS += -Dpw-cat=disabled -Dsndfile=disabled
+endif
+
+ifeq ($(BR2_PACKAGE_OPUS),y)
+PIPEWIRE_CONF_OPTS += -Dopus=enabled
+PIPEWIRE_DEPENDENCIES += opus
+else
+PIPEWIRE_CONF_OPTS += -Dopus=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_PULSEAUDIO),y)
@@ -189,7 +213,10 @@ PIPEWIRE_CONF_OPTS += -Dlibpulse=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_READLINE),y)
+PIPEWIRE_CONF_OPTS += -Dreadline=enabled
 PIPEWIRE_DEPENDENCIES += readline
+else
+PIPEWIRE_CONF_OPTS += -Dreadline=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_SDL2),y)
@@ -199,7 +226,14 @@ else
 PIPEWIRE_CONF_OPTS += -Dsdl2=disabled
 endif
 
-ifeq ($(WEBRTC_AUDIO_PROCESSING),y)
+ifeq ($(BR2_PACKAGE_PIPEWIRE_COMPRESS_OFFLOAD),y)
+PIPEWIRE_CONF_OPTS += -Dcompress-offload=enabled
+PIPEWIRE_DEPENDENCIES += tinycompress
+else
+PIPEWIRE_CONF_OPTS += -Dcompress-offload=disabled
+endif
+
+ifeq ($(BR2_PACKAGE_WEBRTC_AUDIO_PROCESSING),y)
 PIPEWIRE_CONF_OPTS += -Decho-cancel-webrtc=enabled
 PIPEWIRE_DEPENDENCIES += webrtc-audio-processing
 else
@@ -211,6 +245,13 @@ PIPEWIRE_CONF_OPTS += -Draop=enabled
 PIPEWIRE_DEPENDENCIES += openssl
 else
 PIPEWIRE_CONF_OPTS += -Draop=disabled
+endif
+
+ifeq ($(BR2_PACKAGE_LIBSELINUX),y)
+PIPEWIRE_CONF_OPTS += -Dselinux=enabled
+PIPEWIRE_DEPENDENCIES += libselinux
+else
+PIPEWIRE_CONF_OPTS += -Dselinux=disabled
 endif
 
 define PIPEWIRE_USERS

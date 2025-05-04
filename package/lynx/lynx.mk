@@ -4,16 +4,12 @@
 #
 ################################################################################
 
-LYNX_VERSION = 2.8.9rel.1
+LYNX_VERSION = 2.9.2
 LYNX_SOURCE = lynx$(LYNX_VERSION).tar.bz2
-LYNX_SITE = ftp://ftp.invisible-island.net/lynx/tarballs
-LYNX_PATCH = \
-	https://salsa.debian.org/lynx-team/lynx/-/raw/debian/2.9.0dev.6-3_deb11u1/debian/patches/90_CVE-2021-38165.patch
-# 90_CVE-2021-38165.patch
-LYNX_IGNORE_CVES += CVE-2021-38165
+LYNX_SITE = https://invisible-mirror.net/archives/lynx/tarballs
 LYNX_LICENSE = GPL-2.0
 LYNX_LICENSE_FILES = COPYING
-LYNX_CPE_ID_VENDOR = lynx_project
+LYNX_CPE_ID_VALID = YES
 
 LYNX_DEPENDENCIES = host-pkgconf $(TARGET_NLS_DEPENDENCIES)
 
@@ -53,6 +49,8 @@ LYNX_DEPENDENCIES += libidn
 LYNX_LIBS += `$(PKG_CONFIG_HOST_BINARY) --libs libidn`
 endif
 
-LYNX_CONF_ENV = LIBS="$(LYNX_LIBS)" CFLAGS="$(TARGET_CFLAGS) $(LYNX_CFLAGS)"
+LYNX_CONF_ENV = \
+	LDFLAGS="$(TARGET_LDFLAGS) $(LYNX_LIBS)" \
+	CFLAGS="$(TARGET_CFLAGS) $(LYNX_CFLAGS)"
 
 $(eval $(autotools-package))

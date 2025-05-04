@@ -1,5 +1,9 @@
-# https://spice-space.org/download/usbredir/usbredir-0.12.0.tar.xz.sha256sum
-sha256  fbb44025bf55e1ce8d84afc7596bfa47c8a36cd603c6fa440f9102c1c9761e6d  usbredir-0.12.0.tar.xz
+# Hash from:
+# https://www.spice-space.org/download/usbredir/usbredir-0.14.0.tar.xz.sha256sum
+# After checking pgp signature:
+# https://www.spice-space.org/download/usbredir/usbredir-0.14.0.tar.xz.sig
+# with key 206D3B352F566F3B0E6572E997D9123DE37A484F
+sha256  924dfb5c78328fae45a4c93a01bc83bb72c1310abeed119109255627a8baa332  usbredir-0.14.0.tar.xz
 
 # Hash for license files
 sha256  8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643  COPYING

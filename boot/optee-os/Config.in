@@ -1,6 +1,6 @@
 config BR2_TARGET_OPTEE_OS
 	bool "optee_os"
-	depends on BR2_ARM_CPU_ARMV8A || BR2_ARM_CPU_ARMV7A
+	depends on BR2_ARM_CPU_ARMV8A || BR2_ARM_CPU_ARMV7A || BR2_RISCV_64
 	help
 	  OP-TEE OS provides the secure world boot image and the trust
 	  application development kit of the OP-TEE project. OP-TEE OS
@@ -18,12 +18,17 @@ choice
 	  Select the version of OP-TEE OS you want to use
 
 config BR2_TARGET_OPTEE_OS_LATEST
-	bool "3.18.0"
+	bool "4.3.0"
 	depends on BR2_PACKAGE_HOST_RUSTC_ARCH_SUPPORTS
 	select BR2_TARGET_OPTEE_OS_NEEDS_PYTHON_CRYPTOGRAPHY
 	help
 	  Use the latest release tag from the OP-TEE OS official Git
 	  repository.
+
+config BR2_TARGET_OPTEE_OS_CUSTOM_VERSION
+	bool "Custom version"
+	help
+	  This option allows to use a specific official version
 
 config BR2_TARGET_OPTEE_OS_CUSTOM_TARBALL
 	bool "Custom tarball"
@@ -42,6 +47,10 @@ config BR2_TARGET_OPTEE_OS_CUSTOM_GIT
 	  Use a custom version fetched from a Git repository.
 
 endchoice
+
+config BR2_TARGET_OPTEE_OS_CUSTOM_VERSION_VALUE
+	string "OP-TEE version"
+	depends on BR2_TARGET_OPTEE_OS_CUSTOM_VERSION
 
 if BR2_TARGET_OPTEE_OS_CUSTOM_TARBALL
 
@@ -70,7 +79,9 @@ endif
 
 config BR2_TARGET_OPTEE_OS_VERSION
 	string
-	default "3.18.0"	if BR2_TARGET_OPTEE_OS_LATEST
+	default "4.3.0"		if BR2_TARGET_OPTEE_OS_LATEST
+	default BR2_TARGET_OPTEE_OS_CUSTOM_VERSION_VALUE \
+		if BR2_TARGET_OPTEE_OS_CUSTOM_VERSION
 	default "custom"	if BR2_TARGET_OPTEE_OS_CUSTOM_TARBALL
 	default BR2_TARGET_OPTEE_OS_CUSTOM_REPO_VERSION \
 				if BR2_TARGET_OPTEE_OS_CUSTOM_GIT
@@ -90,6 +101,12 @@ config BR2_TARGET_OPTEE_OS_NEEDS_PYTHON_CRYPTOGRAPHY
 	  package in python scripts. Newer version uses
 	  python-cryptography. Select this option if optee-os needs
 	  python-cryptography to be built.
+
+config BR2_TARGET_OPTEE_OS_NEEDS_CMAKE
+	bool "OP-TEE OS needs cmake"
+	help
+	  Select this option if your OP-TEE OS platform configuration
+	  requires the cmake build system to be available.
 
 config BR2_TARGET_OPTEE_OS_CORE
 	bool "Build core"
@@ -129,6 +146,18 @@ config BR2_TARGET_OPTEE_OS_PLATFORM_FLAVOR
 	help
 	  Value for the optional PLATFORM_FLAVOR build directive
 	  provided to OP-TEE OS.
+
+config BR2_TARGET_OPTEE_OS_CUSTOM_DTS_PATH
+	string "Device Tree Source file paths"
+	help
+	  Space-separated list of paths to device tree source files
+	  that will be copied to core/arch/arm/dts/ before starting
+	  the build.
+
+	  To use this device tree source file, the OP-TEE OS
+	  configuration must refer to it with the
+	  CFG_EMBED_DTB_SOURCE_FILE option and no platform flavor
+	  needs to be specified.
 
 config BR2_TARGET_OPTEE_OS_ADDITIONAL_VARIABLES
 	string "Additional build variables"

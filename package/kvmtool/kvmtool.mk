@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-KVMTOOL_VERSION = f77d646ba01d04be5aad9449ac00719c043fe36e
+KVMTOOL_VERSION = 4d2c017f41533b0e51e00f689050c26190a15318
 KVMTOOL_SITE = https://git.kernel.org/pub/scm/linux/kernel/git/will/kvmtool.git
 KVMTOOL_SITE_METHOD = git
 KVMTOOL_DEPENDENCIES = \
@@ -17,6 +17,7 @@ KVMTOOL_DEPENDENCIES = \
 	$(if $(BR2_PACKAGE_ZLIB),zlib)
 KVMTOOL_LICENSE = GPL-2.0
 KVMTOOL_LICENSE_FILES = COPYING
+KVMTOOL_CPE_ID_VALID = YES
 
 # Disable -Werror, otherwise musl is not happy
 KVMTOOL_MAKE_OPTS = \

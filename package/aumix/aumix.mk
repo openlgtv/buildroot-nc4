@@ -6,9 +6,9 @@
 
 AUMIX_VERSION = 2.9.1
 AUMIX_SOURCE = aumix-$(AUMIX_VERSION).tar.bz2
-AUMIX_SITE = http://jpj.net/~trevor/aumix/releases
+AUMIX_SITE = https://sourceforge.net/projects/aumix/files/aumix/$(AUMIX_VERSION)
 AUMIX_AUTORECONF = YES
-AUMIX_GETTEXTIZE = YES
+AUMIX_AUTOPOINT = YES
 AUMIX_LICENSE = GPL-2.0+
 AUMIX_LICENSE_FILES = COPYING
 

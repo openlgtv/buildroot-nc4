@@ -4,15 +4,19 @@
 #
 ################################################################################
 
-LEAFNODE2_VERSION = 2.0.0.alpha20140727b
-LEAFNODE2_SOURCE = leafnode-$(LEAFNODE2_VERSION).tar.bz2
-LEAFNODE2_SITE = http://krusty.dt.e-technik.tu-dortmund.de/~ma/leafnode/beta
+LEAFNODE2_VERSION = 9543ffaf82406f943d449d522d88baa554515e0f
+LEAFNODE2_SITE = $(call gitlab,leafnode-2,leafnode-2,$(LEAFNODE2_VERSION))
 LEAFNODE2_LICENSE = LGPL-2.1
 LEAFNODE2_LICENSE_FILES = COPYING COPYING.LGPL
 LEAFNODE2_DEPENDENCIES = host-pcre pcre
+LEAFNODE2_AUTORECONF = YES
 
 LEAFNODE2_CONF_ENV = \
 	PCRECONFIG="$(STAGING_DIR)/usr/bin/pcre-config"
+
+ifeq ($(BR2_PACKAGE_LIBXCRYPT),y)
+LEAFNODE2_DEPENDENCIES += libxcrypt
+endif
 
 # --enable-runas-user use 'news' as default but the configure stop
 # if news doesn't exist on the build host.
@@ -23,7 +27,7 @@ LEAFNODE2_CONF_OPTS = \
 	--enable-runas-user=root
 
 # Leafnode2 needs the host version of b_sortnl during
-# compilation. Instead of creating a seperate host package and
+# compilation. Instead of creating a separate host package and
 # installing b_sortnl to $(HOST_DIR) this binary is compiled
 # on-the-fly, host-pcre is needed for this
 define LEAFNODE2_BUILD_SORTNL_TOOL

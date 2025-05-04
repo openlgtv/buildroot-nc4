@@ -8,6 +8,8 @@ import nose2
 
 from infra.basetest import BRConfigTest
 
+import infra
+
 
 def main():
     parser = argparse.ArgumentParser(description='Run Buildroot tests')
@@ -23,6 +25,8 @@ def main():
                         help='output directory')
     parser.add_argument('-d', '--download',
                         help='download directory')
+    parser.add_argument('-p', '--prepare-only', action='store_true',
+                        help='download emulator builtin binaries')
     parser.add_argument('-k', '--keep',
                         help='keep build directories',
                         action='store_true')
@@ -32,6 +36,8 @@ def main():
                         help='BR2_JLEVEL to use for each testcase')
     parser.add_argument('--timeout-multiplier', type=int, default=1,
                         help='increase timeouts (useful for slow machines)')
+    parser.add_argument('-D', '--debug', action='store_true',
+                        help='enable debug log')
 
     args = parser.parse_args()
 
@@ -43,10 +49,15 @@ def main():
 
     if args.list:
         print("List of tests")
-        nose2.discover(argv=[script_path,
-                             "-s", test_dir,
-                             "-v",
-                             "--collect-only"],
+        nose2_args = [
+            script_path,
+            "-s", test_dir,
+            "-v",
+            "--collect-only"
+        ]
+        if args.debug:
+            nose2_args += ["--log-level", "debug"]
+        nose2.discover(argv=nose2_args,
                        plugins=["nose2.plugins.collect"])
         return 0
 
@@ -59,6 +70,16 @@ def main():
             return 1
 
     BRConfigTest.downloaddir = os.path.abspath(args.download)
+
+    if args.prepare_only:
+        emulator_builtin_binaries = ["kernel-vexpress-5.10.202",
+                                     "vexpress-v2p-ca9-5.10.202.dtb",
+                                     "kernel-versatile-5.10.202",
+                                     "versatile-pb-5.10.202.dtb"]
+        print("Downloading emulator builtin binaries")
+        for binary in emulator_builtin_binaries:
+            infra.download(BRConfigTest.downloaddir, binary)
+        return 0
 
     if args.output is None:
         print("Missing output directory, please use -o/--output")
@@ -110,6 +131,9 @@ def main():
                   "-N", str(args.testcases),
                   "-s", test_dir,
                   "-c", os.path.join(test_dir, "conf/unittest.cfg")]
+
+    if args.debug:
+        nose2_args += ["--log-level", "debug"]
 
     if args.testname:
         nose2_args += args.testname

@@ -4,18 +4,19 @@
 #
 ################################################################################
 
-ZABBIX_VERSION_MAJOR = 5.4
-ZABBIX_VERSION = $(ZABBIX_VERSION_MAJOR).9
+ZABBIX_VERSION_MAJOR = 7.2
+ZABBIX_VERSION = $(ZABBIX_VERSION_MAJOR).5
 ZABBIX_SITE = https://cdn.zabbix.com/zabbix/sources/stable/$(ZABBIX_VERSION_MAJOR)
-ZABBIX_LICENSE = GPL-2.0+
-ZABBIX_LICENSE_FILES = README COPYING
+ZABBIX_SELINUX_MODULES = zabbix
+ZABBIX_LICENSE = AGPL-3.0
+ZABBIX_LICENSE_FILES = COPYING
 ZABBIX_CPE_ID_VENDOR = zabbix
 # We're patching m4/netsnmp.m4
 ZABBIX_AUTORECONF = YES
 
-ZABBIX_DEPENDENCIES = pcre
+ZABBIX_DEPENDENCIES = host-pkgconf pcre2
 ZABBIX_CONF_OPTS = \
-	--with-libpcre=$(STAGING_DIR)/usr/bin/ \
+	--with-libpcre2 \
 	--without-sqlite3 \
 	--enable-agent \
 	--disable-agent2 \
@@ -49,7 +50,7 @@ ZABBIX_CONF_OPTS += --without-libcurl
 endif
 
 ifeq ($(BR2_PACKAGE_LIBXML2),y)
-ZABBIX_CONF_OPTS += --with-libxml2=$(STAGING_DIR)/usr/bin/xml2-config
+ZABBIX_CONF_OPTS += --with-libxml2=$(STAGING_DIR)/usr
 ZABBIX_DEPENDENCIES += libxml2
 else
 ZABBIX_CONF_OPTS += --without-libxml2
@@ -76,8 +77,10 @@ else
 ZABBIX_CONF_OPTS += --without-ssh2
 endif
 
-# Only one of openssl or gnutls should be enabled
-ifeq ($(BR2_PACKAGE_OPENSSL),y)
+# Only one of openssl or gnutls should be enabled. libressl is not
+# supported, which is why we test BR2_PACKAGE_LIBOPENSSL, not
+# BR2_PACKAGE_OPENSSL
+ifeq ($(BR2_PACKAGE_LIBOPENSSL),y)
 ZABBIX_CONF_OPTS += --with-openssl=$(STAGING_DIR)/usr --without-gnutls
 ZABBIX_DEPENDENCIES += openssl
 else ifeq ($(BR2_PACKAGE_GNUTLS),y)
@@ -106,7 +109,7 @@ ZABBIX_POST_INSTALL_TARGET_HOOKS += ZABBIX_SERVER_COPY_FRONTEND
 endif
 
 ifeq ($(BR2_PACKAGE_ZABBIX_SERVER_MYSQL),y)
-ZABBIX_DEPENDENCIES += mysql
+ZABBIX_DEPENDENCIES += mariadb
 ZABBIX_CONF_OPTS += --with-mysql=$(STAGING_DIR)/usr/bin/mysql_config --without-postgresql
 ZABBIX_DATABASE = mysql
 else ifeq ($(BR2_PACKAGE_ZABBIX_SERVER_POSTGRESQL),y)
@@ -124,6 +127,13 @@ ZABBIX_POST_INSTALL_TARGET_HOOKS += ZABBIX_SERVER_COPY_DUMPS
 endif
 
 endif # BR2_PACKAGE_ZABBIX_SERVER
+
+# zabbix uses custom --enable-{static,shared} options, instead of
+# standard libtool directives resulting in a build failure with libcurl
+# or openssl.
+ifeq ($(BR2_SHARED_STATIC_LIBS),y)
+ZABBIX_CONF_OPTS += --disable-static
+endif
 
 define ZABBIX_INSTALL_INIT_SYSTEMD
 	$(foreach unit,$(ZABBIX_SYSTEMD_UNITS),\

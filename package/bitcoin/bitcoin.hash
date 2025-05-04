@@ -1,5 +1,7 @@
-# From https://bitcoincore.org/bin/bitcoin-core-0.21.2/SHA256SUMS.asc
-sha256  4146f751fc5691bdcf911cbdb8d32d8d25c297d29d58173227ae1ae6438edb9e  bitcoin-0.21.2.tar.gz
+# Hash from: https://bitcoincore.org/bin/bitcoin-core-28.0/SHA256SUMS
+# After checking pgp signature from:
+# https://bitcoincore.org/bin/bitcoin-core-28.0/SHA256SUMS.asc
+sha256  700ae2d1e204602eb07f2779a6e6669893bc96c0dca290593f80ff8e102ff37f  bitcoin-28.0.tar.gz
 
 # Hash for license file
-sha256  96fe807030b21f88305adc32af62f9aa19915f2783509fd6f52aea02cf83f644  COPYING
+sha256  779d9beab4eef2340bb1e86e91f8f55dea9b0985a2d03fbcbb52bd713e091e1b  COPYING

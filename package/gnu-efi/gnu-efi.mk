@@ -4,12 +4,11 @@
 #
 ################################################################################
 
-GNU_EFI_VERSION = 3.0.15
-GNU_EFI_SOURCE = gnu-efi-$(GNU_EFI_VERSION).tar.bz2
-GNU_EFI_SITE = http://downloads.sourceforge.net/project/gnu-efi
+GNU_EFI_VERSION = 4.0.0
+GNU_EFI_SITE = $(call github,ncroxon,gnu-efi,$(GNU_EFI_VERSION))
 GNU_EFI_INSTALL_STAGING = YES
-GNU_EFI_LICENSE = BSD-3-Clause and/or GPL-2.0+ (gnuefi), BSD-3-Clause (efilib)
-GNU_EFI_LICENSE_FILES = README.efilib
+GNU_EFI_LICENSE = BSD-3-Clause and/or GPL-2.0+ (gnuefi), BSD-3-Clause (efilib), BSD-2-Clause-Patent (EDK2 routines)
+GNU_EFI_LICENSE_FILES = LICENSE licenses/LICENSE.edk2 licenses/LICENSE.efilib
 
 # gnu-efi is a set of library and header files used to build
 # standalone EFI applications such as bootloaders. There is no point
@@ -24,8 +23,8 @@ else ifeq ($(BR2_arm)$(BR2_armeb),y)
 GNU_EFI_PLATFORM = arm
 else ifeq ($(BR2_aarch64)$(BR2_aarch64_be),y)
 GNU_EFI_PLATFORM = aarch64
-else ifeq ($(BR2_mips64el),y)
-GNU_EFI_PLATFORM = mips64el
+else ifeq ($(BR2_RISCV_64),y)
+GNU_EFI_PLATFORM = riscv64
 endif
 
 GNU_EFI_MAKE_OPTS = \

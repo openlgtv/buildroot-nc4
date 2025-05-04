@@ -4,12 +4,13 @@
 #
 ################################################################################
 
-LIBEDIT_VERSION = 20210910-3.1
-LIBEDIT_SITE = http://www.thrysoee.dk/editline
+LIBEDIT_VERSION = 20230828-3.1
+LIBEDIT_SITE = https://www.thrysoee.dk/editline
 LIBEDIT_INSTALL_STAGING = YES
 LIBEDIT_DEPENDENCIES = ncurses
 LIBEDIT_LICENSE = BSD-3-Clause
 LIBEDIT_LICENSE_FILES = COPYING
+LIBEDIT_CPE_ID_VALID = YES
 
 # We're patching configure.ac
 LIBEDIT_AUTORECONF = YES

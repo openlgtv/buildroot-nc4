@@ -4,12 +4,36 @@
 #
 ################################################################################
 
-OPENOCD_VERSION = 0.11.0
+OPENOCD_VERSION = 0.12.0
 OPENOCD_SOURCE = openocd-$(OPENOCD_VERSION).tar.bz2
 OPENOCD_SITE = http://sourceforge.net/projects/openocd/files/openocd/$(OPENOCD_VERSION)
-OPENOCD_LICENSE = GPL-2.0+
-OPENOCD_LICENSE_FILES = COPYING
-# 0002-configure-enable-build-on-uclinux.patch patches configure.ac
+OPENOCD_LICENSE = \
+	BSD-1-clause, \
+	BSD-2-clause, \
+	BSD-2-Clause-Views, \
+	BSD-3-clause, \
+	BSD-Source-Code, \
+	GFDL-1.2-no-invariants-or-later (docs), \
+	GPL-2.0+ with eCos-exception-2.0 (code), \
+	GPL-3.0+ (stand-alone code), \
+	MIT
+
+OPENOCD_LICENSE_FILES = \
+	COPYING \
+	LICENSES/license-rules.txt \
+	LICENSES/exceptions/eCos-exception-2.0 \
+	LICENSES/preferred/BSD-1-Clause \
+	LICENSES/preferred/BSD-2-Clause \
+	LICENSES/preferred/BSD-2-Clause-Views \
+	LICENSES/preferred/BSD-3-Clause \
+	LICENSES/preferred/BSD-Source-Code \
+	LICENSES/preferred/GFDL-1.2 \
+	LICENSES/preferred/gfdl-1.2.texi.readme \
+	LICENSES/preferred/GPL-2.0 \
+	LICENSES/preferred/MIT \
+	LICENSES/stand-alone/GPL-3.0
+
+# 0001-configure-enable-build-on-uclinux.patch patches configure.ac
 OPENOCD_AUTORECONF = YES
 OPENOCD_CONF_ENV = CFLAGS="$(TARGET_CFLAGS) -std=gnu99"
 
@@ -31,9 +55,14 @@ OPENOCD_DEPENDENCIES = \
 	$(if $(BR2_PACKAGE_LIBFTDI1),libftdi1) \
 	$(if $(BR2_PACKAGE_LIBUSB),libusb) \
 	$(if $(BR2_PACKAGE_LIBUSB_COMPAT),libusb-compat) \
-	$(if $(BR2_PACKAGE_LIBHID),libhid) \
-	$(if $(BR2_PACKAGE_HIDAPI),hidapi) \
-	$(if $(BR2_PACKAGE_LIBGPIOD),libgpiod)
+	$(if $(BR2_PACKAGE_HIDAPI),hidapi)
+
+ifeq ($(BR2_PACKAGE_LIBGPIOD),y)
+OPENOCD_DEPENDENCIES += libgpiod
+OPENOCD_CONF_OPTS += --enable-linuxgpiod
+else
+OPENOCD_CONF_OPTS += --disable-linuxgpiod
+endif
 
 # Adapters
 OPENOCD_CONF_OPTS += \
@@ -60,6 +89,7 @@ OPENOCD_CONF_OPTS += \
 	$(if $(BR2_PACKAGE_OPENOCD_AT91RM),--enable-at91rm9200,--disable-at91rm9200) \
 	$(if $(BR2_PACKAGE_OPENOCD_BCM2835),--enable-bcm2835gpio,--disable-bcm2835gpio) \
 	$(if $(BR2_PACKAGE_OPENOCD_GW16012),--enable-gw16012,--disable-gw16012) \
+	$(if $(BR2_PACKAGE_OPENOCD_IMXGPIO),--enable-imx_gpio,--disable-imx_gpio) \
 	$(if $(BR2_PACKAGE_OPENOCD_PRESTO),--enable-presto,--disable-presto) \
 	$(if $(BR2_PACKAGE_OPENOCD_OPENJTAG),--enable-openjtag,--disable-openjtag) \
 	$(if $(BR2_PACKAGE_OPENOCD_BUSPIRATE),--enable-buspirate,--disable-buspirate) \

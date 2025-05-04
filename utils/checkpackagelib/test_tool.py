@@ -66,13 +66,41 @@ def test_NotExecutable_hint(testname, hint, filename, permissions, string, expec
     assert warnings == expected
 
 
+Flake8 = [
+    ('empty',
+     'empty.py',
+     '',
+     []),
+    ('W391',
+     'blank-line.py',
+     '\n',
+     ["dir/blank-line.py:0: run 'flake8' and fix the warnings",
+      "dir/blank-line.py:1:1: W391 blank line at end of file"]),
+    ('more than one warning',
+     'file',
+     'import os\n'
+     'import re\n'
+     '\n',
+     ["dir/file:0: run 'flake8' and fix the warnings",
+      "dir/file:1:1: F401 'os' imported but unused\n"
+      "dir/file:2:1: F401 're' imported but unused\n"
+      'dir/file:3:1: W391 blank line at end of file']),
+    ]
+
+
+@pytest.mark.parametrize('testname,filename,string,expected', Flake8)
+def test_Flake8(testname, filename, string, expected):
+    warnings = check_file(m.Flake8, filename, string)
+    assert warnings == expected
+
+
 Shellcheck = [
     ('missing shebang',
      'empty.sh',
      '',
      ["dir/empty.sh:0: run 'shellcheck' and fix the warnings",
       "In dir/empty.sh line 1:\n"
-      "^-- SC2148: Tips depend on target shell and yours is unknown. Add a shebang or a 'shell' directive.\n"
+      "^-- SC2148 (error): Tips depend on target shell and yours is unknown. Add a shebang or a 'shell' directive.\n"
       "For more information:\n"
       "  https://www.shellcheck.net/wiki/SC2148 -- Tips depend on target shell and y..."]),
     ('sh shebang',
@@ -89,8 +117,8 @@ Shellcheck = [
      ["dir/unused.sh:0: run 'shellcheck' and fix the warnings",
       "In dir/unused.sh line 1:\n"
       'unused=""\n'
-      "^-- SC2148: Tips depend on target shell and yours is unknown. Add a shebang or a 'shell' directive.\n"
-      "^----^ SC2034: unused appears unused. Verify use (or export if used externally).\n"
+      "^-- SC2148 (error): Tips depend on target shell and yours is unknown. Add a shebang or a 'shell' directive.\n"
+      "^----^ SC2034 (warning): unused appears unused. Verify use (or export if used externally).\n"
       "For more information:\n"
       "  https://www.shellcheck.net/wiki/SC2148 -- Tips depend on target shell and y...\n"
       "  https://www.shellcheck.net/wiki/SC2034 -- unused appears unused. Verify use..."]),
@@ -100,7 +128,7 @@ Shellcheck = [
      ["dir/tab.sh:0: run 'shellcheck' and fix the warnings",
       "In dir/tab.sh line 1:\n"
       '\t#!/bin/sh\n'
-      "^-- SC1114: Remove leading spaces before the shebang.\n"
+      "^-- SC1114 (error): Remove leading spaces before the shebang.\n"
       "For more information:\n"
       "  https://www.shellcheck.net/wiki/SC1114 -- Remove leading spaces before the ..."]),
     ]

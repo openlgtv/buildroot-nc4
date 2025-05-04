@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-GERBERA_VERSION = 1.10.0
+GERBERA_VERSION = 2.4.1
 GERBERA_SITE = $(call github,gerbera,gerbera,v$(GERBERA_VERSION))
 GERBERA_LICENSE = GPL-2.0
 GERBERA_LICENSE_FILES = LICENSE.md
@@ -80,7 +80,7 @@ else
 GERBERA_CONF_OPTS += -DWITH_MATROSKA=OFF
 endif
 
-# Either libupnp or libnpupnp are guranteed to be enabled
+# Either libupnp or libnpupnp are guaranteed to be enabled
 ifeq ($(BR2_PACKAGE_LIBNPUPNP),y)
 GERBERA_DEPENDENCIES += libnpupnp
 GERBERA_CONF_OPTS += -DWITH_NPUPNP=ON
@@ -89,8 +89,8 @@ GERBERA_DEPENDENCIES += libupnp
 GERBERA_CONF_OPTS += -DWITH_NPUPNP=OFF
 endif
 
-ifeq ($(BR2_PACKAGE_MYSQL),y)
-GERBERA_DEPENDENCIES += mysql
+ifeq ($(BR2_PACKAGE_MARIADB),y)
+GERBERA_DEPENDENCIES += mariadb
 GERBERA_CONF_OPTS += -DWITH_MYSQL=ON
 else
 GERBERA_CONF_OPTS += -DWITH_MYSQL=OFF

@@ -11,8 +11,10 @@ DC3DD_SITE = https://downloads.sourceforge.net/project/dc3dd/dc3dd/$(DC3DD_VERSI
 DC3DD_LICENSE = GPL-3.0+
 DC3DD_LICENSE_FILES = COPYING
 # We are patching Makefile.am, so we need to autoreconf. We also need to
-# enable gettextize as dc3dd comes with an old gettext infra.
+# enable autopoint as dc3dd comes with an old gettext infra.
 DC3DD_AUTORECONF = YES
-DC3DD_GETTEXTIZE = YES
+DC3DD_AUTOPOINT = YES
+
+DC3DD_CONF_ENV = ac_cv_func_working_mktime=yes
 
 $(eval $(autotools-package))

@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-SSHGUARD_VERSION = 2.4.2
+SSHGUARD_VERSION = 2.4.3
 SSHGUARD_SITE = https://sourceforge.net/projects/sshguard/files/sshguard/$(SSHGUARD_VERSION)
 SSHGUARD_LICENSE = ISC, Public Domain (fnv hash), BSD-3-Clause (SimCList)
 SSHGUARD_LICENSE_FILES = COPYING
@@ -24,6 +24,8 @@ endef
 
 define SSHGUARD_INSTALL_INIT_SYSTEMD
 	$(INSTALL) -D -m 0644 $(@D)/examples/sshguard.service \
+		$(TARGET_DIR)/usr/lib/systemd/system/sshguard.service
+	$(SED) 's:/usr/local/sbin/sshguard:/usr/sbin/sshguard:g' \
 		$(TARGET_DIR)/usr/lib/systemd/system/sshguard.service
 endef
 

@@ -6,6 +6,15 @@ config BR2_HAVE_DOT_CONFIG
 	bool
 	default y
 
+# Hidden symbol kept to false, to temporarily mark a configuration
+# known to be broken (by depending on it). Ideally, we don't want to
+# keep broken parts for too long. The intended use of this symbol is
+# to give some time to a developer to fix the feature. Features marked
+# as broken will be removed if they are not fixed in a reasonable
+# amount of time.
+config BR2_BROKEN
+	bool
+
 config BR2_VERSION
 	string
 	option env="BR2_VERSION_FULL"
@@ -55,6 +64,16 @@ config BR2_HOST_GCC_AT_LEAST_9
 	default y if BR2_HOST_GCC_VERSION = "9"
 	select BR2_HOST_GCC_AT_LEAST_8
 
+config BR2_HOST_GCC_AT_LEAST_10
+	bool
+	default y if BR2_HOST_GCC_VERSION = "10"
+	select BR2_HOST_GCC_AT_LEAST_9
+
+config BR2_HOST_GCC_AT_LEAST_11
+	bool
+	default y if BR2_HOST_GCC_VERSION = "11"
+	select BR2_HOST_GCC_AT_LEAST_10
+
 # When adding new entries above, be sure to update
 # the HOSTCC_MAX_VERSION variable in the Makefile.
 
@@ -65,7 +84,7 @@ config BR2_NEEDS_HOST_JAVA
 
 # Hidden boolean selected by pre-built packages for x86, when they
 # need to run on x86-64 machines (example: pre-built external
-# toolchains, binary tools like SAM-BA, etc.).
+# toolchains, binary tools, etc.).
 config BR2_HOSTARCH_NEEDS_IA32_LIBS
 	bool
 
@@ -93,13 +112,17 @@ menu "Build options"
 
 menu "Commands"
 
+config BR2_CURL
+	string "Curl command"
+	default "curl -q --ftp-pasv --retry 3 --connect-timeout 10"
+
 config BR2_WGET
 	string "Wget command"
-	default "wget --passive-ftp -nd -t 3"
+	default "wget -nd -t 3 --connect-timeout=10"
 
 config BR2_SVN
 	string "Subversion (svn) command"
-	default "svn --non-interactive"
+	default "svn --non-interactive --config-option servers:global:http-timeout=10"
 
 config BR2_BZR
 	string "Bazaar (bzr) command"
@@ -119,11 +142,11 @@ config BR2_LOCALFILES
 
 config BR2_SCP
 	string "Secure copy (scp) command"
-	default "scp"
+	default "scp -o ConnectTimeout=10"
 
 config BR2_SFTP
 	string "Secure file transfer (sftp) command"
-	default "sftp"
+	default "sftp -o ConnectTimeout=10"
 
 config BR2_HG
 	string "Mercurial (hg) command"
@@ -162,6 +185,13 @@ config BR2_LZCAT
 	help
 	  Command to be used to extract a lzip'ed file to stdout.
 	  Default is "lzip -d -c"
+
+config BR2_ZSTDCAT
+	string "zstdcat command"
+	default "zstdcat"
+	help
+	  Command to be used to extract a zstd'ed file to stdout.
+	  Default is "zstdcat"
 
 config BR2_TAR_OPTIONS
 	string "Tar options"
@@ -241,7 +271,7 @@ if !BR2_PRIMARY_SITE_ONLY
 
 config BR2_BACKUP_SITE
 	string "Backup download site"
-	default "http://sources.buildroot.net"
+	default "https://sources.buildroot.net"
 	help
 	  Backup site to download from. If this option is set then
 	  buildroot will fall back to download package sources from here
@@ -264,7 +294,7 @@ config BR2_KERNEL_MIRROR
 
 config BR2_GNU_MIRROR
 	string "GNU Software mirror"
-	default "http://ftpmirror.gnu.org"
+	default "https://ftpmirror.gnu.org"
 	help
 	  GNU has multiple software mirrors scattered around the
 	  world. The following allows you to select your preferred
@@ -308,8 +338,12 @@ config BR2_JLEVEL
 	  Number of jobs to run simultaneously. If 0, determine
 	  automatically according to number of CPUs on the host system.
 
+comment "ccache needs a host gcc >= 8"
+	depends on !BR2_HOST_GCC_AT_LEAST_8
+
 config BR2_CCACHE
 	bool "Enable compiler cache"
+	depends on BR2_HOST_GCC_AT_LEAST_8
 	help
 	  This option will enable the use of ccache, a compiler cache.
 	  It will cache the result of previous builds to speed up future
@@ -464,7 +498,7 @@ config BR2_STRIP_EXCLUDE_DIRS
 
 choice
 	prompt "gcc optimization level"
-	default BR2_OPTIMIZE_S
+	default BR2_OPTIMIZE_2
 	help
 	  Set the optimization level for gcc
 
@@ -510,6 +544,7 @@ config BR2_OPTIMIZE_2
 	  -falign-loops -falign-labels -ftree-vrp -ftree-pre. Please
 	  note the warning under -fgcse about invoking -O2 on programs
 	  that use computed gotos.
+	  This is the default.
 
 config BR2_OPTIMIZE_3
 	bool "optimization level 3"
@@ -538,7 +573,6 @@ config BR2_OPTIMIZE_S
 	  -falign-loops -falign-labels -freorder-blocks
 	  -freorder-blocks-and-partition -fprefetch-loop-arrays
 	  -ftree-vect-loop-version
-	  This is the default.
 
 config BR2_OPTIMIZE_FAST
 	bool "optimize for fast (may break packages!)"
@@ -576,10 +610,10 @@ config BR2_ENABLE_LTO
 config BR2_GOOGLE_BREAKPAD_ENABLE
 	bool "Enable google-breakpad support"
 	depends on BR2_INSTALL_LIBSTDCPP
-	depends on BR2_TOOLCHAIN_GCC_AT_LEAST_4_8 # C++11
+	depends on BR2_TOOLCHAIN_GCC_AT_LEAST_7 # C++17
 	depends on BR2_USE_WCHAR
 	depends on BR2_TOOLCHAIN_HAS_THREADS
-	depends on (BR2_TOOLCHAIN_USES_GLIBC || BR2_TOOLCHAIN_USES_UCLIBC)
+	depends on BR2_TOOLCHAIN_USES_GLIBC
 	depends on BR2_PACKAGE_GOOGLE_BREAKPAD_ARCH_SUPPORTS
 	depends on BR2_PACKAGE_HOST_GOOGLE_BREAKPAD_ARCH_SUPPORTS
 	select BR2_PACKAGE_GOOGLE_BREAKPAD
@@ -664,12 +698,12 @@ config BR2_PACKAGE_OVERRIDE_FILE
 	  documentation for more details on this feature.
 
 config BR2_GLOBAL_PATCH_DIR
-	string "global patch directories"
+	string "global patch and hash directories"
 	help
 	  You may specify a space separated list of one or more
-	  directories containing global package patches. For a specific
-	  version <packageversion> of a specific package <packagename>,
-	  patches are applied as follows:
+	  directories containing global package patches and/or hashes.
+	  For a specific version <packageversion> of a specific package
+	  <packagename>, patches are looked up as follows:
 
 	  First, the default Buildroot patch set for the package is
 	  applied from the package's directory in Buildroot.
@@ -683,25 +717,9 @@ config BR2_GLOBAL_PATCH_DIR
 	  exists, then all *.patch files in the directory will be
 	  applied.
 
+	  The hash files are looked up similarly to the patches.
+
 menu "Advanced"
-
-config BR2_COMPILER_PARANOID_UNSAFE_PATH
-	bool "paranoid check of library/header paths"
-	default y
-	help
-	  By default, when this option is disabled, when the Buildroot
-	  cross-compiler will encounter an unsafe library or header path
-	  (such as /usr/include, or /usr/lib), the compiler will display
-	  a warning.
-
-	  By enabling this option, this warning is turned into an error,
-	  which will completely abort the build when such unsafe paths
-	  are encountered.
-
-	  Note that this mechanism is available for both the internal
-	  toolchain (through the toolchain wrapper and binutils patches)
-	  and external toolchain backends (through the toolchain
-	  wrapper).
 
 config BR2_FORCE_HOST_BUILD
 	bool "Force the building of host dependencies"
@@ -714,6 +732,21 @@ config BR2_FORCE_HOST_BUILD
 	  different build hosts.
 
 	  This option will increase build time.
+
+config BR2_DOWNLOAD_FORCE_CHECK_HASHES
+	bool "Force all downloads to have a valid hash"
+	help
+	  Say 'y' here to enforce downloads to have at least one valid
+	  hash (and of course, that all hashes be valid).
+
+	  By default, Buildroot checks hashes of all packages
+	  downloaded, except those for which a custom version is
+	  used.
+
+	  With this option turned on, Buildroot will check hashes of
+	  all packages, including those that use a custom version. In
+	  order to provide hashes for such packages, place additional
+	  hash files in BR2_GLOBAL_PATCH_DIR directories.
 
 config BR2_REPRODUCIBLE
 	bool "Make the build reproducible (experimental)"
@@ -754,6 +787,20 @@ config BR2_PER_PACKAGE_DIRECTORIES
 
 endmenu
 
+config BR2_TIME_BITS_64
+	bool "Build Y2038-ready code"
+	depends on BR2_TOOLCHAIN_USES_GLIBC && !BR2_ARCH_IS_64
+	help
+	  This option will pass -D_TIME_BITS=64 in the compiler flags
+	  to ensure the glibc C library uses a 64-bit representation
+	  for time_t and other time types, which ensures that
+	  programs/libraries will correctly handle time past year
+	  2038.
+
+	  This option only has an effect with glibc >= 2.34, as
+	  earlier glibc versions did not have support for 64-bit
+	  time_t.
+
 comment "Security Hardening Options"
 
 config BR2_PIC_PIE_ARCH_SUPPORTS
@@ -761,8 +808,6 @@ config BR2_PIC_PIE_ARCH_SUPPORTS
 	default y
 	# Microblaze glibc toolchains don't work with PIC/PIE enabled
 	depends on !BR2_microblaze
-	# Nios2 toolchains produce non working binaries with -fPIC
-	depends on !BR2_nios2
 
 config BR2_PIC_PIE
 	bool "Build code with PIC/PIE"
@@ -925,10 +970,19 @@ config BR2_FORTIFY_SOURCE_2
 	# gcc bug https://gcc.gnu.org/bugzilla/show_bug.cgi?id=61164
 	depends on !BR2_TOOLCHAIN_BUILDROOT || BR2_TOOLCHAIN_GCC_AT_LEAST_6
 	help
-	  This option sets _FORTIFY_SOURCES to 2 and some more
+	  This option sets _FORTIFY_SOURCE to 2 and some more
 	  checking is added, but some conforming programs might fail.
 	  Also adds checks at run-time (detected buffer overflow
 	  terminates the program)
+
+config BR2_FORTIFY_SOURCE_3
+	bool "Extended"
+	depends on BR2_TOOLCHAIN_GCC_AT_LEAST_12
+	help
+	  This option sets _FORTIFY_SOURCE to 3 and even more
+	  checking is added compared to level 2. Extends checks at
+	  run-time that can introduce an additional performance
+	  overhead.
 
 endchoice
 

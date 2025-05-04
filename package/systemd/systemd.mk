@@ -19,8 +19,8 @@
 # - Diff sysusers.d with the previous version
 # - Diff factory/etc/nsswitch.conf with the previous version
 #   (details are often sprinkled around in README and manpages)
-SYSTEMD_VERSION = 250.8
-SYSTEMD_SITE = $(call github,systemd,systemd-stable,v$(SYSTEMD_VERSION))
+SYSTEMD_VERSION = 256.7
+SYSTEMD_SITE = $(call github,systemd,systemd,v$(SYSTEMD_VERSION))
 SYSTEMD_LICENSE = \
 	LGPL-2.1+, \
 	GPL-2.0+ (udev), \
@@ -29,6 +29,7 @@ SYSTEMD_LICENSE = \
 	BSD-3-Clause (tools/chromiumos), \
 	CC0-1.0 (few source files, see LICENSES/README.md), \
 	GPL-2.0 with Linux-syscall-note (linux kernel headers), \
+	MIT-0 (few source files, see LICENSES/README.md), \
 	MIT (few source files, see LICENSES/README.md), \
 	OFL-1.1 (Heebo fonts)
 SYSTEMD_LICENSE_FILES = \
@@ -40,11 +41,12 @@ SYSTEMD_LICENSE_FILES = \
 	LICENSES/LGPL-2.0-or-later.txt \
 	LICENSES/Linux-syscall-note.txt \
 	LICENSES/lookup3-public-domain.txt \
+	LICENSES/MIT-0.txt \
 	LICENSES/MIT.txt \
 	LICENSES/murmurhash2-public-domain.txt \
 	LICENSES/OFL-1.1.txt \
 	LICENSES/README.md
-SYSTEMD_CPE_ID_VENDOR = systemd_project
+SYSTEMD_CPE_ID_VALID = YES
 SYSTEMD_INSTALL_STAGING = YES
 SYSTEMD_DEPENDENCIES = \
 	$(BR2_COREUTILS_HOST_DEPENDENCY) \
@@ -53,6 +55,7 @@ SYSTEMD_DEPENDENCIES = \
 	host-python-jinja2 \
 	kmod \
 	libcap \
+	libxcrypt \
 	util-linux-libs \
 	$(TARGET_NLS_DEPENDENCIES)
 
@@ -61,7 +64,13 @@ SYSTEMD_SELINUX_MODULES = systemd udev xdg
 SYSTEMD_PROVIDES = udev
 
 SYSTEMD_CONF_OPTS += \
-	-Ddefault-hierarchy=unified \
+	-Dcreate-log-dirs=false \
+	-Ddbus=disabled \
+	-Ddbus-interfaces-dir=no \
+	-Ddefault-compression='auto' \
+	-Ddefault-locale='C.UTF-8' \
+	-Ddefault-user-shell=/bin/sh \
+	-Dfirst-boot-full-preset=false \
 	-Didn=true \
 	-Dima=false \
 	-Dkexec-path=/usr/sbin/kexec \
@@ -69,42 +78,62 @@ SYSTEMD_CONF_OPTS += \
 	-Dldconfig=false \
 	-Dlink-boot-shared=true \
 	-Dloadkeys-path=/usr/bin/loadkeys \
-	-Dman=false \
+	-Dman=disabled \
 	-Dmount-path=/usr/bin/mount \
+	-Dvcs-tag=false \
 	-Dmode=release \
+	-Dnspawn-locale='C.UTF-8' \
 	-Dnss-systemd=true \
+	-Dpasswdqc=disabled \
+	-Dlibfido2=disabled \
 	-Dquotacheck-path=/usr/sbin/quotacheck \
 	-Dquotaon-path=/usr/sbin/quotaon \
-	-Drootlibdir='/usr/lib' \
 	-Dsetfont-path=/usr/bin/setfont \
 	-Dsplit-bin=true \
-	-Dsplit-usr=false \
 	-Dsulogin-path=/usr/sbin/sulogin \
 	-Dsystem-gid-max=999 \
 	-Dsystem-uid-max=999 \
 	-Dsysvinit-path= \
 	-Dsysvrcnd-path= \
-	-Dtelinit-path= \
 	-Dtests=false \
+	-Dfuzz-tests=false \
+	-Dinstall-tests=false \
+	-Dlog-message-verification=disabled \
 	-Dtmpfiles=true \
+	-Dukify=disabled \
+	-Dbpf-framework=disabled \
+	-Dvmlinux-h=disabled \
 	-Dumount-path=/usr/bin/umount \
-	-Dutmp=false
+	-Dxenctrl=disabled
 
 SYSTEMD_CFLAGS = $(TARGET_CFLAGS)
 ifeq ($(BR2_OPTIMIZE_FAST),y)
-SYSTEMD_CFLAGS += -O3
+SYSTEMD_CFLAGS += -O3 -fno-finite-math-only
 endif
 
-ifeq ($(BR2_nios2),y)
-# Nios2 ld emits warnings, make warnings not to be treated as errors
-SYSTEMD_LDFLAGS = $(TARGET_LDFLAGS) -Wl,--no-fatal-warnings
+ifeq ($(BR2_TARGET_GENERIC_REMOUNT_ROOTFS_RW),y)
+SYSTEMD_JOURNALD_PERMISSIONS = /var/log/journal d 2755 root systemd-journal - - - - -
+endif
+
+ifeq ($(BR2_PACKAGE_LIBGLIB2),y)
+SYSTEMD_DEPENDENCIES += libglib2
+SYSTEMD_CONF_OPTS += -Dglib=enabled
+else
+SYSTEMD_CONF_OPTS += -Dglib=disabled
+endif
+
+ifeq ($(BR2_PACKAGE_LIBARCHIVE),y)
+SYSTEMD_DEPENDENCIES += libarchive
+SYSTEMD_CONF_OPTS += -Dlibarchive=enabled
+else
+SYSTEMD_CONF_OPTS += -Dlibarchive=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_ACL),y)
 SYSTEMD_DEPENDENCIES += acl
-SYSTEMD_CONF_OPTS += -Dacl=true
+SYSTEMD_CONF_OPTS += -Dacl=enabled
 else
-SYSTEMD_CONF_OPTS += -Dacl=false
+SYSTEMD_CONF_OPTS += -Dacl=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_LESS),y)
@@ -115,151 +144,151 @@ endif
 
 ifeq ($(BR2_PACKAGE_LIBAPPARMOR),y)
 SYSTEMD_DEPENDENCIES += libapparmor
-SYSTEMD_CONF_OPTS += -Dapparmor=true
+SYSTEMD_CONF_OPTS += -Dapparmor=enabled
 else
-SYSTEMD_CONF_OPTS += -Dapparmor=false
+SYSTEMD_CONF_OPTS += -Dapparmor=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_AUDIT),y)
 SYSTEMD_DEPENDENCIES += audit
-SYSTEMD_CONF_OPTS += -Daudit=true
+SYSTEMD_CONF_OPTS += -Daudit=enabled
 else
-SYSTEMD_CONF_OPTS += -Daudit=false
+SYSTEMD_CONF_OPTS += -Daudit=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_CRYPTSETUP),y)
 SYSTEMD_DEPENDENCIES += cryptsetup
-SYSTEMD_CONF_OPTS += -Dlibcryptsetup=true -Dlibcryptsetup-plugins=true
+SYSTEMD_CONF_OPTS += -Dlibcryptsetup=enabled -Dlibcryptsetup-plugins=enabled
 else
-SYSTEMD_CONF_OPTS += -Dlibcryptsetup=false -Dlibcryptsetup-plugins=false
+SYSTEMD_CONF_OPTS += -Dlibcryptsetup=disabled -Dlibcryptsetup-plugins=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_ELFUTILS),y)
 SYSTEMD_DEPENDENCIES += elfutils
-SYSTEMD_CONF_OPTS += -Delfutils=true
+SYSTEMD_CONF_OPTS += -Delfutils=enabled
 else
-SYSTEMD_CONF_OPTS += -Delfutils=false
+SYSTEMD_CONF_OPTS += -Delfutils=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_IPTABLES),y)
 SYSTEMD_DEPENDENCIES += iptables
-SYSTEMD_CONF_OPTS += -Dlibiptc=true
+SYSTEMD_CONF_OPTS += -Dlibiptc=enabled
 else
-SYSTEMD_CONF_OPTS += -Dlibiptc=false
+SYSTEMD_CONF_OPTS += -Dlibiptc=disabled
 endif
 
 # Both options can't be selected at the same time so prefer libidn2
 ifeq ($(BR2_PACKAGE_LIBIDN2),y)
 SYSTEMD_DEPENDENCIES += libidn2
-SYSTEMD_CONF_OPTS += -Dlibidn2=true -Dlibidn=false
+SYSTEMD_CONF_OPTS += -Dlibidn2=enabled -Dlibidn=disabled
 else ifeq ($(BR2_PACKAGE_LIBIDN),y)
 SYSTEMD_DEPENDENCIES += libidn
-SYSTEMD_CONF_OPTS += -Dlibidn=true -Dlibidn2=false
+SYSTEMD_CONF_OPTS += -Dlibidn=enabled -Dlibidn2=disabled
 else
-SYSTEMD_CONF_OPTS += -Dlibidn=false -Dlibidn2=false
+SYSTEMD_CONF_OPTS += -Dlibidn=disabled -Dlibidn2=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_LIBSECCOMP),y)
 SYSTEMD_DEPENDENCIES += libseccomp
-SYSTEMD_CONF_OPTS += -Dseccomp=true
+SYSTEMD_CONF_OPTS += -Dseccomp=enabled
 else
-SYSTEMD_CONF_OPTS += -Dseccomp=false
+SYSTEMD_CONF_OPTS += -Dseccomp=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_LIBXKBCOMMON),y)
 SYSTEMD_DEPENDENCIES += libxkbcommon
-SYSTEMD_CONF_OPTS += -Dxkbcommon=true
+SYSTEMD_CONF_OPTS += -Dxkbcommon=enabled
 else
-SYSTEMD_CONF_OPTS += -Dxkbcommon=false
+SYSTEMD_CONF_OPTS += -Dxkbcommon=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_BZIP2),y)
 SYSTEMD_DEPENDENCIES += bzip2
-SYSTEMD_CONF_OPTS += -Dbzip2=true
+SYSTEMD_CONF_OPTS += -Dbzip2=enabled
 else
-SYSTEMD_CONF_OPTS += -Dbzip2=false
+SYSTEMD_CONF_OPTS += -Dbzip2=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_ZSTD),y)
 SYSTEMD_DEPENDENCIES += zstd
-SYSTEMD_CONF_OPTS += -Dzstd=true
+SYSTEMD_CONF_OPTS += -Dzstd=enabled
 else
-SYSTEMD_CONF_OPTS += -Dzstd=false
+SYSTEMD_CONF_OPTS += -Dzstd=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_LZ4),y)
 SYSTEMD_DEPENDENCIES += lz4
-SYSTEMD_CONF_OPTS += -Dlz4=true
+SYSTEMD_CONF_OPTS += -Dlz4=enabled
 else
-SYSTEMD_CONF_OPTS += -Dlz4=false
+SYSTEMD_CONF_OPTS += -Dlz4=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_LINUX_PAM),y)
 SYSTEMD_DEPENDENCIES += linux-pam
-SYSTEMD_CONF_OPTS += -Dpam=true
+SYSTEMD_CONF_OPTS += -Dpam=enabled
 else
-SYSTEMD_CONF_OPTS += -Dpam=false
+SYSTEMD_CONF_OPTS += -Dpam=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_UTIL_LINUX_LIBFDISK),y)
-SYSTEMD_CONF_OPTS += -Dfdisk=true
+SYSTEMD_CONF_OPTS += -Dfdisk=enabled
 else
-SYSTEMD_CONF_OPTS += -Dfdisk=false
+SYSTEMD_CONF_OPTS += -Dfdisk=disabled
 endif
 
-ifeq ($(BR2_PACKAGE_VALGRIND),y)
-SYSTEMD_DEPENDENCIES += valgrind
-SYSTEMD_CONF_OPTS += -Dvalgrind=true
+ifeq ($(BR2_PACKAGE_KMOD),y)
+SYSTEMD_DEPENDENCIES += kmod
+SYSTEMD_CONF_OPTS += -Dkmod=enabled
 else
-SYSTEMD_CONF_OPTS += -Dvalgrind=false
+SYSTEMD_CONF_OPTS += -Dkmod=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_XZ),y)
 SYSTEMD_DEPENDENCIES += xz
-SYSTEMD_CONF_OPTS += -Dxz=true
+SYSTEMD_CONF_OPTS += -Dxz=enabled
 else
-SYSTEMD_CONF_OPTS += -Dxz=false
+SYSTEMD_CONF_OPTS += -Dxz=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_ZLIB),y)
 SYSTEMD_DEPENDENCIES += zlib
-SYSTEMD_CONF_OPTS += -Dzlib=true
+SYSTEMD_CONF_OPTS += -Dzlib=enabled
 else
-SYSTEMD_CONF_OPTS += -Dzlib=false
+SYSTEMD_CONF_OPTS += -Dzlib=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_LIBCURL),y)
 SYSTEMD_DEPENDENCIES += libcurl
-SYSTEMD_CONF_OPTS += -Dlibcurl=true
+SYSTEMD_CONF_OPTS += -Dlibcurl=enabled
 else
-SYSTEMD_CONF_OPTS += -Dlibcurl=false
+SYSTEMD_CONF_OPTS += -Dlibcurl=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_LIBGCRYPT),y)
 SYSTEMD_DEPENDENCIES += libgcrypt
-SYSTEMD_CONF_OPTS += -Ddefault-dnssec=allow-downgrade -Dgcrypt=true
+SYSTEMD_CONF_OPTS += -Dgcrypt=enabled
 else
-SYSTEMD_CONF_OPTS += -Ddefault-dnssec=no -Dgcrypt=false
+SYSTEMD_CONF_OPTS += -Dgcrypt=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_P11_KIT),y)
 SYSTEMD_DEPENDENCIES += p11-kit
-SYSTEMD_CONF_OPTS += -Dp11kit=true
+SYSTEMD_CONF_OPTS += -Dp11kit=enabled
 else
-SYSTEMD_CONF_OPTS += -Dp11kit=false
+SYSTEMD_CONF_OPTS += -Dp11kit=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_PCRE2),y)
 SYSTEMD_DEPENDENCIES += pcre2
-SYSTEMD_CONF_OPTS += -Dpcre2=true
+SYSTEMD_CONF_OPTS += -Dpcre2=enabled
 else
-SYSTEMD_CONF_OPTS += -Dpcre2=false
+SYSTEMD_CONF_OPTS += -Dpcre2=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_UTIL_LINUX_LIBBLKID),y)
-SYSTEMD_CONF_OPTS += -Dblkid=true
+SYSTEMD_CONF_OPTS += -Dblkid=enabled
 else
-SYSTEMD_CONF_OPTS += -Dblkid=false
+SYSTEMD_CONF_OPTS += -Dblkid=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_UTIL_LINUX_NOLOGIN),y)
@@ -286,27 +315,41 @@ else
 SYSTEMD_CONF_OPTS += -Danalyze=false
 endif
 
+ifeq ($(BR2_PACKAGE_LIBPWQUALITY),y)
+SYSTEMD_DEPENDENCIES += libpwquality
+SYSTEMD_CONF_OPTS += -Dpwquality=enabled
+else
+SYSTEMD_CONF_OPTS += -Dpwquality=disabled
+endif
+
 ifeq ($(BR2_PACKAGE_SYSTEMD_JOURNAL_REMOTE),y)
 # remote also depends on libcurl, this is already added above.
 SYSTEMD_DEPENDENCIES += libmicrohttpd
-SYSTEMD_CONF_OPTS += -Dremote=true -Dmicrohttpd=true
+SYSTEMD_CONF_OPTS += -Dremote=enabled -Dmicrohttpd=enabled
 SYSTEMD_REMOTE_USER = systemd-journal-remote -1 systemd-journal-remote -1 * - - - systemd Journal Remote
+SYSTEMD_UPLOAD_USER = systemd-journal-upload -1 systemd-journal-upload -1 * - - - systemd Journal Upload
 else
-SYSTEMD_CONF_OPTS += -Dremote=false -Dmicrohttpd=false
+SYSTEMD_CONF_OPTS += -Dremote=disabled -Dmicrohttpd=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_LIBQRENCODE),y)
 SYSTEMD_DEPENDENCIES += libqrencode
-SYSTEMD_CONF_OPTS += -Dqrencode=true
+SYSTEMD_CONF_OPTS += -Dqrencode=enabled
 else
-SYSTEMD_CONF_OPTS += -Dqrencode=false
+SYSTEMD_CONF_OPTS += -Dqrencode=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_LIBSELINUX),y)
 SYSTEMD_DEPENDENCIES += libselinux
-SYSTEMD_CONF_OPTS += -Dselinux=true
+SYSTEMD_CONF_OPTS += -Dselinux=enabled
 else
-SYSTEMD_CONF_OPTS += -Dselinux=false
+SYSTEMD_CONF_OPTS += -Dselinux=disabled
+endif
+
+ifneq ($(BR2_PACKAGE_LIBGCRYPT)$(BR2_PACKAGE_LIBOPENSSL),)
+SYSTEMD_CONF_OPTS += -Ddefault-dnssec=allow-downgrade
+else
+SYSTEMD_CONF_OPTS += -Ddefault-dnssec=no
 endif
 
 ifeq ($(BR2_PACKAGE_SYSTEMD_HWDB),y)
@@ -331,10 +374,24 @@ else
 SYSTEMD_CONF_OPTS += -Dbinfmt=false
 endif
 
+ifeq ($(BR2_PACKAGE_SYSTEMD_UTMP),y)
+SYSTEMD_CONF_OPTS += -Dutmp=true
+else
+SYSTEMD_CONF_OPTS += -Dutmp=false
+endif
+
 ifeq ($(BR2_PACKAGE_SYSTEMD_VCONSOLE),y)
-SYSTEMD_CONF_OPTS += -Dvconsole=true
+SYSTEMD_CONF_OPTS += \
+	-Dvconsole=true \
+	-Ddefault-keymap=$(call qstrip,$(BR2_PACKAGE_SYSTEMD_VCONSOLE_DEFAULT_KEYMAP))
 else
 SYSTEMD_CONF_OPTS += -Dvconsole=false
+endif
+
+ifeq ($(BR2_PACKAGE_SYSTEMD_VMSPAWN),y)
+SYSTEMD_CONF_OPTS += -Dvmspawn=enabled
+else
+SYSTEMD_CONF_OPTS += -Dvmspawn=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_SYSTEMD_QUOTACHECK),y)
@@ -347,6 +404,12 @@ ifeq ($(BR2_PACKAGE_SYSTEMD_SYSUSERS),y)
 SYSTEMD_CONF_OPTS += -Dsysusers=true
 else
 SYSTEMD_CONF_OPTS += -Dsysusers=false
+endif
+
+ifeq ($(BR2_PACKAGE_SYSTEMD_SYSUSERS),y)
+SYSTEMD_CONF_OPTS += -Dstoragetm=true
+else
+SYSTEMD_CONF_OPTS += -Dstoragetm=false
 endif
 
 ifeq ($(BR2_PACKAGE_SYSTEMD_FIRSTBOOT),y)
@@ -381,30 +444,36 @@ SYSTEMD_CONF_OPTS += -Dlogind=false
 endif
 
 ifeq ($(BR2_PACKAGE_SYSTEMD_MACHINED),y)
-SYSTEMD_CONF_OPTS += -Dmachined=true -Dnss-mymachines=true
+SYSTEMD_CONF_OPTS += -Dmachined=true -Dnss-mymachines=enabled
 SYSTEMD_MACHINED_PERMISSIONS = /var/lib/machines d 700 0 0 - - - - -
 else
-SYSTEMD_CONF_OPTS += -Dmachined=false -Dnss-mymachines=false
+SYSTEMD_CONF_OPTS += -Dmachined=false -Dnss-mymachines=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_SYSTEMD_IMPORTD),y)
-SYSTEMD_CONF_OPTS += -Dimportd=true
+SYSTEMD_CONF_OPTS += -Dimportd=enabled
 else
-SYSTEMD_CONF_OPTS += -Dimportd=false
+SYSTEMD_CONF_OPTS += -Dimportd=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_SYSTEMD_HOMED),y)
-SYSTEMD_CONF_OPTS += -Dhomed=true
+SYSTEMD_CONF_OPTS += -Dhomed=enabled
 SYSTEMD_DEPENDENCIES += cryptsetup openssl
 SYSTEMD_HOMED_PERMISSIONS = /var/lib/systemd/home d 755 0 0 - - - - -
 else
-SYSTEMD_CONF_OPTS += -Dhomed=false
+SYSTEMD_CONF_OPTS += -Dhomed=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_SYSTEMD_HOSTNAMED),y)
 SYSTEMD_CONF_OPTS += -Dhostnamed=true
 else
 SYSTEMD_CONF_OPTS += -Dhostnamed=false
+endif
+
+ifeq ($(BR2_PACKAGE_SYSTEMD_NSRESOURCED),y)
+SYSTEMD_CONF_OPTS += -Dnsresourced=true
+else
+SYSTEMD_CONF_OPTS += -Dnsresourced=false
 endif
 
 ifeq ($(BR2_PACKAGE_SYSTEMD_MYHOSTNAME),y)
@@ -426,10 +495,16 @@ SYSTEMD_CONF_OPTS += -Dlocaled=false
 endif
 
 ifeq ($(BR2_PACKAGE_SYSTEMD_REPART),y)
-SYSTEMD_CONF_OPTS += -Drepart=true
+SYSTEMD_CONF_OPTS += -Drepart=enabled
 SYSTEMD_DEPENDENCIES += openssl
 else
-SYSTEMD_CONF_OPTS += -Drepart=false
+SYSTEMD_CONF_OPTS += -Drepart=disabled
+endif
+
+ifeq ($(BR2_PACKAGE_SYSTEMD_MOUNTFSD),y)
+SYSTEMD_CONF_OPTS += -Dmountfsd=true
+else
+SYSTEMD_CONF_OPTS += -Dmountfsd=false
 endif
 
 ifeq ($(BR2_PACKAGE_SYSTEMD_USERDB),y)
@@ -456,15 +531,19 @@ endif
 ifeq ($(BR2_PACKAGE_SYSTEMD_OOMD),y)
 SYSTEMD_CONF_OPTS += -Doomd=true
 SYSTEMD_OOMD_USER = systemd-oom -1 systemd-oom -1 * - - - systemd Userspace OOM Killer
+define SYSTEMD_OOMD_LINUX_CONFIG_FIXUPS
+	$(call KCONFIG_ENABLE_OPT,CONFIG_PSI)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_MEMCG)
+endef
 else
 SYSTEMD_CONF_OPTS += -Doomd=false
 endif
 
 ifeq ($(BR2_PACKAGE_SYSTEMD_POLKIT),y)
-SYSTEMD_CONF_OPTS += -Dpolkit=true
+SYSTEMD_CONF_OPTS += -Dpolkit=enabled
 SYSTEMD_DEPENDENCIES += polkit
 else
-SYSTEMD_CONF_OPTS += -Dpolkit=false
+SYSTEMD_CONF_OPTS += -Dpolkit=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_SYSTEMD_PORTABLED),y)
@@ -477,6 +556,12 @@ ifeq ($(BR2_PACKAGE_SYSTEMD_SYSEXT),y)
 SYSTEMD_CONF_OPTS += -Dsysext=true
 else
 SYSTEMD_CONF_OPTS += -Dsysext=false
+endif
+
+ifeq ($(BR2_PACKAGE_SYSTEMD_SYSUPDATE),y)
+SYSTEMD_CONF_OPTS += -Dsysupdate=enabled
+else
+SYSTEMD_CONF_OPTS += -Dsysupdate=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_SYSTEMD_NETWORKD),y)
@@ -499,30 +584,30 @@ define SYSTEMD_INSTALL_RESOLVCONF_HOOK
 	ln -sf ../run/systemd/resolve/resolv.conf \
 		$(TARGET_DIR)/etc/resolv.conf
 endef
-SYSTEMD_CONF_OPTS += -Dnss-resolve=true -Dresolve=true
+SYSTEMD_CONF_OPTS += -Dnss-resolve=enabled -Dresolve=true
 SYSTEMD_RESOLVED_USER = systemd-resolve -1 systemd-resolve -1 * - - - systemd Resolver
 else
-SYSTEMD_CONF_OPTS += -Dnss-resolve=false -Dresolve=false
+SYSTEMD_CONF_OPTS += -Dnss-resolve=disabled -Dresolve=false
 endif
 
 ifeq ($(BR2_PACKAGE_LIBOPENSSL),y)
 SYSTEMD_CONF_OPTS += \
-	-Dgnutls=false \
-	-Dopenssl=true \
+	-Dgnutls=disabled \
+	-Dopenssl=enabled \
 	-Ddns-over-tls=openssl \
 	-Ddefault-dns-over-tls=opportunistic
 SYSTEMD_DEPENDENCIES += openssl
 else ifeq ($(BR2_PACKAGE_GNUTLS),y)
 SYSTEMD_CONF_OPTS += \
-	-Dgnutls=true \
-	-Dopenssl=false \
+	-Dgnutls=enabled \
+	-Dopenssl=disabled \
 	-Ddns-over-tls=gnutls \
 	-Ddefault-dns-over-tls=opportunistic
 SYSTEMD_DEPENDENCIES += gnutls
 else
 SYSTEMD_CONF_OPTS += \
-	-Dgnutls=false \
-	-Dopenssl=false \
+	-Dgnutls=disabled \
+	-Dopenssl=disabled \
 	-Ddns-over-tls=false \
 	-Ddefault-dns-over-tls=no
 endif
@@ -547,16 +632,17 @@ else
 SYSTEMD_CONF_OPTS += -Dhibernate=false
 endif
 
+ifeq ($(BR2_PACKAGE_TPM2_TSS),y)
+SYSTEMD_DEPENDENCIES += tpm2-tss
+SYSTEMD_CONF_OPTS += -Dtpm2=enabled
+else
+SYSTEMD_CONF_OPTS += -Dtpm2=disabled
+endif
+
 ifeq ($(BR2_PACKAGE_SYSTEMD_BOOT),y)
 SYSTEMD_INSTALL_IMAGES = YES
-SYSTEMD_DEPENDENCIES += gnu-efi
-SYSTEMD_CONF_OPTS += \
-	-Defi=true \
-	-Dgnu-efi=true \
-	-Defi-cc=$(TARGET_CC) \
-	-Defi-ld=bfd \
-	-Defi-libdir=$(STAGING_DIR)/usr/lib \
-	-Defi-includedir=$(STAGING_DIR)/usr/include/efi
+SYSTEMD_DEPENDENCIES += gnu-efi host-python-pyelftools
+SYSTEMD_CONF_OPTS += -Dbootloader=enabled
 
 SYSTEMD_BOOT_EFI_ARCH = $(call qstrip,$(BR2_PACKAGE_SYSTEMD_BOOT_EFI_ARCH))
 define SYSTEMD_INSTALL_BOOT_FILES
@@ -569,8 +655,14 @@ define SYSTEMD_INSTALL_BOOT_FILES
 endef
 
 else
-SYSTEMD_CONF_OPTS += -Defi=false -Dgnu-efi=false
+SYSTEMD_CONF_OPTS += -Dbootloader=disabled
 endif # BR2_PACKAGE_SYSTEMD_BOOT == y
+
+ifeq ($(BR2_PACKAGE_SYSTEMD_EFI),y)
+SYSTEMD_CONF_OPTS += -Defi=true
+else
+SYSTEMD_CONF_OPTS += -Defi=false
+endif
 
 SYSTEMD_FALLBACK_HOSTNAME = $(call qstrip,$(BR2_TARGET_GENERIC_HOSTNAME))
 ifneq ($(SYSTEMD_FALLBACK_HOSTNAME),)
@@ -598,11 +690,13 @@ define SYSTEMD_INSTALL_IMAGES_CMDS
 endef
 
 define SYSTEMD_PERMISSIONS
+	/boot d 700 0 0 - - - - -
 	/var/spool d 755 0 0 - - - - -
 	/var/lib d 755 0 0 - - - - -
 	/var/lib/private d 700 0 0 - - - - -
 	/var/log/private d 700 0 0 - - - - -
 	/var/cache/private d 700 0 0 - - - - -
+	$(SYSTEMD_JOURNALD_PERMISSIONS)
 	$(SYSTEMD_LOGIND_PERMISSIONS)
 	$(SYSTEMD_MACHINED_PERMISSIONS)
 	$(SYSTEMD_HOMED_PERMISSIONS)
@@ -614,10 +708,10 @@ endef
 define SYSTEMD_USERS
 	# udev user groups
 	- - render -1 * - - - DRI rendering nodes
-	- - sgx -1 * - - - SGX device nodes
 	# systemd user groups
 	- - systemd-journal -1 * - - - Journal
 	$(SYSTEMD_REMOTE_USER)
+	$(SYSTEMD_UPLOAD_USER)
 	$(SYSTEMD_COREDUMP_USER)
 	$(SYSTEMD_OOMD_USER)
 	$(SYSTEMD_NETWORKD_USER)
@@ -645,9 +739,9 @@ SYSTEMD_TARGET_FINALIZE_HOOKS += \
 	SYSTEMD_INSTALL_RESOLVCONF_HOOK
 
 ifneq ($(call qstrip,$(BR2_TARGET_GENERIC_GETTY_PORT)),)
-# systemd provides multiple units to autospawn getty as neede
+# systemd provides multiple units to autospawn getty as needed
 # * getty@.service to start a getty on normal TTY
-# * sertial-getty@.service to start a getty on serial lines
+# * serial-getty@.service to start a getty on serial lines
 # * console-getty.service for generic /dev/console
 # * container-getty@.service for a getty on /dev/pts/*
 #
@@ -655,18 +749,18 @@ ifneq ($(call qstrip,$(BR2_TARGET_GENERIC_GETTY_PORT)),)
 # * read the console= kernel command line parameter
 # * enable one of the above units depending on what it finds
 #
-# Systemd defaults to enablinb getty@tty1.service
+# Systemd defaults to enabling getty@tty1.service
 #
 # What we want to do
-# * Enable a getty on $BR2_TARGET_GENERIC_TTY_PATH
+# * Enable a getty on $BR2_TARGET_GENERIC_GETTY_PORT
 # * Set the baudrate for all units according to BR2_TARGET_GENERIC_GETTY_BAUDRATE
 # * Always enable a getty on the console using systemd-getty-generator
 #   (backward compatibility with previous releases of buildroot)
 #
 # What we do
 # * disable getty@tty1 (enabled by upstream systemd)
-# * enable getty@xxx if  $BR2_TARGET_GENERIC_TTY_PATH is a tty
-# * enable serial-getty@xxx for other $BR2_TARGET_GENERIC_TTY_PATH
+# * enable getty@xxx if  $BR2_TARGET_GENERIC_GETTY_PORT is a tty
+# * enable serial-getty@xxx for other $BR2_TARGET_GENERIC_GETTY_PORT
 # * rewrite baudrates if a baudrate is provided
 define SYSTEMD_INSTALL_SERVICE_TTY
 	mkdir -p $(TARGET_DIR)/usr/lib/systemd/system/getty@.service.d; \
@@ -744,12 +838,6 @@ define SYSTEMD_RM_CATALOG_UPDATE_SERVICE
 endef
 SYSTEMD_ROOTFS_PRE_CMD_HOOKS += SYSTEMD_RM_CATALOG_UPDATE_SERVICE
 
-define SYSTEMD_CREATE_TMPFILES_HOOK
-	HOST_SYSTEMD_TMPFILES=$(HOST_DIR)/bin/systemd-tmpfiles \
-		$(SYSTEMD_PKGDIR)/fakeroot_tmpfiles.sh $(TARGET_DIR)
-endef
-SYSTEMD_ROOTFS_PRE_CMD_HOOKS += SYSTEMD_CREATE_TMPFILES_HOOK
-
 define SYSTEMD_PRESET_ALL
 	$(HOST_DIR)/bin/systemctl --root=$(TARGET_DIR) preset-all
 endef
@@ -759,6 +847,7 @@ SYSTEMD_CONF_ENV = $(HOST_UTF8_LOCALE_ENV)
 SYSTEMD_NINJA_ENV = $(HOST_UTF8_LOCALE_ENV)
 
 define SYSTEMD_LINUX_CONFIG_FIXUPS
+	$(call KCONFIG_ENABLE_OPT,CONFIG_TMPFS)
 	$(call KCONFIG_ENABLE_OPT,CONFIG_DEVTMPFS)
 	$(call KCONFIG_ENABLE_OPT,CONFIG_CGROUPS)
 	$(call KCONFIG_ENABLE_OPT,CONFIG_INOTIFY_USER)
@@ -770,92 +859,166 @@ define SYSTEMD_LINUX_CONFIG_FIXUPS
 	$(call KCONFIG_ENABLE_OPT,CONFIG_PROC_FS)
 	$(call KCONFIG_ENABLE_OPT,CONFIG_FHANDLE)
 
+	$(call KCONFIG_DISABLE_OPT,CONFIG_FW_LOADER_USER_HELPER)
+
+	$(call KCONFIG_ENABLE_OPT,CONFIG_DMIID)
+
+	$(call KCONFIG_ENABLE_OPT,CONFIG_BLK_DEV_BSG)
+
 	$(call KCONFIG_ENABLE_OPT,CONFIG_NET_NS)
+
+	$(call KCONFIG_ENABLE_OPT,CONFIG_USER_NS)
 
 	$(call KCONFIG_DISABLE_OPT,CONFIG_SYSFS_DEPRECATED)
 
+	$(call KCONFIG_ENABLE_OPT,CONFIG_IPV6)
 	$(call KCONFIG_ENABLE_OPT,CONFIG_AUTOFS_FS)
 	$(call KCONFIG_ENABLE_OPT,CONFIG_AUTOFS4_FS)
 	$(call KCONFIG_ENABLE_OPT,CONFIG_TMPFS_POSIX_ACL)
 	$(call KCONFIG_ENABLE_OPT,CONFIG_TMPFS_XATTR)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_SECCOMP)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_SECCOMP_FILTER)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_KCMP)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_NET_SCHED)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_NET_SCH_FQ_CODEL)
+
+	$(call KCONFIG_ENABLE_OPT,CONFIG_CGROUP_SCHED)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_FAIR_GROUP_SCHED)
+
+	$(call KCONFIG_ENABLE_OPT,CONFIG_CFS_BANDWIDTH)
+
+	$(call KCONFIG_ENABLE_OPT,CONFIG_EFIVAR_FS)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_EFI_PARTITION)
+
+	$(call KCONFIG_ENABLE_OPT,CONFIG_DMI)
+	$(call KCONFIG_ENABLE_OPT,CONFIG_DMI_SYSFS)
+
+	$(call KCONFIG_DISABLE_OPT,CONFIG_RT_GROUP_SCHED)
+
+	$(SYSTEMD_OOMD_LINUX_CONFIG_FIXUPS)
 endef
 
 # We need a very minimal host variant, so we disable as much as possible.
 HOST_SYSTEMD_CONF_OPTS = \
 	-Dsplit-bin=true \
-	-Dsplit-usr=false \
 	--prefix=/usr \
 	--libdir=lib \
 	--sysconfdir=/etc \
 	--localstatedir=/var \
+	-Dcreate-log-dirs=false \
+	-Dvcs-tag=false \
 	-Dmode=release \
 	-Dutmp=false \
 	-Dhibernate=false \
+	-Dtpm2=disabled \
 	-Dldconfig=false \
 	-Dresolve=false \
+	-Dbootloader=disabled \
 	-Defi=false \
 	-Dtpm=false \
 	-Denvironment-d=false \
 	-Dbinfmt=false \
-	-Drepart=false \
+	-Drepart=disabled \
 	-Dcoredump=false \
+	-Ddbus=disabled \
+	-Ddbus-interfaces-dir=no \
 	-Dpstore=false \
 	-Doomd=false \
 	-Dlogind=false \
 	-Dhostnamed=false \
 	-Dlocaled=false \
 	-Dmachined=false \
+	-Dpasswdqc=disabled \
 	-Dportabled=false \
 	-Dsysext=false \
+	-Dsysupdate=disabled \
+	-Dmountfsd=false \
 	-Duserdb=false \
-	-Dhomed=false \
+	-Dhomed=disabled \
 	-Dnetworkd=false \
 	-Dtimedated=false \
 	-Dtimesyncd=false \
-	-Dremote=false \
+	-Dremote=disabled \
 	-Dcreate-log-dirs=false \
+	-Dnsresourced=false \
 	-Dnss-myhostname=false \
-	-Dnss-mymachines=false \
-	-Dnss-resolve=false \
+	-Dnss-mymachines=disabled \
+	-Dnss-resolve=disabled \
 	-Dnss-systemd=false \
 	-Dfirstboot=false \
 	-Drandomseed=false \
 	-Dbacklight=false \
 	-Dvconsole=false \
+	-Dvmspawn=disabled \
 	-Dquotacheck=false \
 	-Dsysusers=false \
+	-Dstoragetm=false \
 	-Dtmpfiles=true \
-	-Dimportd=false \
+	-Dimportd=disabled \
 	-Dhwdb=true \
 	-Drfkill=false \
-	-Dman=false \
-	-Dhtml=false \
+	-Dman=disabled \
+	-Dhtml=disabled \
 	-Dsmack=false \
-	-Dpolkit=false \
-	-Dblkid=false \
+	-Dpolkit=disabled \
+	-Dblkid=disabled \
 	-Didn=false \
 	-Dadm-group=false \
 	-Dwheel-group=false \
-	-Dzlib=false \
+	-Dzlib=disabled \
 	-Dgshadow=false \
 	-Dima=false \
 	-Dtests=false \
-	-Dglib=false \
-	-Dacl=false \
+	-Dfuzz-tests=false \
+	-Dinstall-tests=false \
+	-Dlog-message-verification=disabled \
+	-Dglib=disabled \
+	-Dlibarchive=disabled \
+	-Dacl=disabled \
 	-Dsysvinit-path='' \
 	-Dinitrd=false \
 	-Dxdg-autostart=false \
 	-Dkernel-install=false \
+	-Dukify=disabled \
 	-Danalyze=false \
-	-Dlibcryptsetup=false \
-	-Daudit=false \
-	-Dzstd=false
+	-Dbpf-framework=disabled \
+	-Dvmlinux-h=disabled \
+	-Dpwquality=disabled \
+	-Dmicrohttpd=disabled \
+	-Dqrencode=disabled \
+	-Dselinux=disabled \
+	-Dlibcryptsetup=disabled \
+	-Dlibcryptsetup-plugins=disabled \
+	-Delfutils=disabled \
+	-Dlibiptc=disabled \
+	-Dapparmor=disabled \
+	-Daudit=disabled \
+	-Dxenctrl=disabled \
+	-Dlibidn2=disabled \
+	-Dlibidn=disabled \
+	-Dseccomp=disabled \
+	-Dxkbcommon=disabled \
+	-Dbzip2=disabled \
+	-Dzstd=disabled \
+	-Dlz4=disabled \
+	-Dpam=disabled \
+	-Dfdisk=disabled \
+	-Dkmod=disabled \
+	-Dxz=disabled \
+	-Dlibcurl=disabled \
+	-Dgcrypt=disabled \
+	-Dgnutls=disabled \
+	-Dopenssl=disabled \
+	-Dp11kit=disabled \
+	-Dlibfido2=disabled \
+	-Dpcre2=disabled
 
 HOST_SYSTEMD_DEPENDENCIES = \
 	$(BR2_COREUTILS_HOST_DEPENDENCY) \
 	host-util-linux \
 	host-patchelf \
 	host-libcap \
+	host-libxcrypt \
 	host-gperf \
 	host-python-jinja2
 

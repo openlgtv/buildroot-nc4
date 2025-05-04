@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-ASTERISK_VERSION = 16.29.1
+ASTERISK_VERSION = 20.11.1
 # Use the github mirror: it's an official mirror maintained by Digium, and
 # provides tarballs, which the main Asterisk git tree (behind Gerrit) does not.
 ASTERISK_SITE = $(call github,asterisk,asterisk,$(ASTERISK_VERSION))
@@ -25,9 +25,9 @@ ASTERISK_CPE_ID_VENDOR = asterisk
 ASTERISK_CPE_ID_PRODUCT = open_source
 ASTERISK_SELINUX_MODULES = asterisk
 
-# For patches 0002, 0003 and 0005
+# For patches 0002 and 0003
 ASTERISK_AUTORECONF = YES
-ASTERISK_AUTORECONF_OPTS = -Iautoconf -Ithird-party -Ithird-party/pjproject -Ithird-party/jansson
+ASTERISK_AUTORECONF_OPTS = -Iautoconf -Ithird-party -Ithird-party/pjproject -Ithird-party/jansson -Ithird-party/libjwt
 
 ASTERISK_DEPENDENCIES = \
 	host-asterisk \
@@ -35,6 +35,8 @@ ASTERISK_DEPENDENCIES = \
 	jansson \
 	libcurl \
 	libedit \
+	libjwt \
+	libpjsip \
 	libxml2 \
 	sqlite \
 	util-linux
@@ -56,7 +58,6 @@ ASTERISK_CONF_OPTS = \
 	--without-bfd \
 	--without-cap \
 	--without-cpg \
-	--without-curses \
 	--without-gtk2 \
 	--without-gmime \
 	--without-hoard \
@@ -65,44 +66,36 @@ ASTERISK_CONF_OPTS = \
 	--without-imap \
 	--without-inotify \
 	--without-iodbc \
-	--without-isdnnet \
 	--without-jack \
 	--without-uriparser \
 	--without-kqueue \
 	--without-libedit \
 	--without-libxslt \
 	--without-lua \
-	--without-misdn \
 	--without-mysqlclient \
-	--without-nbs \
 	--without-neon29 \
 	--without-newt \
 	--without-openr2 \
 	--without-osptk \
-	--without-oss \
 	--without-postgres \
-	--without-pjproject \
-	--without-pjproject-bundled \
 	--without-popt \
 	--without-resample \
 	--without-sdl \
 	--without-SDL_image \
-	--without-sqlite \
-	--without-suppserv \
 	--without-tds \
-	--without-termcap \
 	--without-timerfd \
-	--without-tinfo \
 	--without-unbound \
 	--without-unixodbc \
-	--without-vpb \
 	--without-x11 \
 	--with-crypt \
 	--with-jansson \
 	--with-libcurl \
 	--with-ilbc \
+	--with-libjwt="$(STAGING_DIR)/usr" \
 	--with-libxml2 \
 	--with-libedit="$(STAGING_DIR)/usr" \
+	--without-pjproject-bundled \
+	--with-pjproject="$(STAGING_DIR)/usr" \
 	--with-sqlite3="$(STAGING_DIR)/usr" \
 	--with-sounds-cache=$(ASTERISK_DL_DIR)
 
@@ -120,8 +113,14 @@ ASTERISK_CONF_ENV = \
 
 # Uses __atomic_fetch_add_4
 ifeq ($(BR2_TOOLCHAIN_HAS_LIBATOMIC),y)
-ASTERISK_CONF_ENV += LIBS="-latomic"
+ASTERISK_LIBS += -latomic
 endif
+
+ifeq ($(BR2_PACKAGE_LIBYUV)$(BR2_PACKAGE_JPEG),yy)
+ASTERISK_LIBS += -ljpeg
+endif
+
+ASTERISK_CONF_ENV += LIBS="$(ASTERISK_LIBS)"
 
 ifeq ($(BR2_TOOLCHAIN_USES_GLIBC),y)
 ASTERISK_CONF_OPTS += --with-execinfo
@@ -239,6 +238,11 @@ else
 ASTERISK_CONF_OPTS += --without-ssl
 endif
 
+ifeq ($(BR2_PACKAGE_LIBXCRYPT),y)
+# --with-crypt is unconditional, relies on the C library if present
+ASTERISK_DEPENDENCIES += libxcrypt
+endif
+
 ifeq ($(BR2_PACKAGE_SPEEX)$(BR2_PACKAGE_SPEEXDSP),yy)
 ASTERISK_DEPENDENCIES += speex
 ASTERISK_CONF_OPTS += --with-speex --with-speexdsp
@@ -285,10 +289,6 @@ endif
 ASTERISK_MAKE_OPTS += OPTIMIZE=""
 
 ASTERISK_CFLAGS = $(TARGET_CFLAGS)
-
-ifeq ($(BR2_TOOLCHAIN_HAS_GCC_BUG_93847),y)
-ASTERISK_CFLAGS += -O0
-endif
 
 ASTERISK_CONF_OPTS += CFLAGS="$(ASTERISK_CFLAGS)"
 

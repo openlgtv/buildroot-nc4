@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 die() {
   cat <<EOF >&2
 Error: $@
@@ -46,3 +48,13 @@ genimage \
 	--inputpath "${BINARIES_DIR}"  \
 	--outputpath "${BINARIES_DIR}" \
 	--config "${GENIMAGE_CFG}"
+
+if grep -Eq "^BR2_PACKAGE_HOST_BMAP_TOOLS=y$" "${BR2_CONFIG}"; then
+	while IFS= read -r image; do
+		image_path="${BINARIES_DIR}/${image}"
+		if ! test -f "${image_path}"; then
+			continue
+		fi
+		bmaptool create "${image_path}" -o "${image_path}.bmap"
+	done < <(grep '^image ' "${GENIMAGE_CFG}" | cut -d ' ' -f 2)
+fi

@@ -1,5 +1,5 @@
-# From https://downloads.apache.org/avro/avro-1.11.0/py/avro-1.11.0.tar.gz.sha512
-sha512  8af67deb33b9990b74ffd7ab5c3c55e13a649070b4623c7bbe2b278287fd0929e57ed6d0344f9e93f3eb79663b43f75891d0810812349dfaecce65fdd9b44e93  avro-1.11.0.tar.gz
-
-# License files
+# md5, sha256 from https://pypi.org/pypi/avro/json
+md5  03dbb66d68ad18a332a4f4bce0700ca9  avro-1.12.0.tar.gz
+sha256  cad9c53b23ceed699c7af6bddced42e2c572fd6b408c257a7d4fc4e8cf2e2d6b  avro-1.12.0.tar.gz
+# Locally computed sha256 checksums
 sha256  c79a7fea0e3cac04cd43f20e7b648e5a0ff8fa5344e644b0ee09ca1162b62747  avro/LICENSE

@@ -34,6 +34,24 @@ endif
 GLIBC_LICENSE = GPL-2.0+ (programs), LGPL-2.1+, BSD-3-Clause, MIT (library)
 GLIBC_LICENSE_FILES = COPYING COPYING.LIB LICENSES
 
+# Extract the base version (e.g. 2.38) from GLIBC_VERSION in order to
+# allow proper matching with the CPE database.
+GLIBC_CPE_ID_VERSION = $(word 1, $(subst -,$(space),$(GLIBC_VERSION)))
+
+# All these CVEs are considered as not being security issues by
+# upstream glibc:
+#  https://security-tracker.debian.org/tracker/CVE-2010-4756
+#  https://security-tracker.debian.org/tracker/CVE-2019-1010022
+#  https://security-tracker.debian.org/tracker/CVE-2019-1010023
+#  https://security-tracker.debian.org/tracker/CVE-2019-1010024
+#  https://security-tracker.debian.org/tracker/CVE-2019-1010025
+GLIBC_IGNORE_CVES += \
+	CVE-2010-4756 \
+	CVE-2019-1010022 \
+	CVE-2019-1010023 \
+	CVE-2019-1010024 \
+	CVE-2019-1010025
+
 # glibc is part of the toolchain so disable the toolchain dependency
 GLIBC_ADD_TOOLCHAIN_DEPENDENCY = NO
 
@@ -134,10 +152,6 @@ endif
 # Glibc nowadays can be build with optimization flags f.e. -Os
 
 GLIBC_CFLAGS = $(TARGET_OPTIMIZATION)
-# crash in qemu-system-nios2 with -Os
-ifeq ($(BR2_nios2),y)
-GLIBC_CFLAGS += -O2
-endif
 
 # glibc can't be built without optimization
 ifeq ($(BR2_OPTIMIZE_0),y)
@@ -183,7 +197,7 @@ endef
 #
 
 GLIBC_LIBS_LIB = \
-	ld*.so.* libanl.so.* libc.so.* libcrypt.so.* libdl.so.* libgcc_s.so.* \
+	ld*.so.* libanl.so.* libc.so.* libdl.so.* libgcc_s.so.* \
 	libm.so.* libpthread.so.* libresolv.so.* librt.so.* \
 	libutil.so.* libnss_files.so.* libnss_dns.so.* libmvec.so.*
 

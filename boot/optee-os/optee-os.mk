@@ -10,6 +10,10 @@ ifeq ($(BR2_TARGET_OPTEE_OS_LATEST),y)
 OPTEE_OS_LICENSE_FILES = LICENSE
 endif
 
+OPTEE_OS_CPE_ID_PREFIX = cpe:2.3:o
+OPTEE_OS_CPE_ID_VENDOR = linaro
+OPTEE_OS_CPE_ID_PRODUCT = op-tee
+
 OPTEE_OS_INSTALL_STAGING = YES
 OPTEE_OS_INSTALL_IMAGES = YES
 
@@ -29,6 +33,10 @@ BR_NO_CHECK_HASH_FOR += $(OPTEE_OS_SOURCE)
 endif
 
 OPTEE_OS_DEPENDENCIES = host-openssl host-python3 host-python-pyelftools
+
+ifeq ($(BR2_TARGET_OPTEE_OS_NEEDS_CMAKE),y)
+OPTEE_OS_DEPENDENCIES += $(BR2_CMAKE_HOST_DEPENDENCY)
+endif
 
 ifeq ($(BR2_TARGET_OPTEE_OS_NEEDS_PYTHON_CRYPTOGRAPHY),y)
 OPTEE_OS_DEPENDENCIES += host-python-cryptography
@@ -50,18 +58,28 @@ OPTEE_OS_MAKE_OPTS = \
 	CROSS_COMPILE_core="$(TARGET_CROSS)" \
 	CROSS_COMPILE_ta_arm64="$(TARGET_CROSS)" \
 	CROSS_COMPILE_ta_arm32="$(TARGET_CROSS)" \
+	CROSS_COMPILE_ta_rv64="$(TARGET_CROSS)" \
 	PYTHON3="$(HOST_DIR)/bin/python3"
 
+ifeq ($(BR2_riscv),y)
+OPTEE_OS_MAKE_OPTS += \
+	ARCH=riscv \
+	CFG_RV64_core=y \
+	CFG_USER_TA_TARGETS=ta_rv64
+else
 ifeq ($(BR2_aarch64),y)
 OPTEE_OS_MAKE_OPTS += \
+	ARCH=arm \
 	CFG_ARM64_core=y \
 	CFG_USER_TA_TARGETS=ta_arm64
 else
 OPTEE_OS_MAKE_OPTS += \
+	ARCH=arm \
 	CFG_ARM32_core=y
 endif
+endif
 
-# Get mandatory PLAFORM and optional PLATFORM_FLAVOR and additional
+# Get mandatory PLATFORM and optional PLATFORM_FLAVOR and additional
 # variables
 OPTEE_OS_MAKE_OPTS += PLATFORM=$(call qstrip,$(BR2_TARGET_OPTEE_OS_PLATFORM))
 ifneq ($(call qstrip,$(BR2_TARGET_OPTEE_OS_PLATFORM_FLAVOR)),)
@@ -73,6 +91,10 @@ OPTEE_OS_MAKE_OPTS += $(call qstrip,$(BR2_TARGET_OPTEE_OS_ADDITIONAL_VARIABLES))
 # root path otherwise the output directory path depends on the target
 # platform name.
 OPTEE_OS_BUILDDIR_OUT = out
+ifeq ($(BR2_riscv),y)
+OPTEE_OS_LOCAL_SDK = $(OPTEE_OS_BUILDDIR_OUT)/export-ta_rv64
+OPTEE_OS_SDK = $(STAGING_DIR)/lib/optee/export-ta_rv64
+endif
 ifeq ($(BR2_aarch64),y)
 OPTEE_OS_LOCAL_SDK = $(OPTEE_OS_BUILDDIR_OUT)/export-ta_arm64
 OPTEE_OS_SDK = $(STAGING_DIR)/lib/optee/export-ta_arm64
@@ -83,6 +105,8 @@ OPTEE_OS_SDK = $(STAGING_DIR)/lib/optee/export-ta_arm32
 endif
 
 OPTEE_OS_IMAGE_FILES = $(call qstrip,$(BR2_TARGET_OPTEE_OS_CORE_IMAGES))
+
+OPTEE_OS_CUSTOM_DTS_PATH = $(call qstrip,$(BR2_TARGET_OPTEE_OS_CUSTOM_DTS_PATH))
 
 ifeq ($(BR2_TARGET_OPTEE_OS_CORE),y)
 define OPTEE_OS_BUILD_CORE
@@ -120,6 +144,9 @@ endef
 endif # BR2_TARGET_OPTEE_OS_SDK
 
 define OPTEE_OS_BUILD_CMDS
+	$(if $(OPTEE_OS_CUSTOM_DTS_PATH),
+		cp -f $(OPTEE_OS_CUSTOM_DTS_PATH) $(@D)/core/arch/arm/dts/
+	)
 	$(OPTEE_OS_BUILD_CORE)
 	$(OPTEE_OS_BUILD_SDK)
 endef

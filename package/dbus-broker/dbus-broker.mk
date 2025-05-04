@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-DBUS_BROKER_VERSION = 32
+DBUS_BROKER_VERSION = 36
 DBUS_BROKER_SOURCE = dbus-broker-$(DBUS_BROKER_VERSION).tar.xz
 DBUS_BROKER_SITE = https://github.com/bus1/dbus-broker/releases/download/v$(DBUS_BROKER_VERSION)
 
@@ -23,7 +23,7 @@ DBUS_BROKER_LICENSE_FILES = \
 	subprojects/libcstdaux-1/AUTHORS subprojects/libcstdaux-1/README.md \
 	subprojects/libcutf8-1/AUTHORS subprojects/libcutf8-1/README.md
 
-DBUS_BROKER_CPE_ID_VENDOR = dbus-broker_project
+DBUS_BROKER_CPE_ID_VALID = YES
 DBUS_BROKER_DEPENDENCIES = expat systemd
 DBUS_BROKER_CONF_OPTS = -Dlauncher=true
 

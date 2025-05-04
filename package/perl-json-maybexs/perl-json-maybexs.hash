@@ -1,6 +1,6 @@
-# retrieved by scancpan from http://cpan.metacpan.org/
-md5  e46181e34588428d317932744597a7ab  JSON-MaybeXS-1.004003.tar.gz
-sha256  5bee3b17ff9dcffd6e99ab8cf7f35747650bfce1dc622e3ad10b85a194462fbf  JSON-MaybeXS-1.004003.tar.gz
+# retrieved by scancpan from https://cpan.metacpan.org/
+md5  63cf8b82a0dadda0dc445f9c70141383  JSON-MaybeXS-1.004008.tar.gz
+sha256  cd3937afa78831f80a2ad5abab6c51b9e82fca4c31e5856ea208d598db5dc867  JSON-MaybeXS-1.004008.tar.gz
 
 # computed by scancpan
-sha256  0f2d6b537f7a735c981511875d832bc8ff767bf97d62848cf0bada964e40aadd  LICENSE
+sha256  1505d172444acdfab81b917a3db10543f0b247821932e9c211bb9521467e42dd  LICENSE

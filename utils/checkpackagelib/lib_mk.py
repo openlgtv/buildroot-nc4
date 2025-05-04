@@ -21,6 +21,46 @@ continue_conditional = ["elif", "else"]
 end_conditional = ["endif"]
 
 
+class DoNotInstallToHostdirUsr(_CheckFunction):
+    INSTALL_TO_HOSTDIR_USR = re.compile(r"^[^#].*\$\(HOST_DIR\)/usr")
+
+    def check_line(self, lineno, text):
+        if self.INSTALL_TO_HOSTDIR_USR.match(text.rstrip()):
+            return ["{}:{}: install files to $(HOST_DIR)/ instead of $(HOST_DIR)/usr/"
+                    .format(self.filename, lineno),
+                    text]
+
+
+class Ifdef(_CheckFunction):
+    IFDEF = re.compile(r"^\s*(else\s+|)(ifdef|ifndef)\s")
+
+    def check_line(self, lineno, text):
+        m = self.IFDEF.search(text)
+        if m is None:
+            return
+        word = m.group(2)
+        if word == 'ifdef':
+            return ["{}:{}: use ifeq ($(SYMBOL),y) instead of ifdef SYMBOL"
+                    .format(self.filename, lineno),
+                    text]
+        else:
+            return ["{}:{}: use ifneq ($(SYMBOL),y) instead of ifndef SYMBOL"
+                    .format(self.filename, lineno),
+                    text]
+
+
+def get_package_prefix_from_filename(filename):
+    """Return a tuple (pkgname, PKGNAME) with the package name derived from the file name"""
+    # Double splitext to support .mk.in
+    package = os.path.splitext(os.path.splitext(os.path.basename(filename))[0])[0]
+    # linux tools do not use LINUX_TOOL_ prefix for variables
+    package = package.replace("linux-tool-", "")
+    # linux extensions do not use LINUX_EXT_ prefix for variables
+    package = package.replace("linux-ext-", "")
+    package_upper = package.replace("-", "_").upper()
+    return package, package_upper
+
+
 class Indent(_CheckFunction):
     COMMENT = re.compile(r"^\s*#")
     CONDITIONAL = re.compile(r"^\s*({})\s".format("|".join(start_conditional + end_conditional + continue_conditional)))
@@ -179,12 +219,10 @@ class RemoveDefaultPackageSourceVariable(_CheckFunction):
     packages_that_may_contain_default_source = ["binutils", "gcc", "gdb"]
 
     def before(self):
-        package, _ = os.path.splitext(os.path.basename(self.filename))
-        package_upper = package.replace("-", "_").upper()
-        self.package = package
+        self.package, package_upper = get_package_prefix_from_filename(self.filename)
         self.FIND_SOURCE = re.compile(
             r"^{}_SOURCE\s*=\s*{}-\$\({}_VERSION\)\.tar\.gz"
-            .format(package_upper, package, package_upper))
+            .format(package_upper, self.package, package_upper))
 
     def check_line(self, lineno, text):
         if self.FIND_SOURCE.search(text):
@@ -254,16 +292,10 @@ class TypoInPackageVariable(_CheckFunction):
     VARIABLE = re.compile(r"^(define\s+)?([A-Z0-9_]+_[A-Z0-9_]+)")
 
     def before(self):
-        package, _ = os.path.splitext(os.path.basename(self.filename))
-        package = package.replace("-", "_").upper()
-        # linux tools do not use LINUX_TOOL_ prefix for variables
-        package = package.replace("LINUX_TOOL_", "")
-        # linux extensions do not use LINUX_EXT_ prefix for variables
-        package = package.replace("LINUX_EXT_", "")
-        self.package = package
-        self.REGEX = re.compile(r"(HOST_|ROOTFS_)?({}_[A-Z0-9_]+)".format(package))
+        _, self.package = get_package_prefix_from_filename(self.filename)
+        self.REGEX = re.compile(r"(HOST_|ROOTFS_)?({}_[A-Z0-9_]+)".format(self.package))
         self.FIND_VIRTUAL = re.compile(
-            r"^{}_PROVIDES\s*(\+|)=\s*(.*)".format(package))
+            r"^{}_PROVIDES\s*(\+|)=\s*(.*)".format(self.package))
         self.virtual = []
 
     def check_line(self, lineno, text):
@@ -284,9 +316,9 @@ class TypoInPackageVariable(_CheckFunction):
 
         if self.ALLOWED.match(variable):
             return
-        if self.REGEX.search(text) is None:
-            return ["{}:{}: possible typo: {} -> *{}*"
-                    .format(self.filename, lineno, variable, self.package),
+        if self.REGEX.search(variable) is None:
+            return ["{}:{}: possible typo, variable not properly prefixed: {} -> *{}_XXXX* ({}#_tips_and_tricks)"
+                    .format(self.filename, lineno, variable, self.package, self.url_to_manual),
                     text]
 
 
@@ -296,7 +328,7 @@ class UselessFlag(_CheckFunction):
         r"_LIBTOOL_PATCH\s*=\s*YES"])))
     DEFAULT_GENERIC_FLAG = re.compile(r"^.*{}".format("|".join([
         r"_INSTALL_IMAGES\s*=\s*NO",
-        r"_INSTALL_REDISTRIBUTE\s*=\s*YES",
+        r"_REDISTRIBUTE\s*=\s*YES",
         r"_INSTALL_STAGING\s*=\s*NO",
         r"_INSTALL_TARGET\s*=\s*YES"])))
     END_CONDITIONAL = re.compile(r"^\s*({})".format("|".join(end_conditional)))
@@ -338,3 +370,76 @@ class VariableWithBraces(_CheckFunction):
             return ["{}:{}: use $() to delimit variables, not ${{}}"
                     .format(self.filename, lineno),
                     text]
+
+
+class CPEVariables(_CheckFunction):
+    """
+    Check that the values for the CPE variables are not the default.
+      - CPE_ID_* variables must not be set to their default
+      - CPE_ID_VALID must not be set if a non-default CPE_ID variable is set
+    """
+    def before(self):
+        pkg, _ = os.path.splitext(os.path.basename(self.filename))
+        self.CPE_fields_defaults = {
+            "VALID": "NO",
+            "PREFIX": "cpe:2.3:a",
+            "VENDOR": f"{pkg}_project",
+            "PRODUCT": pkg,
+            "VERSION": None,
+            "UPDATE": "*",
+        }
+        self.valid = None
+        self.non_defaults = 0
+        self.CPE_FIELDS_RE = re.compile(
+            r"^\s*(.+_CPE_ID_({}))\s*=\s*(.+)$"
+            .format("|".join(self.CPE_fields_defaults)),
+        )
+        self.VERSION_RE = re.compile(
+            rf"^(HOST_)?{pkg.upper().replace('-', '_')}_VERSION\s*=\s*(.+)$",
+        )
+        self.COMMENT_RE = re.compile(r"^\s*#.*")
+
+    def check_line(self, lineno, text):
+        text = self.COMMENT_RE.sub('', text.rstrip())
+
+        # WARNING! The VERSION_RE can _also_ match the same lines as CPE_FIELDS_RE,
+        # but not the other way around. So we must first check for CPE_FIELDS_RE,
+        # and if not matched, then and only then check for VERSION_RE.
+        match = self.CPE_FIELDS_RE.match(text)
+        if match:
+            var, field, val = match.groups()
+            return self._check_field(lineno, text, field, var, val)
+
+        match = self.VERSION_RE.match(text)
+        if match:
+            self.CPE_fields_defaults["VERSION"] = match.groups()[1]
+
+    def after(self):
+        # "VALID" counts in the non-defaults; so when "VALID" is present,
+        # 1 non-default means only "VALID" is present, so that's OK.
+        if self.valid and self.non_defaults > 1:
+            return ["{}:{}: 'YES' is implied when a non-default CPE_ID field is specified: {} ({}#cpe-id)".format(
+                        self.filename,
+                        self.valid["lineno"],
+                        self.valid["text"],
+                        self.url_to_manual,
+            )]
+
+    def _check_field(self, lineno, text, field, var, val):
+        if field == "VERSION" and self.CPE_fields_defaults[field] is None:
+            return ["{}:{}: expecting package version to be set before CPE_ID_VERSION".format(
+                self.filename,
+                lineno,
+            )]
+        if val == self.CPE_fields_defaults[field]:
+            return ["{}:{}: '{}' is the default value for {} ({}#cpe-id)".format(
+                self.filename,
+                lineno,
+                val,
+                var,
+                self.url_to_manual,
+            )]
+        else:
+            if field == "VALID":
+                self.valid = {"lineno": lineno, "text": text}
+            self.non_defaults += 1

@@ -6,7 +6,7 @@
 
 # When updating this version, check whether support/download/cargo-post-process
 # still generates the same archives.
-RUST_VERSION = 1.64.0
+RUST_VERSION = 1.82.0
 RUST_SOURCE = rustc-$(RUST_VERSION)-src.tar.xz
 RUST_SITE = https://static.rust-lang.org/dist
 RUST_LICENSE = Apache-2.0 or MIT
@@ -20,25 +20,10 @@ HOST_RUST_DEPENDENCIES = \
 	host-python3 \
 	host-rust-bin \
 	host-openssl \
+	host-zlib \
 	$(BR2_CMAKE_HOST_DEPENDENCY)
 
 HOST_RUST_VERBOSITY = $(if $(VERBOSE),2,0)
-
-# Some vendor crates contain Cargo.toml.orig files. The associated
-# .cargo-checksum.json file will contain a checksum for Cargo.toml.orig but
-# support/scripts/apply-patches.sh will delete them. This will cause the build
-# to fail, as Cargo will not be able to find the file and verify the checksum.
-# So, remove all Cargo.toml.orig entries from the affected .cargo-checksum.json
-# files
-define HOST_RUST_EXCLUDE_ORIG_FILES
-	for file in $$(find $(@D) -name '*.orig'); do \
-		crate=$$(dirname $${file}); \
-		fn=$${crate}/.cargo-checksum.json; \
-		sed -i -e 's/"Cargo.toml.orig":"[a-z0-9]\+",//g' $${fn}; \
-	done
-endef
-
-HOST_RUST_POST_EXTRACT_HOOKS += HOST_RUST_EXCLUDE_ORIG_FILES
 
 define HOST_RUST_CONFIGURE_CMDS
 	( \
@@ -64,11 +49,13 @@ define HOST_RUST_CONFIGURE_CMDS
 		echo 'cc = "$(TARGET_CROSS)gcc"'; \
 		echo '[llvm]'; \
 		echo 'ninja = false'; \
+		echo 'ldflags = "$(HOST_LDFLAGS)"'; \
 	) > $(@D)/config.toml
 endef
 
 define HOST_RUST_BUILD_CMDS
-	cd $(@D); $(HOST_MAKE_ENV) $(HOST_DIR)/bin/python$(PYTHON3_VERSION_MAJOR) x.py build
+	cd $(@D); $(HOST_MAKE_ENV) $(HOST_PKG_CARGO_ENV) \
+		$(HOST_DIR)/bin/python$(PYTHON3_VERSION_MAJOR) x.py build
 endef
 
 HOST_RUST_INSTALL_OPTS = \

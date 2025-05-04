@@ -4,13 +4,13 @@
 #
 ################################################################################
 
-KISMET_VERSION = 2022-08-R1
-KISMET_SOURCE = kismet-$(KISMET_VERSION).tar.xz
-KISMET_SITE = http://www.kismetwireless.net/code
+KISMET_VERSION = 52bcb902e36b2df1562cfbe644b113362248d029
+KISMET_SITE = $(call github,kismetwireless,kismet,$(KISMET_VERSION))
 KISMET_DEPENDENCIES = \
 	host-pkgconf \
 	libpcap \
 	$(if $(BR2_PACKAGE_LIBNL),libnl) \
+	$(if $(BR2_PACKAGE_OPENSSL),openssl) \
 	$(if $(BR2_PACKAGE_PROTOBUF),protobuf) \
 	protobuf-c \
 	sqlite \
@@ -19,7 +19,7 @@ KISMET_LICENSE = GPL-2.0+
 KISMET_LICENSE_FILES = LICENSE
 KISMET_SELINUX_MODULES = kismet
 
-KISMET_CONF_OPTS = --disable-debuglibs
+KISMET_CONF_OPTS = --disable-debuglibs --disable-wifi-coconut
 
 KISMET_CXXFLAGS = $(TARGET_CXXFLAGS)
 
@@ -34,6 +34,13 @@ KISMET_DEPENDENCIES += libcap
 KISMET_CONF_OPTS += --enable-libcap
 else
 KISMET_CONF_OPTS += --disable-libcap
+endif
+
+ifeq ($(BR2_PACKAGE_LIBRTLSDR),y)
+KISMET_DEPENDENCIES += librtlsdr
+KISMET_CONF_OPTS += --enable-librtlsdr
+else
+KISMET_CONF_OPTS += --disable-librtlsdr
 endif
 
 ifeq ($(BR2_PACKAGE_LIBUSB),y)
@@ -57,15 +64,25 @@ else
 KISMET_CONF_OPTS += --disable-lmsensors
 endif
 
-ifeq ($(BR2_PACKAGE_PCRE),y)
+ifeq ($(BR2_PACKAGE_MOSQUITTO),y)
+KISMET_DEPENDENCIES += mosquitto
+KISMET_CONF_OPTS += --enable-mosquitto
+else
+KISMET_CONF_OPTS += --disable-mosquitto
+endif
+
+ifeq ($(BR2_PACKAGE_PCRE2),y)
+KISMET_DEPENDENCIES += pcre2
+KISMET_CONF_OPTS += --enable-pcre --enable-require-pcre2
+else ifeq ($(BR2_PACKAGE_PCRE),y)
 KISMET_DEPENDENCIES += pcre
-KISMET_CONF_OPTS += --enable-pcre
+KISMET_CONF_OPTS += --enable-pcre --disable-require-pcre2
 else
 KISMET_CONF_OPTS += --disable-pcre
 endif
 
 ifeq ($(BR2_PACKAGE_KISMET_PYTHON_TOOLS),y)
-KISMET_DEPENDENCIES += python3 python-setuptools
+KISMET_DEPENDENCIES += python3 host-python-setuptools
 KISMET_CONF_OPTS += \
 	--enable-python-tools \
 	--with-python-interpreter=$(HOST_DIR)/bin/python$(PYTHON3_VERSION_MAJOR)

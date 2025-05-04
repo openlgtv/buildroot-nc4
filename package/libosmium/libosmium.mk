@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-LIBOSMIUM_VERSION = 2.18.0
+LIBOSMIUM_VERSION = 2.21.0
 LIBOSMIUM_SITE = $(call github,osmcode,libosmium,v$(LIBOSMIUM_VERSION))
 LIBOSMIUM_LICENSE = BSL-1.0
 LIBOSMIUM_LICENSE_FILES = LICENSE
@@ -23,12 +23,12 @@ ifeq ($(BR2_PACKAGE_LIBGEOS),y)
 LIBOSMIUM_DEPENDENCIES += libgeos
 endif
 
-ifeq ($(BR2_PACKAGE_PROJ),y)
-LIBOSMIUM_DEPENDENCIES += proj
-endif
-
 ifeq ($(BR2_PACKAGE_ZLIB),y)
 LIBOSMIUM_DEPENDENCIES += zlib
+endif
+
+ifeq ($(BR2_PACKAGE_GDAL),y)
+LIBOSMIUM_DEPENDENCIES += gdal
 endif
 
 $(eval $(cmake-package))

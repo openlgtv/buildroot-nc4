@@ -13,20 +13,32 @@ import unittest
 import infra
 
 
-def call_script(args, env, cwd):
+def call_script(args, env, cwd, stdin_data=None):
     """Call a script and return stdout and stderr as lists and the exit code."""
-    proc = subprocess.Popen(args, cwd=cwd, stdout=subprocess.PIPE,
+    if stdin_data is None:
+        # We need stdin to be a tty, not just a pipe or whatever
+        m_tty, s_tty = os.openpty()
+        com_opts = dict()
+    else:
+        s_tty = subprocess.PIPE
+        com_opts = dict([("input", stdin_data)])
+    proc = subprocess.Popen(args, cwd=cwd,
+                            stdin=s_tty,
+                            stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE, env=env,
                             universal_newlines=True)
-    out, err = proc.communicate()
+    out, err = proc.communicate(**com_opts)
+    if stdin_data is None:
+        os.close(s_tty)
+        os.close(m_tty)
     return out.splitlines(), err.splitlines(), proc.returncode
 
 
-def call_get_developers(cmd, args, env, cwd, developers_content):
+def call_get_developers(cmd, args, env, cwd, developers_content, stdin_data=None):
     """Call get-developers overrinding the default DEVELOPERS file."""
     with tempfile.NamedTemporaryFile(buffering=0) as developers_file:
         developers_file.write(developers_content)
-        return call_script([cmd, "-d", developers_file.name] + args, env, cwd)
+        return call_script([cmd, "-d", developers_file.name] + args, env, cwd, stdin_data)
 
 
 class TestGetDevelopers(unittest.TestCase):
@@ -41,14 +53,14 @@ class TestGetDevelopers(unittest.TestCase):
         # no args, with syntax error in the file
         developers = b'text3\n'
         out, err, rc = call_get_developers("./utils/get-developers", [], self.WITH_EMPTY_PATH, topdir, developers)
-        self.assertIn("No action specified", out)
-        self.assertEqual(rc, 0)
-        self.assertEqual(len(err), 0)
+        self.assertIn("No action specified", "\n".join(err))
+        self.assertEqual(rc, 2)
+        self.assertEqual(len(out), 0)
 
         # -v generating error, called from the main dir
         developers = b'text1\n'
         out, err, rc = call_get_developers("./utils/get-developers", ["-v"], self.WITH_EMPTY_PATH, topdir, developers)
-        self.assertIn("Syntax error in DEVELOPERS file, line 0: 'text1'", err)
+        self.assertIn("Syntax error in DEVELOPERS file, line 1: 'text1'", err)
         self.assertEqual(rc, 1)
         self.assertEqual(len(out), 0)
         self.assertEqual(len(err), 1)
@@ -56,7 +68,7 @@ class TestGetDevelopers(unittest.TestCase):
         # -v generating error, called from path
         developers = b'text2\n'
         out, err, rc = call_get_developers("get-developers", ["-v"], self.WITH_UTILS_IN_PATH, topdir, developers)
-        self.assertIn("Syntax error in DEVELOPERS file, line 0: 'text2'", err)
+        self.assertIn("Syntax error in DEVELOPERS file, line 1: 'text2'", err)
         self.assertEqual(rc, 1)
         self.assertEqual(len(out), 0)
         self.assertEqual(len(err), 1)
@@ -69,12 +81,12 @@ class TestGetDevelopers(unittest.TestCase):
                      b'N:\tAuthor2 <email>\n' \
                      b'F:\tutils/get-developers\n'
         out, err, rc = call_get_developers("get-developers", ["-v"], self.WITH_UTILS_IN_PATH, topdir, developers)
-        self.assertIn("Syntax error in DEVELOPERS file, line 1", err)
-        self.assertEqual(rc, 0)
+        self.assertIn("Syntax error in DEVELOPERS file, line 4", err)
+        self.assertEqual(rc, 1)
         self.assertEqual(len(out), 0)
         self.assertEqual(len(err), 1)
 
-        # -v generating error for developer entry with no file entries
+        # -v generating error for developer entry with no file entries, stopping on first error
         developers = b'# comment\n' \
                      b'# comment\n' \
                      b'\n' \
@@ -83,11 +95,10 @@ class TestGetDevelopers(unittest.TestCase):
                      b'N:\tAuthor3 <email>\n' \
                      b'F:\tutils/get-developers\n'
         out, err, rc = call_get_developers("get-developers", ["-v"], self.WITH_UTILS_IN_PATH, topdir, developers)
-        self.assertIn("Syntax error in DEVELOPERS file, line 1", err)
-        self.assertIn("Syntax error in DEVELOPERS file, line 2", err)
-        self.assertEqual(rc, 0)
+        self.assertIn("Syntax error in DEVELOPERS file, line 4", err)
+        self.assertEqual(rc, 1)
         self.assertEqual(len(out), 0)
-        self.assertEqual(len(err), 2)
+        self.assertEqual(len(err), 1)
 
         # -v not generating error for developer entry with empty list of file entries
         developers = b'# comment\n' \
@@ -109,8 +120,8 @@ class TestGetDevelopers(unittest.TestCase):
                      b'F:\tpath/that/does/not/exists/1\n' \
                      b'F:\tpath/that/does/not/exists/2\n'
         out, err, rc = call_get_developers("get-developers", ["-v"], self.WITH_UTILS_IN_PATH, topdir, developers)
-        self.assertIn("WARNING: 'path/that/does/not/exists/1' doesn't match any file", err)
-        self.assertIn("WARNING: 'path/that/does/not/exists/2' doesn't match any file", err)
+        self.assertIn("WARNING: 'path/that/does/not/exists/1' doesn't match any file, line 2", err)
+        self.assertIn("WARNING: 'path/that/does/not/exists/2' doesn't match any file, line 3", err)
         self.assertEqual(rc, 0)
         self.assertEqual(len(out), 0)
         self.assertEqual(len(err), 2)
@@ -120,8 +131,8 @@ class TestGetDevelopers(unittest.TestCase):
                      b'F:\tpath/that/does/not/exists/1\n' \
                      b'F:\tpath/that/does/not/exists/2\n'
         out, err, rc = call_get_developers("./utils/get-developers", ["-c"], self.WITH_EMPTY_PATH, topdir, developers)
-        self.assertIn("WARNING: 'path/that/does/not/exists/1' doesn't match any file", err)
-        self.assertIn("WARNING: 'path/that/does/not/exists/2' doesn't match any file", err)
+        self.assertIn("WARNING: 'path/that/does/not/exists/1' doesn't match any file, line 2", err)
+        self.assertIn("WARNING: 'path/that/does/not/exists/2' doesn't match any file, line 3", err)
         self.assertEqual(rc, 0)
         self.assertGreater(len(out), 1000)
         self.assertEqual(len(err), 2)
@@ -151,9 +162,9 @@ class TestGetDevelopers(unittest.TestCase):
         # no args, with syntax error in the file
         developers = b'text3\n'
         out, err, rc = call_get_developers("./utils/get-developers", [], self.WITH_EMPTY_PATH, topdir, developers)
-        self.assertIn("No action specified", out)
-        self.assertEqual(rc, 0)
-        self.assertEqual(len(err), 0)
+        self.assertIn("No action specified", "\n".join(err))
+        self.assertEqual(rc, 2)
+        self.assertEqual(len(out), 0)
 
         # patchfile from topdir and from elsewhere
         abs_path = infra.filepath("tests/utils/test_get_developers/")
@@ -166,6 +177,12 @@ class TestGetDevelopers(unittest.TestCase):
         self.assertEqual(rc, 0)
         self.assertEqual(len(err), 0)
         out, err, rc = call_get_developers("get-developers", [rel_file], self.WITH_UTILS_IN_PATH, abs_path, developers)
+        self.assertIn('git send-email --to buildroot@buildroot.org --cc "dev1"', out)
+        self.assertEqual(rc, 0)
+        self.assertEqual(len(err), 0)
+        with open(abs_file, "r") as fd:
+            patch_data = fd.read()
+        out, err, rc = call_get_developers("./utils/get-developers", [], self.WITH_EMPTY_PATH, topdir, developers, patch_data)
         self.assertIn('git send-email --to buildroot@buildroot.org --cc "dev1"', out)
         self.assertEqual(rc, 0)
         self.assertEqual(len(err), 0)

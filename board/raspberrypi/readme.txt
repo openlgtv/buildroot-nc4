@@ -10,6 +10,7 @@ These instructions apply to all models of the Raspberry Pi:
   - the model B3 (aka Raspberry Pi 3).
   - the model B4 (aka Raspberry Pi 4).
   - the model CM4 (aka Raspberry Pi Compute Module 4 and IO Board).
+  - the model B5 (aka Raspberry Pi 5).
 
 How to build it
 ===============
@@ -17,8 +18,8 @@ How to build it
 Configure Buildroot
 -------------------
 
-There are two RaspberryPi defconfig files in Buildroot, one for each
-major variant, which you should base your work on:
+There are several Raspberry Pi defconfig files in Buildroot, one for
+each major variant, which you should base your work on:
 
 For models A, B, A+ or B+:
 
@@ -28,9 +29,17 @@ For model Zero (model A+ in smaller form factor):
 
   $ make raspberrypi0_defconfig
 
+or for model Zero W (model Zero with wireless LAN and Bluetooth):
+
+  $ make raspberrypi0w_defconfig
+
 For model Zero 2 W (model B3 in smaller form factor):
 
   $ make raspberrypizero2w_defconfig
+
+For model Zero 2 W (model B3 in smaller form factor, 64-bit):
+
+  $ make raspberrypizero2w_64_defconfig
 
 For model 2 B:
 
@@ -60,6 +69,10 @@ or for CM4 (on IO Board - 64 bit):
 
   $ make raspberrypicm4io_64_defconfig
 
+For model 5 B:
+
+  $ make raspberrypi5_defconfig
+
 Build the rootfs
 ----------------
 
@@ -78,6 +91,7 @@ Result of the build
 After building, you should obtain this tree:
 
     output/images/
+    +-- bcm2708-rpi-b-rev1.dtb      [1]
     +-- bcm2708-rpi-b.dtb           [1]
     +-- bcm2708-rpi-b-plus.dtb      [1]
     +-- bcm2708-rpi-cm.dtb          [1]
@@ -85,12 +99,16 @@ After building, you should obtain this tree:
     +-- bcm2708-rpi-zero-w.dtb      [1]
     +-- bcm2710-rpi-zero-2-w.dtb    [1]
     +-- bcm2709-rpi-2-b.dtb         [1]
+    +-- bcm2710-rpi-2-b.dtb         [1]
     +-- bcm2710-rpi-3-b.dtb         [1]
     +-- bcm2710-rpi-3-b-plus.dtb    [1]
     +-- bcm2710-rpi-cm3.dtb         [1]
     +-- bcm2711-rpi-4-b.dtb         [1]
+    +-- bcm2711-rpi-400.dtb         [1]
     +-- bcm2711-rpi-cm4.dtb         [1]
-    +-- bcm2837-rpi-3-b.dtb         [1]
+    +-- bcm2711-rpi-cm4s.dtb        [1]
+    +-- bcm2712-rpi-5-b.dtb         [1]
+    +-- bcm2712d0-rpi-5-b.dtb       [1]
     +-- boot.vfat
     +-- rootfs.ext4
     +-- rpi-firmware/
@@ -133,7 +151,7 @@ How to write to CM4 eMMC memory
 ===============================
 
 For CM4 modules without eMMC memory see above for booting from SD card,
-for CM4 moduels with eMMC memory proceed as following:
+for CM4 modules with eMMC memory proceed as following:
 
 - fit jumper on IO Board header J2 to disable eMMC boot
 - connect IO Board micro USB port (J11 USB slave) to your host linux system

@@ -4,9 +4,15 @@
 #
 ################################################################################
 
-WINE_VERSION = 7.0
+# In Buildroot, Wine should be updated only on "stable" versions. This
+# usually corresponds to version "X.0" (for initial stable releases)
+# or "X.0.y" (for maintenance releases). Please avoid updating to a
+# development version, unless it is absolutely needed (for example:
+# incompatibility with another library and no maintenance stable
+# version is available).
+WINE_VERSION = 10.0
 WINE_SOURCE = wine-$(WINE_VERSION).tar.xz
-WINE_SITE = https://dl.winehq.org/wine/source/7.0
+WINE_SITE = https://dl.winehq.org/wine/source/10.0
 WINE_LICENSE = LGPL-2.1+
 WINE_LICENSE_FILES = COPYING.LIB LICENSE
 WINE_CPE_ID_VENDOR = winehq
@@ -27,7 +33,6 @@ WINE_CONF_OPTS = \
 	--without-mingw \
 	--without-opencl \
 	--without-oss \
-	--without-vkd3d \
 	--without-vulkan
 
 # Wine uses a wrapper around gcc, and uses the value of --host to
@@ -61,6 +66,13 @@ WINE_CONF_OPTS += --with-dbus
 WINE_DEPENDENCIES += dbus
 else
 WINE_CONF_OPTS += --without-dbus
+endif
+
+ifeq ($(BR2_PACKAGE_FFMPEG),y)
+WINE_CONF_OPTS += --with-ffmpeg
+WINE_DEPENDENCIES += ffmpeg
+else
+WINE_CONF_OPTS += --without-ffmpeg
 endif
 
 ifeq ($(BR2_PACKAGE_FONTCONFIG),y)
@@ -131,25 +143,18 @@ else
 WINE_CONF_OPTS += --without-v4l2
 endif
 
-ifeq ($(BR2_PACKAGE_OPENAL),y)
-WINE_CONF_OPTS += --with-openal
-WINE_DEPENDENCIES += openal
-else
-WINE_CONF_OPTS += --without-openal
-endif
-
-ifeq ($(BR2_PACKAGE_OPENLDAP),y)
-WINE_CONF_OPTS += --with-ldap
-WINE_DEPENDENCIES += openldap
-else
-WINE_CONF_OPTS += --without-ldap
-endif
-
 ifeq ($(BR2_PACKAGE_MESA3D_OSMESA_GALLIUM),y)
 WINE_CONF_OPTS += --with-osmesa
 WINE_DEPENDENCIES += mesa3d
 else
 WINE_CONF_OPTS += --without-osmesa
+endif
+
+ifeq ($(BR2_PACKAGE_PCSC_LITE),y)
+WINE_CONF_OPTS += --with-pcsclite
+WINE_DEPENDENCIES += pcsc-lite
+else
+WINE_CONF_OPTS += --without-pcsclite
 endif
 
 ifeq ($(BR2_PACKAGE_PULSEAUDIO),y)
@@ -188,6 +193,13 @@ else
 WINE_CONF_OPTS += --without-udev
 endif
 
+ifeq ($(BR2_PACKAGE_WAYLAND),y)
+WINE_CONF_OPTS += --with-wayland
+WINE_DEPENDENCIES += wayland
+else
+WINE_CONF_OPTS += --without-wayland
+endif
+
 ifeq ($(BR2_PACKAGE_XLIB_LIBX11),y)
 WINE_CONF_OPTS += --with-x
 WINE_DEPENDENCIES += xlib_libX11
@@ -214,6 +226,13 @@ WINE_CONF_OPTS += --with-xshape --with-xshm
 WINE_DEPENDENCIES += xlib_libXext
 else
 WINE_CONF_OPTS += --without-xshape --without-xshm
+endif
+
+ifeq ($(BR2_PACKAGE_XLIB_LIBXFIXES),y)
+WINE_CONF_OPTS += --with-xfixes
+WINE_DEPENDENCIES += xlib_libXfixes
+else
+WINE_CONF_OPTS += --without-xfixes
 endif
 
 ifeq ($(BR2_PACKAGE_XLIB_LIBXI),y)
@@ -266,19 +285,8 @@ endif
 
 # Wine only needs the host tools to be built, so cut-down the
 # build time by building just what we need.
-HOST_WINE_TOOLS = \
-	tools \
-	tools/sfnt2fon \
-	tools/widl \
-	tools/winebuild \
-	tools/winegcc \
-	tools/wmc \
-	tools/wrc
-
 define HOST_WINE_BUILD_CMDS
-	$(foreach t, $(HOST_WINE_TOOLS),
-		$(HOST_MAKE_ENV) $(MAKE) -C $(@D)/$(t)
-	)
+	$(HOST_MAKE_ENV) $(MAKE) -C $(@D) __tooldeps__
 endef
 
 # Wine only needs its host variant to be built, not that it is
@@ -298,31 +306,33 @@ HOST_WINE_CONF_OPTS += \
 	--without-coreaudio \
 	--without-cups \
 	--without-dbus \
+	--without-ffmpeg \
 	--without-fontconfig \
 	--without-gphoto \
 	--without-gnutls \
 	--without-gssapi \
 	--without-gstreamer \
 	--without-krb5 \
-	--without-ldap \
 	--without-mingw \
 	--without-netapi \
-	--without-openal \
 	--without-opencl \
 	--without-opengl \
 	--without-osmesa \
 	--without-oss \
 	--without-pcap \
+	--without-pcsclite \
 	--without-pulse \
 	--without-sane \
 	--without-sdl \
+	--without-udev \
 	--without-usb \
 	--without-v4l2 \
-	--without-vkd3d \
 	--without-vulkan \
+	--without-wayland \
 	--without-x \
 	--without-xcomposite \
 	--without-xcursor \
+	--without-xfixes \
 	--without-xinerama \
 	--without-xinput \
 	--without-xinput2 \

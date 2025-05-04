@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-LXC_VERSION = 5.0.1
+LXC_VERSION = 5.0.3
 LXC_SITE = https://linuxcontainers.org/downloads/lxc
 LXC_LICENSE = GPL-2.0 (some tools), LGPL-2.1+
 LXC_LICENSE_FILES = LICENSE.GPL2 LICENSE.LGPL2.1
@@ -13,9 +13,15 @@ LXC_DEPENDENCIES = host-pkgconf
 LXC_INSTALL_STAGING = YES
 
 LXC_CONF_OPTS = \
-	-Dapparmor=false \
 	-Dexamples=false \
 	-Dman=false
+
+ifeq ($(BR2_PACKAGE_LIBAPPARMOR),y)
+LXC_CONF_OPTS += -Dapparmor=true
+LXC_DEPENDENCIES += libapparmor
+else
+LXC_CONF_OPTS += -Dapparmor=false
+endif
 
 ifeq ($(BR2_PACKAGE_BASH_COMPLETION),y)
 LXC_DEPENDENCIES += bash-completion

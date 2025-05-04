@@ -1,7 +1,7 @@
 config BR2_PACKAGE_ZABBIX
 	bool "zabbix"
 	depends on BR2_TOOLCHAIN_USES_GLIBC
-	select BR2_PACKAGE_PCRE
+	select BR2_PACKAGE_PCRE2
 	help
 	  Zabbix is an enterprise-class open source distributed
 	  monitoring solution. Zabbix is free of cost. Zabbix is
@@ -9,9 +9,6 @@ config BR2_PACKAGE_ZABBIX
 	  version 2.
 
 	  https://zabbix.com
-
-comment "zabbix need glibc"
-	depends on !BR2_TOOLCHAIN_USES_GLIBC
 
 if BR2_PACKAGE_ZABBIX
 
@@ -26,7 +23,7 @@ config BR2_PACKAGE_ZABBIX_SERVER
 	depends on BR2_USE_MMU # mysql, postgresql
 	depends on \
 		(BR2_INSTALL_LIBSTDCPP && BR2_TOOLCHAIN_HAS_THREADS) || \
-		(BR2_USE_WCHAR && !BR2_STATIC_LIBS)
+		(BR2_USE_WCHAR && !BR2_STATIC_LIBS && !BR2_OPTIMIZE_FAST)
 	select BR2_PACKAGE_ZLIB
 	select BR2_PACKAGE_LIBEVENT
 
@@ -39,11 +36,14 @@ config BR2_PACKAGE_ZABBIX_SERVER_MYSQL
 	bool "mysql"
 	depends on BR2_INSTALL_LIBSTDCPP # mysql
 	depends on BR2_TOOLCHAIN_HAS_THREADS # mysql
-	select BR2_PACKAGE_MYSQL
+	select BR2_PACKAGE_MARIADB
 
 config BR2_PACKAGE_ZABBIX_SERVER_POSTGRESQL
 	bool "postgresql"
+	depends on BR2_USE_MMU # postgresql
 	depends on BR2_USE_WCHAR # postgresql
+	depends on BR2_ENABLE_LOCALE # postgresql
+	depends on BR2_TOOLCHAIN_HAS_THREADS_NPTL # postgresql
 	depends on !BR2_STATIC_LIBS # postgresql
 	depends on !BR2_OPTIMIZE_FAST # postgresql
 	select BR2_PACKAGE_POSTGRESQL
@@ -81,3 +81,6 @@ comment "zabbix web UI requires PHP"
 endif
 
 endif
+
+comment "zabbix need glibc"
+	depends on !BR2_TOOLCHAIN_USES_GLIBC

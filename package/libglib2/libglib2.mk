@@ -4,10 +4,10 @@
 #
 ################################################################################
 
-LIBGLIB2_VERSION_MAJOR = 2.72
-LIBGLIB2_VERSION = $(LIBGLIB2_VERSION_MAJOR).3
+LIBGLIB2_VERSION_MAJOR = 2.82
+LIBGLIB2_VERSION = $(LIBGLIB2_VERSION_MAJOR).5
 LIBGLIB2_SOURCE = glib-$(LIBGLIB2_VERSION).tar.xz
-LIBGLIB2_SITE = http://ftp.gnome.org/pub/gnome/sources/glib/$(LIBGLIB2_VERSION_MAJOR)
+LIBGLIB2_SITE = https://download.gnome.org/sources/glib/$(LIBGLIB2_VERSION_MAJOR)
 LIBGLIB2_LICENSE = LGPL-2.1+
 LIBGLIB2_LICENSE_FILES = COPYING
 LIBGLIB2_CPE_ID_VENDOR = gnome
@@ -24,7 +24,6 @@ endif
 
 HOST_LIBGLIB2_CONF_OPTS = \
 	-Ddtrace=false \
-	-Dfam=false \
 	-Dglib_debug=disabled \
 	-Dlibelf=disabled \
 	-Dselinux=disabled \
@@ -35,15 +34,22 @@ HOST_LIBGLIB2_CONF_OPTS = \
 
 LIBGLIB2_DEPENDENCIES = \
 	host-pkgconf host-libglib2 \
-	libffi pcre zlib $(TARGET_NLS_DEPENDENCIES)
+	libffi pcre2 zlib $(TARGET_NLS_DEPENDENCIES)
 
 HOST_LIBGLIB2_DEPENDENCIES = \
 	host-gettext \
 	host-libffi \
-	host-pcre \
+	host-pcre2 \
 	host-pkgconf \
 	host-util-linux \
 	host-zlib
+
+ifeq ($(BR2_PACKAGE_HOST_GOBJECT_INTROSPECTION),y)
+HOST_LIBGLIB2_CONF_OPTS += -Dintrospection=enabled
+HOST_LIBGLIB2_DEPENDENCIES += host-gobject-introspection
+else
+HOST_LIBGLIB2_CONF_OPTS += -Dintrospection=disabled
+endif
 
 # We explicitly specify a giomodule-dir to avoid having a value
 # containing ${libdir} in gio-2.0.pc. Indeed, a value depending on
@@ -61,8 +67,22 @@ LIBGLIB2_MESON_EXTRA_PROPERTIES = \
 	have_c99_snprintf=true \
 	have_unix98_printf=true
 
-ifneq ($(BR2_ENABLE_LOCALE),y)
-LIBGLIB2_DEPENDENCIES += libiconv
+ifeq ($(BR2_PACKAGE_GOBJECT_INTROSPECTION),y)
+LIBGLIB2_CONF_OPTS += -Dintrospection=enabled
+LIBGLIB2_DEPENDENCIES += gobject-introspection host-qemu
+LIBGLIB2_MESON_EXTRA_BINARIES = exe_wrapper='$(@D)/libglib2-qemu-wrapper'
+define LIBGLIB2_INSTALL_QEMUWARPPER
+	$(INSTALL) -D -m 755 $(LIBGLIB2_PKGDIR)/libglib2-qemu-wrapper.in \
+		$(@D)/libglib2-qemu-wrapper
+	$(SED) 's%@QEMU_USER@%$(QEMU_USER)%g; \
+		s%@TOOLCHAIN_HEADERS_VERSION@%$(BR2_TOOLCHAIN_HEADERS_AT_LEAST)%g; \
+		s%@QEMU_USERMODE_ARGS@%$(call qstrip,$(BR2_PACKAGE_HOST_QEMU_USER_MODE_ARGS))%g; \
+		' \
+		$(@D)/libglib2-qemu-wrapper
+endef
+LIBGLIB2_PRE_CONFIGURE_HOOKS += LIBGLIB2_INSTALL_QEMUWARPPER
+else
+LIBGLIB2_CONF_OPTS += -Dintrospection=disabled
 endif
 
 ifeq ($(BR2_PACKAGE_ELFUTILS),y)
@@ -70,7 +90,6 @@ LIBGLIB2_DEPENDENCIES += elfutils
 endif
 
 ifeq ($(BR2_PACKAGE_LIBICONV),y)
-LIBGLIB2_CONF_OPTS += -Diconv=external
 LIBGLIB2_DEPENDENCIES += libiconv
 endif
 
@@ -130,7 +149,7 @@ endef
 
 # Compile schemas at target finalization since other packages install
 # them as well, and better do it in a central place.
-# It's used at run time so it doesn't matter defering it.
+# It's used at run time so it doesn't matter deferring it.
 define LIBGLIB2_COMPILE_SCHEMAS
 	$(HOST_DIR)/bin/glib-compile-schemas \
 		$(STAGING_DIR)/usr/share/glib-2.0/schemas \
@@ -144,3 +163,5 @@ $(eval $(meson-package))
 $(eval $(host-meson-package))
 
 LIBGLIB2_HOST_BINARY = $(HOST_DIR)/bin/glib-genmarshal
+
+include package/libglib2/libglib2-bootstrap/libglib2-bootstrap.mk

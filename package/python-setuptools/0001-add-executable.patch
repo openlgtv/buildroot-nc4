@@ -1,4 +1,4 @@
-From 9b3d307f8f6a1af88f3f810f5a6cf0835830e1e8 Mon Sep 17 00:00:00 2001
+From 995cf87c0dfc420908847a06661cbae21d16a8f6 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?J=C3=B6rg=20Krause?= <joerg.krause@embedded.rocks>
 Date: Mon, 7 Dec 2015 01:14:33 +0100
 Subject: [PATCH] add executable
@@ -15,37 +15,38 @@ force the shebang line in installed python scripts.
 Signed-off-by: Gustavo Zacarias <gustavo@zacarias.com.ar>
 Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Signed-off-by: Jörg Krause <joerg.krause@embedded.rocks>
+Signed-off-by: James Hilliard <james.hilliard1@gmail.com>
 ---
  setuptools/command/install.py         | 2 ++
  setuptools/command/install_scripts.py | 9 +++++++++
  2 files changed, 11 insertions(+)
 
 diff --git a/setuptools/command/install.py b/setuptools/command/install.py
-index 72b9a3e..6781d2b 100644
+index 741b140c7..5a281237a 100644
 --- a/setuptools/command/install.py
 +++ b/setuptools/command/install.py
-@@ -16,6 +16,7 @@ class install(orig.install):
-     """Use easy_install to install the package, w/dependencies"""
+@@ -39,6 +39,7 @@ class install(orig.install):
+     distribution: Distribution  # override distutils.dist.Distribution with setuptools.dist.Distribution
  
      user_options = orig.install.user_options + [
 +        ('executable=', 'e', "specify final destination interpreter path"),
          ('old-and-unmanageable', None, "Try not to use this!"),
-         ('single-version-externally-managed', None,
-          "used by system package builders to create 'flat' eggs"),
-@@ -38,6 +39,7 @@ class install(orig.install):
+         (
+             'single-version-externally-managed',
+@@ -73,6 +74,7 @@ class install(orig.install):
          )
  
-         orig.install.initialize_options(self)
+         super().initialize_options()
 +        self.executable = None
          self.old_and_unmanageable = None
          self.single_version_externally_managed = None
  
 diff --git a/setuptools/command/install_scripts.py b/setuptools/command/install_scripts.py
-index 9cd8eb0..7786150 100644
+index 4401cf693..38f5d5092 100644
 --- a/setuptools/command/install_scripts.py
 +++ b/setuptools/command/install_scripts.py
-@@ -13,6 +13,13 @@ class install_scripts(orig.install_scripts):
-     def initialize_options(self):
+@@ -18,6 +18,13 @@ class install_scripts(orig.install_scripts):
+     def initialize_options(self) -> None:
          orig.install_scripts.initialize_options(self)
          self.no_ep = False
 +        self.executable = None
@@ -56,17 +57,17 @@ index 9cd8eb0..7786150 100644
 +                ('executable','executable')
 +        )
  
-     def run(self):
-         import setuptools.command.easy_install as ei
-@@ -33,6 +40,8 @@ class install_scripts(orig.install_scripts):
+     def run(self) -> None:
+         self.run_command("egg_info")
+@@ -45,6 +52,8 @@ class install_scripts(orig.install_scripts):
          )
          bs_cmd = self.get_finalized_command('build_scripts')
          exec_param = getattr(bs_cmd, 'executable', None)
 +        if self.executable is not None:
 +            exec_param = self.executable
-         try:
-             bw_cmd = self.get_finalized_command("bdist_wininst")
-             is_wininst = getattr(bw_cmd, '_is_running', False)
+         writer = ei.ScriptWriter
+         if exec_param == sys.executable:
+             # In case the path to the Python executable contains a space, wrap
 -- 
-2.30.2
+2.34.1
 

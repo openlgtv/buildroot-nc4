@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-LIBGPGME_VERSION = 1.17.1
+LIBGPGME_VERSION = 1.23.2
 LIBGPGME_SITE = https://gnupg.org/ftp/gcrypt/gpgme
 LIBGPGME_SOURCE = gpgme-$(LIBGPGME_VERSION).tar.bz2
 LIBGPGME_LICENSE = LGPL-2.1+
@@ -14,8 +14,6 @@ LIBGPGME_CPE_ID_PRODUCT = gpgme
 LIBGPGME_INSTALL_STAGING = YES
 LIBGPGME_DEPENDENCIES = libassuan libgpg-error
 LIBGPGME_CONFIG_SCRIPTS = gpgme-config
-# We're patching configure.ac
-LIBGPGME_AUTORECONF = YES
 
 LIBGPGME_LANGUAGE_BINDINGS = cl
 # C++ bindings require a C++11 capable gcc, and -Wsuggest-override support
@@ -30,8 +28,11 @@ LIBGPGME_CONF_OPTS = \
 	--disable-gpgconf-test \
 	--disable-g13-test \
 	--disable-gpg-test \
-	--disable-cpp-test \
 	--enable-languages=$(subst $(space),$(comma),$(LIBGPGME_LANGUAGE_BINDINGS))
+
+# Force the path to "gpgrt-config" (from the libgpg-error package) to
+# avoid using the one on host, if present.
+LIBGPGME_CONF_ENV += GPGRT_CONFIG=$(STAGING_DIR)/usr/bin/gpgrt-config
 
 # Handle argp-standalone or it errors out during build
 ifeq ($(BR2_PACKAGE_ARGP_STANDALONE),y)
@@ -46,4 +47,22 @@ ifeq ($(BR2_MIPS_NABI64)x$(BR2_TOOLCHAIN_HEADERS_AT_LEAST_3_10),yx)
 LIBGPGME_CONF_OPTS += --disable-linux-getdents
 endif
 
+HOST_LIBGPGME_DEPENDENCIES = host-libassuan host-libgpg-error
+
+# C++ bindings require a C++11 capable gcc, and -Wsuggest-override support
+# Let's assume the host toolchain always has C++
+HOST_LIBGPGME_LANGUAGE_BINDINGS = \
+	cl \
+	$(if $(BR2_HOST_GCC_AT_LEAST_5),cpp)
+
+HOST_LIBGPGME_CONF_OPTS = \
+	--with-gpg-error-prefix=$(HOST_DIR) \
+	--with-libassuan-prefix=$(HOST_DIR) \
+	--disable-gpgsm-test \
+	--disable-gpgconf-test \
+	--disable-g13-test \
+	--disable-gpg-test \
+	--enable-languages=$(subst $(space),$(comma),$(HOST_LIBGPGME_LANGUAGE_BINDINGS))
+
 $(eval $(autotools-package))
+$(eval $(host-autotools-package))

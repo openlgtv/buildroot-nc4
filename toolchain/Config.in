@@ -34,7 +34,6 @@ config BR2_TOOLCHAIN_USES_MUSL
 	select BR2_TOOLCHAIN_HAS_THREADS
 	select BR2_TOOLCHAIN_HAS_THREADS_DEBUG
 	select BR2_TOOLCHAIN_HAS_THREADS_NPTL
-	select BR2_TOOLCHAIN_HAS_UCONTEXT
 	select BR2_TOOLCHAIN_SUPPORTS_PIE if !BR2_STATIC_LIBS
 
 choice
@@ -71,11 +70,11 @@ source "package/gdb/Config.in.host"
 
 comment "Toolchain Generic Options"
 
-# https://sourceware.org/bugzilla/show_bug.cgi?id=27597
-# Affect toolchains built with binutils 2.36.1, still not fixed.
-config BR2_TOOLCHAIN_HAS_BINUTILS_BUG_27597
+# https://sourceware.org/bugzilla/show_bug.cgi?id=30730
+# Affect toolchains built with binutils 2.40, still not fixed.
+config BR2_TOOLCHAIN_HAS_BINUTILS_BUG_30730
 	bool
-	default y if BR2_nios2
+	default y if BR2_m68k_cf
 
 # Atomic types can be:
 #  - never lock-free
@@ -90,11 +89,11 @@ config BR2_TOOLCHAIN_HAS_BINUTILS_BUG_27597
 config BR2_TOOLCHAIN_SUPPORTS_ALWAYS_LOCKFREE_ATOMIC_INTS
 	bool
 	default y
-	depends on !BR2_nios2
 	depends on !BR2_ARM_CPU_ARMV4
 	depends on !BR2_ARM_CPU_ARMV5
 	depends on !BR2_sparc_v8
 	depends on !BR2_m68k_cf5208
+	depends on !(BR2_arc && !BR2_ARC_ATOMIC_EXT)
 
 # GCC uses thunk functions to adjust the 'this' pointer when calling
 # C++ member functions in classes derived with multiple inheritance.
@@ -115,7 +114,7 @@ config BR2_TOOLCHAIN_HAS_GCC_BUG_43744
 	bool
 	default y if !BR2_TOOLCHAIN_GCC_AT_LEAST_8
 	default y if BR2_TOOLCHAIN_GCC_AT_LEAST_9
-	depends on BR2_sh4
+	depends on BR2_sh
 
 # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=63261. This bug no
 # longer exists in gcc 8.x.
@@ -140,6 +139,11 @@ config BR2_TOOLCHAIN_HAS_GCC_BUG_64735
 config BR2_TOOLCHAIN_HAS_GCC_BUG_68485
 	bool
 	default y if BR2_microblaze
+
+# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=81426
+config BR2_TOOLCHAIN_HAS_GCC_BUG_81426
+	bool
+	default y if BR2_sh
 
 # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=83143
 # Error: invalid operands (*UND* and .text sections) for `-' on sh4.
@@ -174,23 +178,6 @@ config BR2_TOOLCHAIN_HAS_GCC_BUG_90620
 	default y if BR2_microblaze
 	depends on !BR2_TOOLCHAIN_GCC_AT_LEAST_10 \
 		|| BR2_TOOLCHAIN_GCC_AT_LEAST_11
-
-# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=93847
-# ICE: compiler error: Segmentation fault on Nios II. This bug
-# no longer exists in gcc 9.x.
-config BR2_TOOLCHAIN_HAS_GCC_BUG_93847
-	bool
-	default y if BR2_nios2 && !BR2_TOOLCHAIN_GCC_AT_LEAST_9
-
-# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=99410
-# Error: branch offset out of range on Nios II. This bug
-# no longer exists in gcc 8.x but reappeared on gcc 9.x and still exists
-# on gcc 12.x
-config BR2_TOOLCHAIN_HAS_GCC_BUG_99410
-	bool
-	default y if !BR2_TOOLCHAIN_GCC_AT_LEAST_8
-	default y if BR2_TOOLCHAIN_GCC_AT_LEAST_9
-	depends on BR2_nios2
 
 # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=101737
 # ICE: SH4 -Os causes internal compiler error. This bug
@@ -233,11 +220,28 @@ config BR2_TOOLCHAIN_HAS_GCC_BUG_107728
 	bool
 	default y if BR2_microblazebe || BR2_microblazeel \
 		|| BR2_mips || BR2_mipsel \
-		|| BR2_nios2 \
 		|| BR2_or1k \
 		|| BR2_sh
 	depends on BR2_TOOLCHAIN_USES_GLIBC
 	depends on BR2_OPTIMIZE_0
+
+# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=110934
+# ICE: on M68K: in change_address_1, at emit-rtl.cc:2287
+# This bug exists in gcc = 12.3.0 and gcc = 13.2.0
+config BR2_TOOLCHAIN_HAS_GCC_BUG_110934
+	bool
+	default y if BR2_m68k
+
+# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=111001
+# ICE: on SH4: during RTL pass: sh_treg_combine2
+# This bug exist in gcc = 13.2.0
+config BR2_TOOLCHAIN_HAS_GCC_BUG_111001
+	bool
+	default y if BR2_sh
+	depends on BR2_TOOLCHAIN_GCC_AT_LEAST_13
+	depends on BR2_OPTIMIZE_1 || \
+		   BR2_OPTIMIZE_2 || \
+		   BR2_OPTIMIZE_3
 
 config BR2_TOOLCHAIN_HAS_NATIVE_RPC
 	bool
@@ -273,6 +277,8 @@ config BR2_TOOLCHAIN_HAS_SSP_STRONG
 	bool
 	default y if BR2_TOOLCHAIN_HAS_SSP && BR2_TOOLCHAIN_GCC_AT_LEAST_4_9
 
+# This boolean is true if the toolchain provides a full featured
+# ucontext implementation with ucontext_t and {get,make,set}context
 config BR2_TOOLCHAIN_HAS_UCONTEXT
 	bool
 
@@ -591,6 +597,54 @@ config BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_19
 config BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_0
 	bool
 	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_19
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_1
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_0
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_2
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_1
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_3
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_2
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_4
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_3
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_5
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_4
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_6
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_5
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_7
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_6
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_8
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_7
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_9
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_8
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_10
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_9
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_11
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_10
+
+config BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_12
+	bool
+	select BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_11
 	select BR2_TOOLCHAIN_HEADERS_LATEST
 
 # This should be selected by the latest version, above, to indicate that
@@ -604,6 +658,18 @@ config BR2_TOOLCHAIN_HEADERS_LATEST
 # stops affecting a value on the first matching default.
 config BR2_TOOLCHAIN_HEADERS_AT_LEAST
 	string
+	default "6.12" if BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_12
+	default "6.11" if BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_11
+	default "6.10" if BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_10
+	default "6.9"  if BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_9
+	default "6.8"  if BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_8
+	default "6.7"  if BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_7
+	default "6.6"  if BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_6
+	default "6.5"  if BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_5
+	default "6.4"  if BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_4
+	default "6.3"  if BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_3
+	default "6.2"  if BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_2
+	default "6.1"  if BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_1
 	default "6.0"  if BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_0
 	default "5.19" if BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_19
 	default "5.18" if BR2_TOOLCHAIN_HEADERS_AT_LEAST_5_18
@@ -727,10 +793,20 @@ config BR2_TOOLCHAIN_GCC_AT_LEAST_12
 	bool
 	select BR2_TOOLCHAIN_GCC_AT_LEAST_11
 
+config BR2_TOOLCHAIN_GCC_AT_LEAST_13
+	bool
+	select BR2_TOOLCHAIN_GCC_AT_LEAST_12
+
+config BR2_TOOLCHAIN_GCC_AT_LEAST_14
+	bool
+	select BR2_TOOLCHAIN_GCC_AT_LEAST_13
+
 # This order guarantees that the highest version is set, as kconfig
 # stops affecting a value on the first matching default.
 config BR2_TOOLCHAIN_GCC_AT_LEAST
 	string
+	default "14"	if BR2_TOOLCHAIN_GCC_AT_LEAST_14
+	default "13"	if BR2_TOOLCHAIN_GCC_AT_LEAST_13
 	default "12"	if BR2_TOOLCHAIN_GCC_AT_LEAST_12
 	default "11"	if BR2_TOOLCHAIN_GCC_AT_LEAST_11
 	default "10"	if BR2_TOOLCHAIN_GCC_AT_LEAST_10
@@ -814,16 +890,19 @@ config BR2_TOOLCHAIN_HAS_SYNC_8
 	default y if BR2_TOOLCHAIN_ARM_HAS_SYNC_8
 	default y if BR2_TOOLCHAIN_X86_HAS_SYNC_8
 
-# libatomic is available since gcc 4.8, when thread support is
-# enabled. Also, libatomic doesn't recognize "uclinux" as a valid OS
-# part of the tuple, and is therefore not build on uclinux targets,
-# which is why BR2_BINFMT_FLAT configurations are excluded.
+# libatomic is available since gcc 4.8, when thread support is enabled.
+# However, the gcc logic in libatomic/configure.tgt does not recognize
+# "uclinux" as a valid OS part of the target tuple, and therefore it
+# does not build libatomic. The "uclinux" part of the tuple is used by
+# Buildroot when BR2_BINFMT_FLAT=y. This broken logic has only been
+# fixed for arm since gcc 10.1.0.
 config BR2_TOOLCHAIN_HAS_LIBATOMIC
 	bool
-	default y if BR2_TOOLCHAIN_GCC_AT_LEAST_4_8 && \
-		!BR2_TOOLCHAIN_EXTERNAL_CODESOURCERY_AARCH64 && \
-		BR2_TOOLCHAIN_HAS_THREADS && \
-		!BR2_BINFMT_FLAT
+	default y if BR2_TOOLCHAIN_GCC_AT_LEAST_4_8
+	depends on BR2_TOOLCHAIN_HAS_THREADS
+	depends on BR2_BINFMT_ELF || \
+		(BR2_BINFMT_FLAT && BR2_arm && \
+		BR2_TOOLCHAIN_GCC_AT_LEAST_10)
 
 # __atomic intrinsics are available:
 # - with gcc 4.8, either through built-ins or libatomic, on all
@@ -858,5 +937,16 @@ config BR2_TOOLCHAIN_HAS_LIBQUADMATH
 	bool
 	default y if BR2_i386 || BR2_x86_64
 	default y if BR2_POWERPC_CPU_HAS_VSX
+
+comment "Bare metal toolchain"
+
+config BR2_TOOLCHAIN_BARE_METAL_BUILDROOT
+	bool "Build bare metal toolchains"
+	select BR2_PACKAGE_NEWLIB_BARE_METAL
+	help
+	  Select if you need a bare-metal toolchain for building
+	  platform specific firmware images.
+
+source "toolchain/toolchain-bare-metal-buildroot/Config.in"
 
 endmenu

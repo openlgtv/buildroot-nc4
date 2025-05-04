@@ -115,6 +115,34 @@ class TestExternalToolchainBootlinAarch64beGlibcStable(TestExternalToolchain):
         TestExternalToolchain.common_check(self)
 
 
+class TestExternalToolchainBootlinAarch64beMuslBleedingEdge(TestExternalToolchain):
+    config = """
+        BR2_aarch64_be=y
+        BR2_TOOLCHAIN_EXTERNAL=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_AARCH64BE_MUSL_BLEEDING_EDGE=y
+        # BR2_TARGET_ROOTFS_TAR is not set
+        """
+    toolchain_prefix = "aarch64_be-linux"
+
+    def test_run(self):
+        TestExternalToolchain.common_check(self)
+
+
+class TestExternalToolchainBootlinAarch64beMuslStable(TestExternalToolchain):
+    config = """
+        BR2_aarch64_be=y
+        BR2_TOOLCHAIN_EXTERNAL=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_AARCH64BE_MUSL_STABLE=y
+        # BR2_TARGET_ROOTFS_TAR is not set
+        """
+    toolchain_prefix = "aarch64_be-linux"
+
+    def test_run(self):
+        TestExternalToolchain.common_check(self)
+
+
 class TestExternalToolchainBootlinAarch64beUclibcBleedingEdge(TestExternalToolchain):
     config = """
         BR2_aarch64_be=y
@@ -647,6 +675,66 @@ class TestExternalToolchainBootlinArmv7mUclibcStable(TestExternalToolchain):
         TestExternalToolchain.common_check(self)
 
 
+class TestExternalToolchainBootlinM68k68xxxGlibcBleedingEdge(TestExternalToolchain):
+    config = """
+        BR2_m68k=y
+        BR2_m68k_68040=y
+        BR2_TOOLCHAIN_EXTERNAL=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_M68K_68XXX_GLIBC_BLEEDING_EDGE=y
+        # BR2_TARGET_ROOTFS_TAR is not set
+        """
+    toolchain_prefix = "m68k-linux"
+
+    def test_run(self):
+        TestExternalToolchain.common_check(self)
+
+
+class TestExternalToolchainBootlinM68k68xxxGlibcStable(TestExternalToolchain):
+    config = """
+        BR2_m68k=y
+        BR2_m68k_68040=y
+        BR2_TOOLCHAIN_EXTERNAL=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_M68K_68XXX_GLIBC_STABLE=y
+        # BR2_TARGET_ROOTFS_TAR is not set
+        """
+    toolchain_prefix = "m68k-linux"
+
+    def test_run(self):
+        TestExternalToolchain.common_check(self)
+
+
+class TestExternalToolchainBootlinM68k68xxxMuslBleedingEdge(TestExternalToolchain):
+    config = """
+        BR2_m68k=y
+        BR2_m68k_68040=y
+        BR2_TOOLCHAIN_EXTERNAL=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_M68K_68XXX_MUSL_BLEEDING_EDGE=y
+        # BR2_TARGET_ROOTFS_TAR is not set
+        """
+    toolchain_prefix = "m68k-linux"
+
+    def test_run(self):
+        TestExternalToolchain.common_check(self)
+
+
+class TestExternalToolchainBootlinM68k68xxxMuslStable(TestExternalToolchain):
+    config = """
+        BR2_m68k=y
+        BR2_m68k_68040=y
+        BR2_TOOLCHAIN_EXTERNAL=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_M68K_68XXX_MUSL_STABLE=y
+        # BR2_TARGET_ROOTFS_TAR is not set
+        """
+    toolchain_prefix = "m68k-linux"
+
+    def test_run(self):
+        TestExternalToolchain.common_check(self)
+
+
 class TestExternalToolchainBootlinM68k68xxxUclibcBleedingEdge(TestExternalToolchain):
     config = """
         BR2_m68k=y
@@ -707,40 +795,12 @@ class TestExternalToolchainBootlinM68kcoldfireUclibcStable(TestExternalToolchain
         TestExternalToolchain.common_check(self)
 
 
-class TestExternalToolchainBootlinMicroblazebeGlibcBleedingEdge(TestExternalToolchain):
-    config = """
-        BR2_microblazebe=y
-        BR2_TOOLCHAIN_EXTERNAL=y
-        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
-        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_MICROBLAZEBE_GLIBC_BLEEDING_EDGE=y
-        # BR2_TARGET_ROOTFS_TAR is not set
-        """
-    toolchain_prefix = "microblaze-linux"
-
-    def test_run(self):
-        TestExternalToolchain.common_check(self)
-
-
 class TestExternalToolchainBootlinMicroblazebeGlibcStable(TestExternalToolchain):
     config = """
         BR2_microblazebe=y
         BR2_TOOLCHAIN_EXTERNAL=y
         BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
         BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_MICROBLAZEBE_GLIBC_STABLE=y
-        # BR2_TARGET_ROOTFS_TAR is not set
-        """
-    toolchain_prefix = "microblaze-linux"
-
-    def test_run(self):
-        TestExternalToolchain.common_check(self)
-
-
-class TestExternalToolchainBootlinMicroblazebeMuslBleedingEdge(TestExternalToolchain):
-    config = """
-        BR2_microblazebe=y
-        BR2_TOOLCHAIN_EXTERNAL=y
-        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
-        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_MICROBLAZEBE_MUSL_BLEEDING_EDGE=y
         # BR2_TARGET_ROOTFS_TAR is not set
         """
     toolchain_prefix = "microblaze-linux"
@@ -763,20 +823,6 @@ class TestExternalToolchainBootlinMicroblazebeMuslStable(TestExternalToolchain):
         TestExternalToolchain.common_check(self)
 
 
-class TestExternalToolchainBootlinMicroblazebeUclibcBleedingEdge(TestExternalToolchain):
-    config = """
-        BR2_microblazebe=y
-        BR2_TOOLCHAIN_EXTERNAL=y
-        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
-        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_MICROBLAZEBE_UCLIBC_BLEEDING_EDGE=y
-        # BR2_TARGET_ROOTFS_TAR is not set
-        """
-    toolchain_prefix = "microblaze-linux"
-
-    def test_run(self):
-        TestExternalToolchain.common_check(self)
-
-
 class TestExternalToolchainBootlinMicroblazebeUclibcStable(TestExternalToolchain):
     config = """
         BR2_microblazebe=y
@@ -786,20 +832,6 @@ class TestExternalToolchainBootlinMicroblazebeUclibcStable(TestExternalToolchain
         # BR2_TARGET_ROOTFS_TAR is not set
         """
     toolchain_prefix = "microblaze-linux"
-
-    def test_run(self):
-        TestExternalToolchain.common_check(self)
-
-
-class TestExternalToolchainBootlinMicroblazeelGlibcBleedingEdge(TestExternalToolchain):
-    config = """
-        BR2_microblazeel=y
-        BR2_TOOLCHAIN_EXTERNAL=y
-        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
-        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_MICROBLAZEEL_GLIBC_BLEEDING_EDGE=y
-        # BR2_TARGET_ROOTFS_TAR is not set
-        """
-    toolchain_prefix = "microblazeel-linux"
 
     def test_run(self):
         TestExternalToolchain.common_check(self)
@@ -819,40 +851,12 @@ class TestExternalToolchainBootlinMicroblazeelGlibcStable(TestExternalToolchain)
         TestExternalToolchain.common_check(self)
 
 
-class TestExternalToolchainBootlinMicroblazeelMuslBleedingEdge(TestExternalToolchain):
-    config = """
-        BR2_microblazeel=y
-        BR2_TOOLCHAIN_EXTERNAL=y
-        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
-        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_MICROBLAZEEL_MUSL_BLEEDING_EDGE=y
-        # BR2_TARGET_ROOTFS_TAR is not set
-        """
-    toolchain_prefix = "microblazeel-linux"
-
-    def test_run(self):
-        TestExternalToolchain.common_check(self)
-
-
 class TestExternalToolchainBootlinMicroblazeelMuslStable(TestExternalToolchain):
     config = """
         BR2_microblazeel=y
         BR2_TOOLCHAIN_EXTERNAL=y
         BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
         BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_MICROBLAZEEL_MUSL_STABLE=y
-        # BR2_TARGET_ROOTFS_TAR is not set
-        """
-    toolchain_prefix = "microblazeel-linux"
-
-    def test_run(self):
-        TestExternalToolchain.common_check(self)
-
-
-class TestExternalToolchainBootlinMicroblazeelUclibcBleedingEdge(TestExternalToolchain):
-    config = """
-        BR2_microblazeel=y
-        BR2_TOOLCHAIN_EXTERNAL=y
-        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
-        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_MICROBLAZEEL_UCLIBC_BLEEDING_EDGE=y
         # BR2_TARGET_ROOTFS_TAR is not set
         """
     toolchain_prefix = "microblazeel-linux"
@@ -1565,29 +1569,29 @@ class TestExternalToolchainBootlinMips64r6eln32UclibcStable(TestExternalToolchai
         TestExternalToolchain.common_check(self)
 
 
-class TestExternalToolchainBootlinNios2GlibcBleedingEdge(TestExternalToolchain):
+class TestExternalToolchainBootlinOpenriscGlibcBleedingEdge(TestExternalToolchain):
     config = """
-        BR2_nios2=y
+        BR2_or1k=y
         BR2_TOOLCHAIN_EXTERNAL=y
         BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
-        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_NIOS2_GLIBC_BLEEDING_EDGE=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_OPENRISC_GLIBC_BLEEDING_EDGE=y
         # BR2_TARGET_ROOTFS_TAR is not set
         """
-    toolchain_prefix = "nios2-linux"
+    toolchain_prefix = "or1k-linux"
 
     def test_run(self):
         TestExternalToolchain.common_check(self)
 
 
-class TestExternalToolchainBootlinNios2GlibcStable(TestExternalToolchain):
+class TestExternalToolchainBootlinOpenriscGlibcStable(TestExternalToolchain):
     config = """
-        BR2_nios2=y
+        BR2_or1k=y
         BR2_TOOLCHAIN_EXTERNAL=y
         BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
-        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_NIOS2_GLIBC_STABLE=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_OPENRISC_GLIBC_STABLE=y
         # BR2_TARGET_ROOTFS_TAR is not set
         """
-    toolchain_prefix = "nios2-linux"
+    toolchain_prefix = "or1k-linux"
 
     def test_run(self):
         TestExternalToolchain.common_check(self)
@@ -2146,6 +2150,91 @@ class TestExternalToolchainBootlinRiscv32ilp32dGlibcBleedingEdge(TestExternalToo
         TestExternalToolchain.common_check(self)
 
 
+class TestExternalToolchainBootlinRiscv32ilp32dGlibcStable(TestExternalToolchain):
+    config = """
+        BR2_riscv=y
+        BR2_riscv_g=y
+        BR2_RISCV_32=y
+        BR2_RISCV_ABI_ILP32D=y
+        BR2_TOOLCHAIN_EXTERNAL=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_RISCV32_ILP32D_GLIBC_STABLE=y
+        # BR2_TARGET_ROOTFS_TAR is not set
+        """
+    toolchain_prefix = "riscv32-linux"
+
+    def test_run(self):
+        TestExternalToolchain.common_check(self)
+
+
+class TestExternalToolchainBootlinRiscv32ilp32dMuslBleedingEdge(TestExternalToolchain):
+    config = """
+        BR2_riscv=y
+        BR2_riscv_g=y
+        BR2_RISCV_32=y
+        BR2_RISCV_ABI_ILP32D=y
+        BR2_TOOLCHAIN_EXTERNAL=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_RISCV32_ILP32D_MUSL_BLEEDING_EDGE=y
+        # BR2_TARGET_ROOTFS_TAR is not set
+        """
+    toolchain_prefix = "riscv32-linux"
+
+    def test_run(self):
+        TestExternalToolchain.common_check(self)
+
+
+class TestExternalToolchainBootlinRiscv32ilp32dMuslStable(TestExternalToolchain):
+    config = """
+        BR2_riscv=y
+        BR2_riscv_g=y
+        BR2_RISCV_32=y
+        BR2_RISCV_ABI_ILP32D=y
+        BR2_TOOLCHAIN_EXTERNAL=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_RISCV32_ILP32D_MUSL_STABLE=y
+        # BR2_TARGET_ROOTFS_TAR is not set
+        """
+    toolchain_prefix = "riscv32-linux"
+
+    def test_run(self):
+        TestExternalToolchain.common_check(self)
+
+
+class TestExternalToolchainBootlinRiscv32ilp32dUclibcBleedingEdge(TestExternalToolchain):
+    config = """
+        BR2_riscv=y
+        BR2_riscv_g=y
+        BR2_RISCV_32=y
+        BR2_RISCV_ABI_ILP32D=y
+        BR2_TOOLCHAIN_EXTERNAL=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_RISCV32_ILP32D_UCLIBC_BLEEDING_EDGE=y
+        # BR2_TARGET_ROOTFS_TAR is not set
+        """
+    toolchain_prefix = "riscv32-linux"
+
+    def test_run(self):
+        TestExternalToolchain.common_check(self)
+
+
+class TestExternalToolchainBootlinRiscv32ilp32dUclibcStable(TestExternalToolchain):
+    config = """
+        BR2_riscv=y
+        BR2_riscv_g=y
+        BR2_RISCV_32=y
+        BR2_RISCV_ABI_ILP32D=y
+        BR2_TOOLCHAIN_EXTERNAL=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_RISCV32_ILP32D_UCLIBC_STABLE=y
+        # BR2_TARGET_ROOTFS_TAR is not set
+        """
+    toolchain_prefix = "riscv32-linux"
+
+    def test_run(self):
+        TestExternalToolchain.common_check(self)
+
+
 class TestExternalToolchainBootlinRiscv64lp64dGlibcBleedingEdge(TestExternalToolchain):
     config = """
         BR2_riscv=y
@@ -2276,6 +2365,36 @@ class TestExternalToolchainBootlinS390xz13GlibcStable(TestExternalToolchain):
         BR2_TOOLCHAIN_EXTERNAL=y
         BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
         BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_S390X_Z13_GLIBC_STABLE=y
+        # BR2_TARGET_ROOTFS_TAR is not set
+        """
+    toolchain_prefix = "s390x-linux"
+
+    def test_run(self):
+        TestExternalToolchain.common_check(self)
+
+
+class TestExternalToolchainBootlinS390xz13MuslBleedingEdge(TestExternalToolchain):
+    config = """
+        BR2_s390x=y
+        BR2_s390x_z13=y
+        BR2_TOOLCHAIN_EXTERNAL=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_S390X_Z13_MUSL_BLEEDING_EDGE=y
+        # BR2_TARGET_ROOTFS_TAR is not set
+        """
+    toolchain_prefix = "s390x-linux"
+
+    def test_run(self):
+        TestExternalToolchain.common_check(self)
+
+
+class TestExternalToolchainBootlinS390xz13MuslStable(TestExternalToolchain):
+    config = """
+        BR2_s390x=y
+        BR2_s390x_z13=y
+        BR2_TOOLCHAIN_EXTERNAL=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_S390X_Z13_MUSL_STABLE=y
         # BR2_TARGET_ROOTFS_TAR is not set
         """
     toolchain_prefix = "s390x-linux"
@@ -2599,6 +2718,21 @@ class TestExternalToolchainBootlinX8664v2GlibcBleedingEdge(TestExternalToolchain
         TestExternalToolchain.common_check(self)
 
 
+class TestExternalToolchainBootlinX8664v2GlibcStable(TestExternalToolchain):
+    config = """
+        BR2_x86_64=y
+        BR2_x86_x86_64_v2=y
+        BR2_TOOLCHAIN_EXTERNAL=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_X86_64_V2_GLIBC_STABLE=y
+        # BR2_TARGET_ROOTFS_TAR is not set
+        """
+    toolchain_prefix = "x86_64-linux"
+
+    def test_run(self):
+        TestExternalToolchain.common_check(self)
+
+
 class TestExternalToolchainBootlinX8664v2MuslBleedingEdge(TestExternalToolchain):
     config = """
         BR2_x86_64=y
@@ -2606,6 +2740,21 @@ class TestExternalToolchainBootlinX8664v2MuslBleedingEdge(TestExternalToolchain)
         BR2_TOOLCHAIN_EXTERNAL=y
         BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
         BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_X86_64_V2_MUSL_BLEEDING_EDGE=y
+        # BR2_TARGET_ROOTFS_TAR is not set
+        """
+    toolchain_prefix = "x86_64-linux"
+
+    def test_run(self):
+        TestExternalToolchain.common_check(self)
+
+
+class TestExternalToolchainBootlinX8664v2MuslStable(TestExternalToolchain):
+    config = """
+        BR2_x86_64=y
+        BR2_x86_x86_64_v2=y
+        BR2_TOOLCHAIN_EXTERNAL=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_X86_64_V2_MUSL_STABLE=y
         # BR2_TARGET_ROOTFS_TAR is not set
         """
     toolchain_prefix = "x86_64-linux"
@@ -2629,6 +2778,21 @@ class TestExternalToolchainBootlinX8664v2UclibcBleedingEdge(TestExternalToolchai
         TestExternalToolchain.common_check(self)
 
 
+class TestExternalToolchainBootlinX8664v2UclibcStable(TestExternalToolchain):
+    config = """
+        BR2_x86_64=y
+        BR2_x86_x86_64_v2=y
+        BR2_TOOLCHAIN_EXTERNAL=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_X86_64_V2_UCLIBC_STABLE=y
+        # BR2_TARGET_ROOTFS_TAR is not set
+        """
+    toolchain_prefix = "x86_64-linux"
+
+    def test_run(self):
+        TestExternalToolchain.common_check(self)
+
+
 class TestExternalToolchainBootlinX8664v3GlibcBleedingEdge(TestExternalToolchain):
     config = """
         BR2_x86_64=y
@@ -2636,6 +2800,21 @@ class TestExternalToolchainBootlinX8664v3GlibcBleedingEdge(TestExternalToolchain
         BR2_TOOLCHAIN_EXTERNAL=y
         BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
         BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_X86_64_V3_GLIBC_BLEEDING_EDGE=y
+        # BR2_TARGET_ROOTFS_TAR is not set
+        """
+    toolchain_prefix = "x86_64-linux"
+
+    def test_run(self):
+        TestExternalToolchain.common_check(self)
+
+
+class TestExternalToolchainBootlinX8664v3GlibcStable(TestExternalToolchain):
+    config = """
+        BR2_x86_64=y
+        BR2_x86_x86_64_v3=y
+        BR2_TOOLCHAIN_EXTERNAL=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_X86_64_V3_GLIBC_STABLE=y
         # BR2_TARGET_ROOTFS_TAR is not set
         """
     toolchain_prefix = "x86_64-linux"
@@ -2659,6 +2838,21 @@ class TestExternalToolchainBootlinX8664v3MuslBleedingEdge(TestExternalToolchain)
         TestExternalToolchain.common_check(self)
 
 
+class TestExternalToolchainBootlinX8664v3MuslStable(TestExternalToolchain):
+    config = """
+        BR2_x86_64=y
+        BR2_x86_x86_64_v3=y
+        BR2_TOOLCHAIN_EXTERNAL=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_X86_64_V3_MUSL_STABLE=y
+        # BR2_TARGET_ROOTFS_TAR is not set
+        """
+    toolchain_prefix = "x86_64-linux"
+
+    def test_run(self):
+        TestExternalToolchain.common_check(self)
+
+
 class TestExternalToolchainBootlinX8664v3UclibcBleedingEdge(TestExternalToolchain):
     config = """
         BR2_x86_64=y
@@ -2666,6 +2860,21 @@ class TestExternalToolchainBootlinX8664v3UclibcBleedingEdge(TestExternalToolchai
         BR2_TOOLCHAIN_EXTERNAL=y
         BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
         BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_X86_64_V3_UCLIBC_BLEEDING_EDGE=y
+        # BR2_TARGET_ROOTFS_TAR is not set
+        """
+    toolchain_prefix = "x86_64-linux"
+
+    def test_run(self):
+        TestExternalToolchain.common_check(self)
+
+
+class TestExternalToolchainBootlinX8664v3UclibcStable(TestExternalToolchain):
+    config = """
+        BR2_x86_64=y
+        BR2_x86_x86_64_v3=y
+        BR2_TOOLCHAIN_EXTERNAL=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_X86_64_V3_UCLIBC_STABLE=y
         # BR2_TARGET_ROOTFS_TAR is not set
         """
     toolchain_prefix = "x86_64-linux"
@@ -2689,6 +2898,21 @@ class TestExternalToolchainBootlinX8664v4GlibcBleedingEdge(TestExternalToolchain
         TestExternalToolchain.common_check(self)
 
 
+class TestExternalToolchainBootlinX8664v4GlibcStable(TestExternalToolchain):
+    config = """
+        BR2_x86_64=y
+        BR2_x86_x86_64_v4=y
+        BR2_TOOLCHAIN_EXTERNAL=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_X86_64_V4_GLIBC_STABLE=y
+        # BR2_TARGET_ROOTFS_TAR is not set
+        """
+    toolchain_prefix = "x86_64-linux"
+
+    def test_run(self):
+        TestExternalToolchain.common_check(self)
+
+
 class TestExternalToolchainBootlinX8664v4MuslBleedingEdge(TestExternalToolchain):
     config = """
         BR2_x86_64=y
@@ -2704,6 +2928,21 @@ class TestExternalToolchainBootlinX8664v4MuslBleedingEdge(TestExternalToolchain)
         TestExternalToolchain.common_check(self)
 
 
+class TestExternalToolchainBootlinX8664v4MuslStable(TestExternalToolchain):
+    config = """
+        BR2_x86_64=y
+        BR2_x86_x86_64_v4=y
+        BR2_TOOLCHAIN_EXTERNAL=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_X86_64_V4_MUSL_STABLE=y
+        # BR2_TARGET_ROOTFS_TAR is not set
+        """
+    toolchain_prefix = "x86_64-linux"
+
+    def test_run(self):
+        TestExternalToolchain.common_check(self)
+
+
 class TestExternalToolchainBootlinX8664v4UclibcBleedingEdge(TestExternalToolchain):
     config = """
         BR2_x86_64=y
@@ -2711,6 +2950,21 @@ class TestExternalToolchainBootlinX8664v4UclibcBleedingEdge(TestExternalToolchai
         BR2_TOOLCHAIN_EXTERNAL=y
         BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
         BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_X86_64_V4_UCLIBC_BLEEDING_EDGE=y
+        # BR2_TARGET_ROOTFS_TAR is not set
+        """
+    toolchain_prefix = "x86_64-linux"
+
+    def test_run(self):
+        TestExternalToolchain.common_check(self)
+
+
+class TestExternalToolchainBootlinX8664v4UclibcStable(TestExternalToolchain):
+    config = """
+        BR2_x86_64=y
+        BR2_x86_x86_64_v4=y
+        BR2_TOOLCHAIN_EXTERNAL=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN=y
+        BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_X86_64_V4_UCLIBC_STABLE=y
         # BR2_TARGET_ROOTFS_TAR is not set
         """
     toolchain_prefix = "x86_64-linux"

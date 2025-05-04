@@ -4,12 +4,9 @@
 #
 ################################################################################
 
-# When bumping this package, make sure to also verify if the
-# python-twisted package still works and to update its hash,
-# as they share the same version/site variables.
-PYTHON_TREQ_VERSION = 22.2.0
+PYTHON_TREQ_VERSION = 24.9.1
 PYTHON_TREQ_SOURCE = treq-$(PYTHON_TREQ_VERSION).tar.gz
-PYTHON_TREQ_SITE = https://files.pythonhosted.org/packages/cd/c8/b68ab17d994133baf6edbcb5551ba81e1494bdc6d5e21a9d4f3bc4315140
+PYTHON_TREQ_SITE = https://files.pythonhosted.org/packages/08/94/424f3bb11eaf464880d076cca2e9d0ee21a1be805fe9761b87eccba5b3ae
 PYTHON_TREQ_LICENSE = MIT
 PYTHON_TREQ_LICENSE_FILES = LICENSE
 PYTHON_TREQ_SETUP_TYPE = setuptools

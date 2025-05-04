@@ -26,7 +26,7 @@ If you want to emulate more cores, use "-smp {1|2|3|4}" to select the
 number of cores.
 
 Note: "-netdev user,id=vmnic -device virtio-net-device,netdev=vmnic"
-brings network support that is used i.e. in OP-TEE regression tests.
+brings network support that is used e.g. in OP-TEE regression tests.
 
 
 -- Boot Details --
@@ -38,7 +38,7 @@ non-secure bootloader (BL33 stage).
 QEMU natively hosts and loads in RAM the QEMU ARM target device tree. OP-TEE
 reads and modifies its content according to OP-TEE configuration.
 
-Enable TF-A traces from LOG_LEVEL (I.e LOG_LEVEL=40) from
+Enable TF-A traces from LOG_LEVEL (e.g. LOG_LEVEL=40) from
 BR2_TARGET_ARM_TRUSTED_FIRMWARE_ADDITIONAL_VARIABLES.
 
 
@@ -53,7 +53,7 @@ serial interface.
 The OP-TEE OS uses the QEMU second serial interface.
 
 To get the OP-TEE OS traces, append a second -serial argument after
--serial stdio in the QEMU command line. I.e, the following enables 2 serial
+-serial stdio in the QEMU command line. E.g., the following enables 2 serial
 consoles over telnet connections:
 
   cd output/images && ../host/bin/qemu-system-arm \
@@ -62,7 +62,7 @@ consoles over telnet connections:
 	-serial telnet:127.0.0.1:1235,server \
 	-serial telnet:127.0.0.1:1236,server \
 	-netdev user,id=vmnic -device virtio-net-device,netdev=vmnic \
-	-semihosting-config enable,target=native \
+	-semihosting-config enable=on,target=native \
 	-bios flash.bin
 
 QEMU is now waiting for the telnet connection. From another shell, open a
@@ -91,7 +91,7 @@ From a first shell:
 	-smp 1 -s -m 1024 -d unimp \
 	-serial stdio \
 	-netdev user,id=vmnic -device virtio-net-device,netdev=vmnic \
-	-semihosting-config enable,target=native \
+	-semihosting-config enable=on,target=native \
 	-bios flash.bin \
 	-S
 
@@ -123,7 +123,7 @@ Emulation has started, TF-A has loaded OP-TEE and U-boot images in memory and
 has booted OP-TEE. Emulation stopped at OP-TEE core entry.
 
 Note: QEMU hosts a GDB service listening to TCP port 1234, as set through
-qemu-system-arm command line option -s.
+qemu-system-arm command line option -S.
 
 Note: To build the GDB server, the following extra options have to be added to
 the Buildroot configuration:

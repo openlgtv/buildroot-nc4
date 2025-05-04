@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-ELF2FLT_VERSION = 2021.08
+ELF2FLT_VERSION = 2024.05
 ELF2FLT_SITE = $(call github,uclinux-dev,elf2flt,v$(ELF2FLT_VERSION))
 ELF2FLT_LICENSE = GPL-2.0+
 ELF2FLT_LICENSE_FILES = LICENSE.TXT
@@ -14,12 +14,17 @@ HOST_ELF2FLT_DEPENDENCIES = host-binutils host-zlib
 # 0001-elf2flt-handle-binutils-2.34.patch
 HOST_ELF2FLT_AUTORECONF = YES
 
+# elf2flt needs to link against libbfd.a and libiberty.a which are
+# provided by host-binutils, but not installed, so we poke directly
+# into the host-binutils build directory.
+HOST_ELF2FLT_LIBBFD_PATH = $(HOST_BINUTILS_DIR)/bfd/.libs/libbfd.a
+
 # It is not exactly a host variant, but more a cross variant, which is
 # why we pass a special --target option.
 HOST_ELF2FLT_CONF_OPTS = \
 	--with-bfd-include-dir=$(HOST_BINUTILS_DIR)/bfd/ \
 	--with-binutils-include-dir=$(HOST_BINUTILS_DIR)/include/ \
-	--with-libbfd=$(HOST_BINUTILS_DIR)/bfd/libbfd.a \
+	--with-libbfd=$(HOST_ELF2FLT_LIBBFD_PATH) \
 	--with-libiberty=$(HOST_BINUTILS_DIR)/libiberty/libiberty.a \
 	--target=$(GNU_TARGET_NAME) \
 	--disable-werror

@@ -4,11 +4,11 @@
 #
 ################################################################################
 
-WIRESHARK_VERSION = 3.4.16
+WIRESHARK_VERSION = 4.2.9
 WIRESHARK_SOURCE = wireshark-$(WIRESHARK_VERSION).tar.xz
 WIRESHARK_SITE = https://www.wireshark.org/download/src/all-versions
 WIRESHARK_LICENSE = wireshark license
-WIRESHARK_LICENSE_FILES = COPYING
+WIRESHARK_LICENSE_FILES = COPYING README.md
 WIRESHARK_CPE_ID_VENDOR = wireshark
 WIRESHARK_SELINUX_MODULES = wireshark
 WIRESHARK_DEPENDENCIES = \
@@ -18,13 +18,15 @@ WIRESHARK_DEPENDENCIES = \
 	libgcrypt \
 	libglib2 \
 	libpcap \
+	pcre2 \
 	speexdsp
 
 WIRESHARK_CONF_OPTS = \
-	-DDISABLE_WERROR=ON \
 	-DENABLE_ILBC=OFF \
 	-DENABLE_PCAP=ON \
 	-DENABLE_SMI=OFF \
+	-DENABLE_WERROR=OFF \
+	-DHAVE_C99_VSNPRINTF=ON \
 	-DLEMON_C_COMPILER=$(HOSTCC_NOCCACHE)
 
 ifeq ($(BR2_TOOLCHAIN_HAS_LIBATOMIC),y)
@@ -38,7 +40,7 @@ WIRESHARK_CONF_OPTS += -DENABLE_LTO=OFF
 endif
 
 ifeq ($(BR2_PACKAGE_WIRESHARK_GUI),y)
-WIRESHARK_CONF_OPTS += -DBUILD_wireshark=ON
+WIRESHARK_CONF_OPTS += -DBUILD_wireshark=ON -DUSE_qt6=OFF
 WIRESHARK_DEPENDENCIES += qt5base qt5multimedia qt5svg qt5tools
 else
 WIRESHARK_CONF_OPTS += -DBUILD_wireshark=OFF
