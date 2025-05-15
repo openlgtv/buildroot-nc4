@@ -5,7 +5,9 @@
 ################################################################################
 
 LIBFRIDA_GUM_VERSION = main
-LIBFRIDA_GUM_SITE = $(call github,frida,frida-gum,$(LIBFRIDA_GUM_VERSION))
+LIBFRIDA_GUM_SITE = https://github.com/frida/frida-gum
+LIBFRIDA_GUM_SITE_METHOD = git
+LIBFRIDA_GUM_GIT_SUBMODULES = YES
 
 #LIBFRIDA_GUM_DEPENDENCIES =
 
