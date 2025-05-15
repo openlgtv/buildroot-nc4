@@ -22,7 +22,7 @@ diff -rub a/src/ls-hubd/hub.cpp b/src/ls-hubd/hub.cpp
  
  #include <fstream>
  #include <iostream>
-+#if !defined(WEBOS_TARGET_MACHINE_IMPL_GUEST)
++#if !defined(BUILD_FOR_DESKTOP)
  #include <systemd/sd-daemon.h>
 +#endif
  #include <utility>
