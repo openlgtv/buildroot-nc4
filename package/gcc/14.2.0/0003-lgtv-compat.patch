@@ -65,3 +65,8 @@ index 000000000..99a85d7f9
 +Driver Negative(tno-librt-compat)
 +Enable automatic linking against librt.
 +
+diff --git a/gcc/config/linux-webos.opt.urls b/gcc/config/linux-webos.opt.urls
+new file mode 100644
+index 000000000..99a85d7f9
+--- /dev/null
++++ b/gcc/config/linux-webos.opt.urls
