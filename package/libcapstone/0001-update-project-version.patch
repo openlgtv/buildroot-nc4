@@ -1,0 +1,25 @@
+From f869ebdb2bebede053241979cf2ec1ecb2590ac5 Mon Sep 17 00:00:00 2001
+From: Stefano Moioli <smxdev4@gmail.com>
+Date: Sun, 18 May 2025 23:52:45 +0200
+Subject: [PATCH] update project version
+
+---
+ CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 7a986a0..5d667e9 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -22,7 +22,7 @@ cmake_policy(SET CMP0042 NEW)
+ cmake_policy(SET CMP0091 NEW)
+ 
+ project(capstone
+-    VERSION 5.0
++    VERSION 5.0.1
+ )
+ 
+ if (MSVC)
+-- 
+2.47.2
+
