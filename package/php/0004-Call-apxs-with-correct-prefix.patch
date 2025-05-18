@@ -22,23 +22,23 @@ Signed-off-by: Adam Duskett <aduskett@gmail.com>
  1 file changed, 3 insertions(+)
 
 diff --git a/sapi/apache2handler/config.m4 b/sapi/apache2handler/config.m4
-index 55c16179..68ce66c0 100644
+index e335721f..aeef2e35 100644
 --- a/sapi/apache2handler/config.m4
 +++ b/sapi/apache2handler/config.m4
-@@ -63,10 +63,12 @@ if test "$PHP_APXS2" != "no"; then
-     AC_MSG_ERROR([Please note that Apache version >= 2.0.44 is required])
-   fi
+@@ -68,10 +68,12 @@ if test "$PHP_APXS2" != "no"; then
+   AS_VERSION_COMPARE([$APACHE_VERSION], [2.4.0],
+     [AC_MSG_ERROR([Please note that Apache version >= 2.4 is required])])
  
 +  APXS_PREFIX='$(INSTALL_ROOT)'/usr
-   APXS_LIBEXECDIR='$(INSTALL_ROOT)'`$APXS -q LIBEXECDIR`
-   if test -z `$APXS -q SYSCONFDIR`; then
+   APXS_LIBEXECDIR='$(INSTALL_ROOT)'$($APXS -q LIBEXECDIR)
+   if test -z $($APXS -q SYSCONFDIR); then
      INSTALL_IT="\$(mkinstalldirs) '$APXS_LIBEXECDIR' && \
                   $APXS -S LIBEXECDIR='$APXS_LIBEXECDIR' \
 +                       -S PREFIX='$APXS_PREFIX' \
                         -i -n php"
    else
-     APXS_SYSCONFDIR='$(INSTALL_ROOT)'`$APXS -q SYSCONFDIR`
-@@ -74,6 +76,7 @@ if test "$PHP_APXS2" != "no"; then
+     APXS_SYSCONFDIR='$(INSTALL_ROOT)'$($APXS -q SYSCONFDIR)
+@@ -79,6 +81,7 @@ if test "$PHP_APXS2" != "no"; then
                  \$(mkinstalldirs) '$APXS_SYSCONFDIR' && \
                   $APXS -S LIBEXECDIR='$APXS_LIBEXECDIR' \
                         -S SYSCONFDIR='$APXS_SYSCONFDIR' \
@@ -46,6 +46,3 @@ index 55c16179..68ce66c0 100644
                         -i -a -n php"
    fi
  
--- 
-2.5.0
-

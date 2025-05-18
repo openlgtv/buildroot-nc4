@@ -22,18 +22,15 @@ Signed-off-by: Bernd Kuhls <bernd.kuhls@t-online.de>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/build/php.m4 b/build/php.m4
-index 9586c490..8b3d47ed 100644
+index d8a5cbf0..68083110 100644
 --- a/build/php.m4
 +++ b/build/php.m4
-@@ -1976,7 +1976,7 @@ AC_DEFUN([PHP_SETUP_ICONV], [
-   dnl Check external libs for iconv funcs.
-   if test "$found_iconv" = "no"; then
+@@ -1843,7 +1843,7 @@ AC_DEFUN([PHP_SETUP_ICONV], [
  
+   dnl Check external libs for iconv funcs.
+   AS_VAR_IF([found_iconv], [no], [
 -    for i in $PHP_ICONV /usr/local /usr; do
 +    for i in $PHP_ICONV; do
        if test -r $i/include/gnu-libiconv/iconv.h; then
          ICONV_DIR=$i
          ICONV_INCLUDE_DIR=$i/include/gnu-libiconv
--- 
-2.31.1
-
