@@ -1,0 +1,28 @@
+From dd102aaf88ca4e9352ea457ae152bf9da6c99765 Mon Sep 17 00:00:00 2001
+From: Stefano Moioli <smxdev4@gmail.com>
+Date: Tue, 20 May 2025 00:59:48 +0200
+Subject: [PATCH] posix_types: add kernel_long_t and kernel_ulong_t
+
+---
+ arch/arm/include/asm/posix_types.h | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/arch/arm/include/asm/posix_types.h b/arch/arm/include/asm/posix_types.h
+index 2446d23b..f6e94311 100644
+--- a/arch/arm/include/asm/posix_types.h
++++ b/arch/arm/include/asm/posix_types.h
+@@ -50,6 +50,11 @@ typedef unsigned short		__kernel_old_dev_t;
+ typedef long long		__kernel_loff_t;
+ #endif
+ 
++#ifndef __kernel_long_t
++typedef long        __kernel_long_t;
++typedef unsigned long    __kernel_ulong_t;
++#endif
++
+ typedef struct {
+ 	int	val[2];
+ } __kernel_fsid_t;
+-- 
+2.47.2
+
