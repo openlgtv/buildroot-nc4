@@ -1,0 +1,92 @@
+name: Build
+
+on:
+  push:
+
+permissions:
+  contents: write
+
+env:
+  BR2_CCACHE: y
+  BR2_CCACHE_INITIAL_SETUP: ""
+  BR2_CCACHE_USE_BASEDIR: y
+  FORCE_UNSAFE_CONFIGURE: 1
+
+jobs:
+  build_sdk:
+    name: Build ${{ matrix.config.name }} SDK for ${{ matrix.os }}
+    runs-on: ${{ matrix.runs-on }}
+    container:
+      image: gcc:10.4-buster
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ linux-intel, linux-arm ]
+        include:
+          - os: linux-intel
+            runs-on: ubuntu-latest
+          - os: linux-arm
+            runs-on: ubuntu-24.04-arm
+        config:
+          - name: WebOS config
+            TOOLCHAIN_TARGET: webos
+            DEFCONFIG: webos_tv_defconfig
+            BR2_CCACHE_DIR: .buildroot-ccache
+          - name: LGTV config
+            TOOLCHAIN_TARGET: lgtv
+            DEFCONFIG: lgtv_defconfig
+            BR2_CCACHE_DIR: .buildroot-ccache-lgtv
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Prepare Environment
+        run: |
+          apt-get update -qq
+          apt-get install -y cpio rsync bc
+          make ${{ matrix.config.DEFCONFIG }}
+        env:
+          DEFCONFIG: ${{ matrix.config.DEFCONFIG }}
+          BR2_CCACHE_DIR: ${{ runner.temp }}/${{ matrix.config.BR2_CCACHE_DIR }}
+
+      - name: Restore dl cache
+        uses: actions/cache@v4
+        with:
+          path: dl
+          key: ${{ matrix.config.TOOLCHAIN_TARGET }}-dl-${{ hashFiles('dl/*') }}
+          restore-keys: |
+              ${{ matrix.config.TOOLCHAIN_TARGET }}-dl-
+
+      - name: Restore compile cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/${{ matrix.config.BR2_CCACHE_DIR }}
+          key: ${{ matrix.os }}-${{ matrix.config.TOOLCHAIN_TARGET }}-ccache-${ hashFiles(${{ runner.temp }}/${{ matrix.config.BR2_CCACHE_DIR }}/**/*) }}
+          restore-keys: |
+              ${{ matrix.os }}-${{ matrix.config.TOOLCHAIN_TARGET }}-ccache-
+
+      - name: Build SDK
+        run: make sdk
+        env:
+          DEFCONFIG: ${{ matrix.config.DEFCONFIG }}
+          BR2_CCACHE_DIR: ${{ runner.temp }}/${{ matrix.config.BR2_CCACHE_DIR }}
+
+      - name: Upload SDK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.os }}-${{ matrix.config.TOOLCHAIN_TARGET }}-sdk
+          path: output/images/*_sdk-buildroot.tar.gz
+
+      - name: Rename release artifact
+        if: github.ref_type == 'tag'
+        run: |
+          mv output/images/*_sdk-buildroot.tar.gz output/images/${{ matrix.os }}-${{ matrix.config.TOOLCHAIN_TARGET }}-sdk.tar.gz
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: github.ref_type == 'tag'
+        with:
+          files: |
+            output/images/*-sdk.tar.gz
