@@ -1,0 +1,27 @@
+From e3299ce1a16a6d0d6abe570d8ec7a8dc34987320 Mon Sep 17 00:00:00 2001
+From: Stefano Moioli <smxdev4@gmail.com>
+Date: Mon, 19 May 2025 00:00:42 +0200
+Subject: [PATCH] gum: add missing gobject dependency
+
+---
+ gum/meson.build | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/gum/meson.build b/gum/meson.build
+index ba204e5..d3bd3b9 100644
+--- a/gum/meson.build
++++ b/gum/meson.build
+@@ -347,8 +347,8 @@ gum_enums = gnome.mkenums('gum-enum-types',
+ gum_enum_h = gum_enums[1]
+ gum_enums_dep = declare_dependency(sources: [gum_enum_h])
+ 
+-gum_public_deps = [glib_dep, capstone_dep, gum_enums_dep]
+-gum_internal_deps = [glib_dep, capstone_dep, threads_dep]
++gum_public_deps = [glib_dep, gobject_dep, capstone_dep, gum_enums_dep]
++gum_internal_deps = [glib_dep, gobject_dep, capstone_dep, threads_dep]
+ if not diet
+   gum_public_deps += gobject_dep
+   gum_internal_deps += gobject_dep
+-- 
+2.47.2
+

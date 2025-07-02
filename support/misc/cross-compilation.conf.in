@@ -35,6 +35,7 @@ cmake_defaults = false
 
 [host_machine]
 system = 'linux'
+subsystem = 'linux'
 cpu_family = '@TARGET_ARCH@'
 cpu = '@TARGET_CPU@'
 endian = '@TARGET_ENDIAN@'

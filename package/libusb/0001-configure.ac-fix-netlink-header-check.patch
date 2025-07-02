@@ -1,0 +1,25 @@
+From 08fca1e6822248e23d9884c6f2ec730c3397b771 Mon Sep 17 00:00:00 2001
+From: Stefano Moioli <smxdev4@gmail.com>
+Date: Mon, 19 May 2025 00:05:42 +0200
+Subject: [PATCH] configure.ac: fix netlink header check
+
+---
+ configure.ac | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/configure.ac b/configure.ac
+index 6dc7c69..3ac7d46 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -220,7 +220,7 @@ linux)
+ 		], [])
+ 	else
+ 		AC_CHECK_HEADERS([asm/types.h])
+-		AC_CHECK_HEADER([linux/netlink.h], [], [AC_MSG_ERROR([Linux netlink header not found])])
++		AC_CHECK_HEADER([linux/netlink.h], [], [AC_MSG_ERROR([Linux netlink header not found])], [#include <sys/socket.h>])
+ 		AC_CHECK_HEADER([sys/socket.h], [], [AC_MSG_ERROR([Linux socket header not found])])
+ 	fi
+ 	;;
+-- 
+2.47.2
+

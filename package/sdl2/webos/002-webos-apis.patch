@@ -100,11 +100,10 @@ diff -rub a/include/SDL.h b/include/SDL.h
 diff -ruN a/Makefile.in b/Makefile.in
 --- a/Makefile.in	2016-10-20 12:56:26.000000000 +0900
 +++ b/Makefile.in	2021-04-05 23:55:45.499784333 +0900
-@@ -112,6 +112,7 @@
- 	SDL_types.h \
+@@ -128,6 +128,7 @@
  	SDL_version.h \
  	SDL_video.h \
-	SDL_vulkan.h \
+ 	SDL_vulkan.h \
 +	SDL_webOS.h \
  	begin_code.h \
  	close_code.h
