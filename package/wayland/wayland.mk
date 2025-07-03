@@ -12,13 +12,14 @@ WAYLAND_LICENSE_FILES = COPYING
 WAYLAND_INSTALL_STAGING = YES
 WAYLAND_DEPENDENCIES = host-pkgconf host-wayland expat libffi libxml2
 
-HOST_WAYLAND_VERSION = 1.15.0
+HOST_WAYLAND_VERSION = 1.23.1
 HOST_WAYLAND_SITE = http://wayland.freedesktop.org/releases
 HOST_WAYLAND_SOURCE = wayland-$(HOST_WAYLAND_VERSION).tar.xz
 HOST_WAYLAND_DEPENDENCIES = host-pkgconf host-expat host-libffi host-libxml2
 
 # wayland-scanner is only needed for building, not on the target
 WAYLAND_CONF_OPTS = --disable-scanner --with-host-scanner
+HOST_WAYLAND_CONF_OPTS = -Dtests=false -Ddocumentation=false
 
 # Remove the DTD from the target, it's not needed at runtime
 define WAYLAND_TARGET_CLEANUP
@@ -27,4 +28,4 @@ endef
 WAYLAND_POST_INSTALL_TARGET_HOOKS += WAYLAND_TARGET_CLEANUP
 
 $(eval $(autotools-package))
-$(eval $(host-autotools-package))
+$(eval $(host-meson-package))
