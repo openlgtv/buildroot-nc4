@@ -17,7 +17,7 @@ jobs:
     name: Build ${{ matrix.config.name }} SDK for ${{ matrix.os }}
     runs-on: ${{ matrix.runs-on }}
     container:
-      image: gcc:10.4-buster
+      image: gcc:10.4-bullseye
 
     strategy:
       fail-fast: false
@@ -26,8 +26,10 @@ jobs:
         include:
           - os: linux-intel
             runs-on: ubuntu-latest
+            host_arch: x86_64
           - os: linux-arm
             runs-on: ubuntu-24.04-arm
+            host_arch: aarch64
         config:
           - name: WebOS config
             TOOLCHAIN_TARGET: webos
@@ -73,20 +75,18 @@ jobs:
           DEFCONFIG: ${{ matrix.config.DEFCONFIG }}
           BR2_CCACHE_DIR: ${{ runner.temp }}/${{ matrix.config.BR2_CCACHE_DIR }}
 
+      - name: Rename SDK artifact
+        run: mv output/images/arm-${{ matrix.config.TOOLCHAIN_TARGET }}-linux-gnueabi_sdk-buildroot.tar.gz output/images/arm-${{ matrix.config.TOOLCHAIN_TARGET }}-linux-gnueabi_sdk-buildroot-${{ matrix.host_arch }}.tar.gz
+
       - name: Upload SDK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.os }}-${{ matrix.config.TOOLCHAIN_TARGET }}-sdk
-          path: output/images/*_sdk-buildroot.tar.gz
-
-      - name: Rename release artifact
-        if: github.ref_type == 'tag'
-        run: |
-          mv output/images/*_sdk-buildroot.tar.gz output/images/${{ matrix.os }}-${{ matrix.config.TOOLCHAIN_TARGET }}-sdk.tar.gz
+          name: arm-${{ matrix.config.TOOLCHAIN_TARGET }}-linux-gnueabi_sdk-buildroot-${{ matrix.host_arch }}
+          path: output/images/*_sdk-buildroot*.tar.gz
 
       - name: Release
         uses: softprops/action-gh-release@v2
         if: github.ref_type == 'tag'
         with:
           files: |
-            output/images/*-sdk.tar.gz
+            output/images/*_sdk-buildroot*.tar.gz
