@@ -157,7 +157,7 @@ endif
 ifeq ($(BR2_PACKAGE_GDB_DEBUGGER),y)
 GDB_CONF_OPTS += \
 	--with-libgmp-prefix=$(STAGING_DIR)/usr
-GDB_DEPENDENCIES += gmp
+GDB_DEPENDENCIES += $(if $(BR2_PACKAGE_WEBOS_GMP),webos-gmp,gmp)
 endif
 
 # mpfr is needed as a dependency to build full gdb

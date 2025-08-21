@@ -16,7 +16,7 @@ GUILE_LICENSE = LGPL-3.0+
 GUILE_LICENSE_FILES = LICENSE COPYING COPYING.LESSER
 GUILE_CPE_ID_VENDOR = gnu
 
-GUILE_DEPENDENCIES = host-guile libunistring libffi gmp bdwgc host-pkgconf
+GUILE_DEPENDENCIES = host-guile libunistring libffi $(if $(BR2_PACKAGE_WEBOS_GMP),webos-gmp,gmp) bdwgc host-pkgconf
 HOST_GUILE_DEPENDENCIES = \
 	host-libunistring host-libffi host-gmp host-bdwgc host-flex \
 	host-pkgconf host-gettext host-gperf

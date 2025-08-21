@@ -15,7 +15,7 @@ GNURADIO_DEPENDENCIES = \
 	host-python3 \
 	boost \
 	log4cpp \
-	gmp \
+	$(if $(BR2_PACKAGE_WEBOS_GMP),webos-gmp,gmp) \
 	spdlog \
 	volk
 
