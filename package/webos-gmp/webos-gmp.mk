@@ -13,6 +13,9 @@ WEBOS_GMP_LICENSE_FILES = COPYING.LIB COPYING
 WEBOS_GMP_CPE_ID_VENDOR = gmplib
 WEBOS_GMP_DEPENDENCIES = host-m4
 
+# required after 0004-gmp-fix-configure-modern-gcc.patch
+WEBOS_GMP_AUTORECONF = YES
+
 # 0001-mpz-inp_raw.c-Avoid-bit-size-overflows.patch
 WEBOS_GMP_IGNORE_CVES += CVE-2021-43618
 
