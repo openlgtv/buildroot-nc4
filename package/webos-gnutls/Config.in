@@ -1,0 +1,15 @@
+config BR2_PACKAGE_WEBOS_GNUTLS
+	bool "gnutls 3.3.30"
+	depends on BR2_WEBOS_COMPAT
+	depends on BR2_PACKAGE_GNUTLS
+	help
+	  The version of gnutls used on webOS 5-8. It should be compatible
+	  back to webOS 3.x in theory.
+
+	  webOS 1, 2: 2.12.23 (libgnutls.so.26)
+	  webOS 3.x: 3.3.5 (libgnutls.so.28)
+	  webOS 4.x: 3.3.27 (libgnutls.so.28)
+	  webOS 5-8: 3.3.30 (libgnutls.so.28)
+
+	  This replaces the normal buildroot gnutls on the target (but
+	  not host).

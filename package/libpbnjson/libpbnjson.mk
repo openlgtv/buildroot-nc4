@@ -16,7 +16,7 @@ LIBPBNJSON_DEPENDENCIES = \
 	host-lemon \
 	cmake-modules-webos \
 	boost \
-	gmp \
+	$(if $(BR2_PACKAGE_WEBOS_GMP),webos-gmp,gmp) \
 	libglib2 \
 	liburiparser \
 	yajl
