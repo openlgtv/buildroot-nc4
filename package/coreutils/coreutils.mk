@@ -74,6 +74,12 @@ ifeq ($(BR2_PACKAGE_GETTEXT_PROVIDES_LIBINTL),y)
 COREUTILS_CONF_OPTS += --with-libintl-prefix=$(STAGING_DIR)/usr
 endif
 
+ifneq ($(BR2_PACKAGE_GMP)$(BR2_PACKAGE_WEBOS_GMP),)
+COREUTILS_DEPENDENCIES += $(if $(BR2_PACKAGE_WEBOS_GMP),webos-gmp,gmp)
+else
+COREUTILS_CONF_OPTS += --without-gmp
+endif
+
 ifeq ($(BR2_PACKAGE_LIBCAP),y)
 COREUTILS_DEPENDENCIES += libcap
 else

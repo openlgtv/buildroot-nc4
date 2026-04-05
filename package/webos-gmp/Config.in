@@ -1,0 +1,10 @@
+config BR2_PACKAGE_WEBOS_GMP
+	bool "gmp 4.2.1 (shared only)"
+	depends on BR2_WEBOS_COMPAT
+	depends on BR2_PACKAGE_GMP
+	help
+	  The version of GMP used on webOS (up through at least
+	  webOS 8).
+
+	  This replaces the normal buildroot GMP on the target (but not
+	  host, which continues to use a modern version).

@@ -10,7 +10,7 @@ MPIR_SOURCE = mpir-$(MPIR_VERSION).tar.bz2
 MPIR_LICENSE = LGPL-3.0+
 MPIR_LICENSE_FILES = COPYING.LIB
 MPIR_INSTALL_STAGING = YES
-MPIR_DEPENDENCIES = gmp host-yasm
+MPIR_DEPENDENCIES = $(if $(BR2_PACKAGE_WEBOS_GMP),webos-gmp,gmp) host-yasm
 # 0002-Fix-configure-failures-with-Xcode12.patch
 MPIR_AUTORECONF = YES
 

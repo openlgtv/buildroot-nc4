@@ -1,0 +1,27 @@
+This change was extracted from gmp 4.2.2 (2007-09-03)
+
+       From Richard Guenther:
+       * gmp-h.in (__GMP_EXTERN_INLINE): Declare conditionally on
+       __GNUC_STDC_INLINE__.
+
+Index: gmp-4.2.1/gmp-h.in
+===================================================================
+--- gmp-4.2.1.orig/gmp-h.in	2006-04-11 11:10:15.000000000 -0700
++++ gmp-4.2.1/gmp-h.in	2013-11-24 17:21:12.807735622 -0800
+@@ -418,9 +418,15 @@
+ 
+ /* gcc has __inline__ in all modes, including strict ansi.  Give a prototype
+    for an inline too, so as to correctly specify "dllimport" on windows, in
+-   case the function is called rather than inlined.  */
++   case the function is called rather than inlined.
++   GCC 4.3 and above with -std=c99 or -std=gnu99 implements ISO C99
++   inline semantics, unless -fgnu89-inline is used.  */
+ #ifdef __GNUC__
++#ifdef __GNUC_STDC_INLINE__
++#define __GMP_EXTERN_INLINE extern __inline__ __attribute__ ((__gnu_inline__))
++#else
+ #define __GMP_EXTERN_INLINE      extern __inline__
++#endif
+ #define __GMP_INLINE_PROTOTYPES  1
+ #endif
+ 

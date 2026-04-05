@@ -129,5 +129,8 @@ endif
 
 GNUTLS_CONF_ENV += LIBS="$(GNUTLS_LIBS)"
 
+# Don't build for target if using webOS package instead
+ifneq ($(BR2_PACKAGE_WEBOS_GNUTLS),y)
 $(eval $(autotools-package))
+endif
 $(eval $(host-autotools-package))
